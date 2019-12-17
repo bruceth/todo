@@ -35,6 +35,46 @@ export interface Stack {
     dollarVar(name:string):void;
 }
 
+class RunStack implements Stack {
+    private stack:string[] = [];
+    private queue:string[] = [];
+
+    or():void {}
+    and():void {}
+    not():void {}
+    le():void {}
+    lt():void {}
+    eq():void {}
+    ne():void {}
+    gt():void {}
+    ge():void {}
+    neg():void {}
+    add():void {}
+    sub():void {}
+    mul():void {}
+    div():void {}
+    mod():void {}
+    bitAnd():void {}
+    bitOr():void {}
+    str(val:string):void {}
+    num(val:number):void {}
+    star():void {}
+    hex(val:string):void {}
+    datePart(part:string):void {}
+    isNull():void {}
+    isNotNull():void {}
+    exists():void {}
+    in(params:number):void {}
+    like():void {}
+    searchCase(whenCount:number, hasElse:boolean):void {}
+    simpleCase(whenCount:number, hasElse:boolean):void {}
+    func(func:string, n:number):void {}
+
+    var(name:string):void {}
+    field(name:string, tbl?:string):void {}
+    dollarVar(name:string):void {}
+}
+
 export abstract class Atom {
     abstract to(stack: Stack):void;
 }

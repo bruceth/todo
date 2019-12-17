@@ -16,6 +16,10 @@ export abstract class Expression
     protected sourceStart: number;
     private atoms: Atom[] = [];
 
+    constructor(ts: TokenStream) {
+        this.ts = ts;
+    }
+
     protected savePos() {
         this.at = this.ts.prevAt;
         this.line = this.ts.prevLine;
@@ -81,6 +85,10 @@ export abstract class Expression
     }
 
     protected abstract entry():void;
+
+    parse() {
+        this._parse();
+    }
 
     protected _parse() {
         this.entry();
