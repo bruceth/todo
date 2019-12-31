@@ -12,7 +12,7 @@ export class ImageWidget extends Widget {
     protected get ui(): UiImageItem {return this._ui as UiImageItem};
     @observable private imageSrc: string;
 
-    protected init() {
+    init() {
         super.init();
         this.imageSrc = this.value;
     }

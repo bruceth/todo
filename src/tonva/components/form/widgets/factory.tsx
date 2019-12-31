@@ -153,6 +153,7 @@ export function factory(context: Context, itemSchema: ItemSchema, children:React
     
     let {widgets} = context;
     let widget = new typeWidget(context, itemSchema, fieldProps, children);
+    widget.init();
     widgets[name] = widget;
 
     return <widget.container />;

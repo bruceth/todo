@@ -115,13 +115,16 @@ const localUqs = new CacheUqLocals;
 */
 export class UqApi extends ApiBase {
     private access:string[];
+    appOwner:string;
+    appName:string;
     uqOwner: string;
     uqName: string;
     uq: string;
-    //uqVersion: number;
 
-    constructor(basePath: string, uqOwner: string, uqName: string, access:string[], showWaiting?: boolean) {
+    constructor(basePath:string, appOwner:string, appName:string, uqOwner:string, uqName:string, access:string[], showWaiting?: boolean) {
         super(basePath, showWaiting);
+        this.appOwner = appOwner;
+        this.appName = appName;
         if (uqName) {
             this.uqOwner = uqOwner;
             this.uqName = uqName;
@@ -134,7 +137,7 @@ export class UqApi extends ApiBase {
     //setUqVersion(uqVersion:number) {this.uqVersion = undefined}
 
     async init() {
-        await buildAppUq(this.uq, this.uqOwner, this.uqName);
+        await buildAppUq(this.uq, this.uqOwner, this.uqName, this.appOwner, this.appName);
     }
 
     protected async getHttpChannel(): Promise<HttpChannel> {
@@ -344,7 +347,7 @@ export function logoutUnitxApis() {
 export class UnitxApi extends UqApi {
     private unitId:number;
     constructor(unitId:number) {
-        super('tv/', undefined, undefined, undefined, true);
+        super('tv/', undefined, undefined, undefined, undefined, undefined, true);
         this.unitId = unitId;
     }
 
@@ -414,7 +417,7 @@ const uqTokensName = 'uqTokens';
 export class UqTokenApi extends CenterApiBase {
     private localMap: LocalMap = env.localDb.map(uqTokensName);
 
-    async uq(params: {unit:number, uqOwner:string, uqName:string}):Promise<any> {
+    async uq(params: {unit:number, uqOwner:string, uqName:string, appOwner:string, appName:string}):Promise<any> {
         let {uqOwner, uqName} = params;
         let un = uqOwner+'/'+uqName;
         let localCache = this.localMap.child(un);

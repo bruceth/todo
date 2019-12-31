@@ -2,3 +2,4 @@
 
 // Henry adds new line.
 
+export const a = 0;

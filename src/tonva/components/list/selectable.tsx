@@ -1,10 +1,11 @@
 import * as React from 'react';
-import {observable, IObservableArray, autorun, IReactionDisposer} from 'mobx';
+import {observable, IObservableArray, autorun, IReactionDisposer, isObservableArray, observe} from 'mobx';
 import classNames from 'classnames';
 import {ListBase} from './base';
 import {uid} from '../../tool/uid';
 import { PageItems } from '../../tool/pageItems';
 import { List } from './index';
+import { observer } from 'mobx-react';
 
 export interface SelectableItem {
     selected: boolean;
@@ -14,18 +15,48 @@ export interface SelectableItem {
 
 export class Selectable extends ListBase {
     @observable private _items: SelectableItem[];
-    //private _selectedItems: any[];
-    private input: HTMLInputElement;
+    private inputItems:{[uid:string]: HTMLInputElement} = {};
     private disposer: IReactionDisposer;
 
     constructor(list: List) {
         super(list);
-        this.disposer = autorun(this.buildItems);
-        //this.buildItems();
+        //this.disposer = autorun(this.buildItems);
+        this.buildItems();
+        this.listenArraySplice();
+    }    
+
+    //dispose() {this.disposer()};
+
+    private listenArraySplice() {
+        let {items, selectedItems, compare} = this.list.props;
+        if (items === undefined) return;
+        if (items === null) return;
+        let itemsArray:any;
+        if (Array.isArray(items) === true) {
+            itemsArray = items as any;
+        }
+        else {
+            itemsArray = (items as PageItems<any>).items;
+        }
+        if (isObservableArray(items) === true) {
+            observe(itemsArray as IObservableArray<any>, (change) => {                
+                if (change.type === 'splice') {
+                    let {index, removedCount, added} = change;
+                    let _added = added && added.map(v => {
+                        return {
+                            selected: false, 
+                            item: v, 
+                            labelId:uid()
+                        }
+                    });
+                    this._items.splice(index, removedCount, ..._added);
+                    this.buildItems();
+                }
+            }, true);
+        }
     }
-    dispose() {this.disposer()};
+
     private buildItems = () => {
-        console.log('buildItems in selectable.tsx');
         let {items, selectedItems, compare} = this.list.props;
         let itemsArray:any[] | IObservableArray<any>;
         if (items === undefined) {
@@ -36,6 +67,7 @@ export class Selectable extends ListBase {
             this._items = null;
             return;
         }
+        
         if (Array.isArray(items) === true) {
             itemsArray = items as any;
         }
@@ -73,11 +105,19 @@ export class Selectable extends ListBase {
         //this.buildItems();
         return this._items;
     }
+    private checkAll(on: boolean) {
+        for (let i in this.inputItems) this.inputItems[i].checked = on;
+        for (let item of this._items) item.selected = on;
+    }
     selectAll() {
-        if (this._items) this._items.forEach(v => v.selected = true);
+        //if (this._items) this._items.forEach(v => v.selected = true);
+        this.checkAll(true);
+        this.list.props.item.onSelect(undefined, true, this.anySelected);
     }
     unselectAll() {
-        if (this._items) this._items.forEach(v => v.selected = false);
+        // if (this._items) this._items.forEach(v => v.selected = false);
+        this.checkAll(false);
+        this.list.props.item.onSelect(undefined, false, this.anySelected);
     }
     /*
     updateProps(nextProps:any) {
@@ -85,10 +125,10 @@ export class Selectable extends ListBase {
         this.buildItems();
     }
     */
+    private get anySelected():boolean {return this._items.some(v => v.selected)}
     private onSelect(item:SelectableItem, selected:boolean) {
         item.selected = selected;
-        let anySelected = this._items.some(v => v.selected);
-        this.list.props.item.onSelect(item.item, selected, anySelected);
+        this.list.props.item.onSelect(item.item, selected, this.anySelected);
     }
     
     get selectedItems():any[] {
@@ -119,14 +159,16 @@ export class Selectable extends ListBase {
     //w-100 mb-0 pl-3
     //m-0 w-100
     render = (item:SelectableItem, index:number):JSX.Element => {
+        return <this.row item={item} index={index} />;
+    }
+
+    private row = observer((props: {item:SelectableItem, index:number}):JSX.Element => {
+        let {item, index} = props;
         let {className, key} = this.list.props.item;
         let {labelId, selected, item:obItem} = item;
         return <li key={key===undefined?index:key(item)} className={classNames(className)}>
             <div className="d-flex align-items-center px-3">
-                <input ref={input=>{
-                        if (!input) return;
-                        this.input = input; input.checked = selected;
-                    }}
+                <input ref={input=>{if (input) this.inputItems[labelId] = input;}}
                     className="" type="checkbox" value="" id={labelId}
                     defaultChecked={selected}
                     onChange={(e)=>{
@@ -137,16 +179,5 @@ export class Selectable extends ListBase {
                 </label>
             </div>
         </li>
-    }
+    })
 }
-/*
-<label>
-<label className="custom-control custom-checkbox">
-    <input type='checkbox' className="custom-control-input"
-        //checked={selected}
-        onChange={(e)=>this.onSelect(item, e.target.checked)} />
-    <span className="custom-control-indicator" />
-</label>
-{this.renderContent(item.item, index)}
-</label>
-*/

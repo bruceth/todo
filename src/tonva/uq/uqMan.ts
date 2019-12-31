@@ -119,7 +119,8 @@ export class UqMan {
             this.uqApi = new UnitxApi(appInFrame.unit);
         }
         else {
-            this.uqApi = new UqApi(baseUrl, uqOwner, uqName, acc, true);
+            let {appOwner, appName} = uqs;
+            this.uqApi = new UqApi(baseUrl, appOwner, appName, uqOwner, uqName, acc, true);
         }
         this.tuidsCache = new TuidsCache(this);
     }

@@ -1,5 +1,6 @@
 import { CUqBase } from "tonvaApp";
 import { VMain } from "./VMain";
+import { VTest } from "./VTest";
 import { test } from "parser/test";
 
 export class CHome extends CUqBase {
@@ -9,6 +10,10 @@ export class CHome extends CUqBase {
     tab = () => this.renderView(VMain);
 
     test = () => {
-        test();
+        this.openVPage(VTest);
+    }
+
+    testParser = () => {
+        alert(test());
     }
 }

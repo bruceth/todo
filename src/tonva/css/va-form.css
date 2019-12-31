@@ -126,15 +126,6 @@
 .w-max-8c {
   max-width: 8rem !important;
 }
-.w-10c {
-  width: 10rem !important;
-}
-.w-min-10c {
-  min-width: 10rem !important;
-}
-.w-max-10c {
-  max-width: 10rem !important;
-}
 .w-12c {
   width: 12rem !important;
 }
@@ -243,15 +234,6 @@
 }
 .h-max-8c {
   max-height: 8rem !important;
-}
-.h-10c {
-  height: 10rem !important;
-}
-.h-min-10c {
-  min-height: 10rem !important;
-}
-.h-max-10c {
-  max-height: 10rem !important;
 }
 .h-12c {
   height: 12rem !important;

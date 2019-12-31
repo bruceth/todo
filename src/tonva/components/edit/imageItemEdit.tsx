@@ -1,27 +1,28 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
-import { UiTextItem } from '../schema';
-import { ResUploader } from '../resUploader';
-import { Image } from '../image';
+import { UiImageItem } from '../schema';
+import { ImageUploader } from '../resUploader';
+//import { Image } from '../image';
 import { nav } from '../nav';
-import { Page } from '../page';
+//import { Page } from '../page';
 import { ItemEdit } from './itemEdit';
-import { env } from '../../tool';
+//import { env } from '../../tool';
 
 export class ImageItemEdit extends ItemEdit {
-    protected uiItem: UiTextItem;
-    private resUploader: ResUploader;
+    protected uiItem: UiImageItem;
+    //private resUploader: ResUploader;
     @observable private resId: string;
-    @observable private overSize: boolean = false;
+    //@observable private overSize: boolean = false;
 
     protected async internalStart():Promise<any> {
-        this.resId = this.value;        
+        this.resId = this.value;
         return new Promise<any>((resolve, reject) => {
             nav.push(React.createElement(this.page, {resolve:resolve, reject:reject}), ()=>reject());
         });
     }
 
+    /*
     private upload = async () => {
         if (!this.resUploader) return;
         let ret = await this.resUploader.upload();
@@ -33,9 +34,13 @@ export class ImageItemEdit extends ItemEdit {
         this.resId = ret;
         this.isChanged = (this.resId !== this.value);
     }
+    */
 
     private page = observer((props:{resolve:(value:any)=>void, reject: (resean?:any)=>void}):JSX.Element => {
         let {resolve} = props;
+        let size:any = this.uiItem && this.uiItem.size;
+
+        /*
         let right = <button
             className="btn btn-sm btn-success align-self-center"
             disabled={!this.isChanged}
@@ -46,6 +51,13 @@ export class ImageItemEdit extends ItemEdit {
                 <i className="fa fa-times-circle" /> 图片文件大小超过2M，无法上传
             </div>;
         }
+        */
+        return <ImageUploader 
+            label={'更改' + this.label}
+            id={this.resId}
+            size={size}
+            onSaved={(resId):Promise<void>=>{resolve(resId); return;}} />;
+        /*
         return <Page header={'更改' + this.label} right={right}>
             <div className="my-3 px-3 py-3 bg-white">
                 <div>
@@ -71,5 +83,6 @@ export class ImageItemEdit extends ItemEdit {
                 </div>
             </div>
         </Page>;
+        */
     })
 }

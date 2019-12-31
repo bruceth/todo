@@ -123,10 +123,13 @@ export abstract class HttpChannel {
                     if (ex !== undefined) err += ' ' + ex;
                     break;
                 case 'object':
-                    let retErr = {
+                    let keys = Object.keys(err);
+                    let retErr:any = {
                         ex: ex,
-                        message: err.message,
                     };
+                    for (let key of keys) {
+                        retErr[key] = err[key];
+                    }
                     err = retErr;
                     break;
             }
@@ -253,49 +256,10 @@ export class CenterHttpChannel extends HttpChannel {
 }
 
 export class UqHttpChannel extends HttpChannel {
-    /*
-    private uqForChannel: IUqForChannel;
-    constructor(hostUrl: string, apiToken:string, uqForChannel: IUqForChannel, ui?: HttpChannelUI) {
-        super(hostUrl, apiToken, ui);
-        this.uqForChannel = uqForChannel;
-    }
-    */
     protected async innerFetch(url: string, options: any, waiting: boolean): Promise<any> {
         let u = this.hostUrl + url;
         return await new Promise<any>(async (resolve, reject) => {
             await this.fetch(u, options, waiting, resolve, reject);
         });
     }
-
-    /*
-    protected buildHeaders():Headers {
-        let headers = super.buildHeaders();
-        if (this.uqForChannel !== undefined) {
-            let {uqVersion} = this.uqForChannel;
-            if (uqVersion !== undefined) {
-                headers.append('tonva-uq-version', String(uqVersion));
-            }
-        }
-        return headers;
-    }
-
-    protected async showSpecificError(err:string):Promise<boolean> {
-        if (err === 'unmatched uq version') {
-            if (this.ui !== undefined) {
-                let uq:string, uqVersion:number;
-                if (this.uqForChannel !== undefined) {
-                    uq = this.uqForChannel.uq;
-                    uqVersion = this.uqForChannel.uqVersion;
-                }
-                else {
-                    uq = 'undefined uq';
-                    uqVersion = 0;
-                }
-                await this.ui.showUpgradeUq(uq, uqVersion);
-                return true;
-            }
-        }
-        return false;
-    }
-    */
 }

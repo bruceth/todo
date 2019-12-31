@@ -15,15 +15,16 @@ export class VMain extends VPage<CHome> {
     }
     render() {
         let arr = [
-            'adfasfd', 'asdfsadf', 'adsfasf', 'sdafsdf dsf a',
+            'adfas1fd', 'asdfddddsadf', 'adsfasf', 'sdafsdf dsf a',
             'adfasfd', 'asdfsadf', 'adsfasf', 'sdafsdf dsf a',
             'adfasfd', 'asdfsadf', 'adsfasf', 'sdafsdf dsf a',
         ]
         return <Page header="首页" headerClassName="bg-info">
             <button onClick={this.controller.test}>Test</button>
+            <button onClick={this.controller.testParser}>测试表达式</button>
             <div className="d-flex flex-wrap mt-3 ml-2 justify-content-start">
                 {arr.map((v, index) => <div key={index} className={itemBlock} style={itemStyle}>{v}</div>)}
             </div>
         </Page>;
-    }   
+    }
 }

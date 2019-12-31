@@ -36,20 +36,14 @@ export class Form extends React.Component<FormProps> {
     readonly uiSchema: UiSchema;
     readonly res?: FormRes;
     protected formContext: FormContext;
-    //private content: any;
-    //private formData: any;
     private disposer: IReactionDisposer;
-    //@observable 
     readonly data:any;
 
     readonly Container: (content:JSX.Element) => JSX.Element;
     readonly FieldContainer: (label:any, content:JSX.Element) => JSX.Element;
     readonly FieldClass: string;
     readonly ButtonClass: string;
-    //readonly ArrContainer: (label:any, content:JSX.Element) => JSX.Element;
-    //readonly RowContainer: (content:JSX.Element) => JSX.Element;
-    //readonly RowSeperator: JSX.Element;
-
+    
     constructor(props:FormProps) {
         super(props);
         let {schema, uiSchema, 
@@ -69,10 +63,8 @@ export class Form extends React.Component<FormProps> {
         }
         this.uiSchema = uiSchema;
 
-        //this.formData = formData;
         this.disposer = autorun(this.watch);
         this.data = {};
-        // this.initRender();
     }
 
     private renderContent():any {
@@ -147,12 +139,6 @@ export class Form extends React.Component<FormProps> {
             };
             for (let item of arrItems) {
                 this.initDataItem(item, r, row);
-                /*
-                let {name:nm} = item;
-                let v = row[nm];
-                if (v === undefined) v = null;
-                r[nm] = v;
-                */
             }
             arr.push(r);
         }

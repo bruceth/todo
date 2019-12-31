@@ -5,7 +5,7 @@ import { Atom,
     OpAdd, OpSub, OpBitwiseOr, OpAnd, OpBitwiseAnd, 
     OpBrace, OpDiv, OpDollarVar, OpEQ, OpFunction, OpGE, OpGT, 
     OpLE, OpLT, OpMod, OpMul, OpNE, OpNeg, OpNot, OpOr,
-    TextOperand, NumberOperand, HexOperand
+    TextOperand, NumberOperand, HexOperand, VarOperand
 } from './atom';
 
 export abstract class Expression
@@ -18,6 +18,13 @@ export abstract class Expression
 
     constructor(ts: TokenStream) {
         this.ts = ts;
+    }
+    run():string {
+        let result:string = '';
+        for (let atom of this.atoms) {
+            result += atom.str() + ' ';
+        }
+        return result;
     }
 
     protected savePos() {
@@ -291,6 +298,10 @@ export abstract class Expression
                 this.ts.readToken();
                 switch (this.ts.token as any) {
                     default:
+                        let op = new VarOperand();
+                        op._var.push(lowerVar);
+                        this.add(op);
+                        return;
                     case Token.LPARENTHESE:
                         this.func(lowerVar);
                         return;

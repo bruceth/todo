@@ -8,14 +8,11 @@ export abstract class CBase extends Controller {
     constructor(cApp: any) {
         super(undefined);
         this._cApp = cApp;
-        this._uqs = cApp.uqs;
-        this.init();
+        this._uqs = cApp && cApp.uqs;
     }
 
     protected get uqs(): any {return this._uqs}
     get cApp(): any {return this._cApp}
-
-    protected init() {}
 
     protected newC<T extends CBase>(type: IConstructor<T>):T {
         return new type(this.cApp);

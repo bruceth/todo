@@ -132,10 +132,9 @@ export class VStartError extends VPage<CAppBase> {
 
     private page = ({error}:{error:any}) => {
         return <Page header="App start error!">
-            <div className="p-3">
-                <FA name="exclamation-circle" className="text-danger" /> &nbsp;
+            <pre>
                 {typeof error === 'string'? error : error.message}
-            </div>
+            </pre>
         </Page>;
     }
 }

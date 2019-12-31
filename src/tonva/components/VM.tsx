@@ -3,6 +3,15 @@ import {nav} from './nav';
 import {Page} from './page';
 import { User, env } from '../tool';
 
+export interface ConfirmOptions {
+    caption?: string;
+    message: string | JSX.Element;
+    classNames?: string;
+    ok?: string;
+    yes?: string;
+    no?: string;
+}
+
 export abstract class Controller {
     readonly res: any;
     readonly x: any;
@@ -145,8 +154,41 @@ export abstract class Controller {
     regConfirmClose(confirmClose: ()=>Promise<boolean>) {
         nav.regConfirmClose(confirmClose);
     }
-}
 
+    async confirm(options: ConfirmOptions): Promise<'ok'|'yes'|'no'|undefined> {
+        return new Promise<'ok'|'yes'|'no'|undefined> (async (resolve, reject) => {
+            let {caption, message, ok, yes, no, classNames} = options;
+            let close = (res:'ok'|'yes'|'no'|undefined) => {
+                this.closePage();
+                resolve(res);
+            }
+            let buttons:any[] = [];
+            if (ok !== undefined) {
+                buttons.push(<button key="ok" className="btn btn-primary mr-3" onClick={()=>close('ok')}>{ok}</button>);
+            }
+            if (yes !== undefined) {
+                buttons.push(<button key="yes" className="btn btn-success mr-3" onClick={()=>close('yes')}>{yes}</button>);
+            }
+            if (no !== undefined) {
+                buttons.push(<button key="no" className="btn btn-outline-danger mr-3" onClick={()=>close('no')}>{no}</button>);
+            }
+            this.openPage(<Page header={caption || '请确认'} back="close">
+                <div className={classNames || "rounded bg-white m-5 p-3 border"}>
+                    <div className="d-flex align-items-center justify-content-center">
+                        {message}
+                    </div>
+                    <div className="mt-3 d-flex align-items-center justify-content-center">
+                        {buttons}
+                    </div>
+                </div>
+            </Page>);
+            nav.regConfirmClose(async ():Promise<boolean> => {
+                resolve(undefined);
+                return true;
+            });
+        });
+    }
+}
 
 export abstract class View<C extends Controller> {
     protected controller: C;
@@ -240,4 +282,3 @@ export abstract class VPage<C extends Controller> extends View<C> {
 }
 
 export type TypeVPage<C extends Controller> = new (controller: C)=>VPage<C>;
-

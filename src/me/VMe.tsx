@@ -5,6 +5,7 @@ import { nav, Image, VPage, Prop, IconText, FA, PropGrid, LMR, Page } from 'tonv
 // import { EditMeInfo } from './EditMeInfo';
 // import { appConfig } from 'configuration';
 import { CMe } from './CMe';
+import config from '../../package.json';
 
 export class VMe extends VPage<CMe> {
     async open(param?: any) {
@@ -13,7 +14,8 @@ export class VMe extends VPage<CMe> {
     render() {
     
         return <Page logout={true}>
-            我的
+            我的 <br/>
+            版本：{config.version}
         </Page>;
     }
 

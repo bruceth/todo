@@ -794,12 +794,14 @@ export class Nav {
     }
 
     async showLogout(callback?: ()=>Promise<void>) {
-        nav.push(<Page header="安全退出" back="close">
-            <div className="m-5 border border-info bg-white rounded p-3 text-center">
+        let footer = <div className="text-center justify-content-center">
+            <button className="btn btn-outline-danger" onClick={this.resetAll}>升级软件</button>
+        </div>;
+        nav.push(<Page header="安全退出" back="close" footer={footer}>
+            <div className="my-5 mx-1 border border-info bg-white rounded p-3 text-center">
                 <div>退出当前账号不会删除任何历史数据，下次登录依然可以使用本账号</div>
-                <div className="mt-3">
-                    <button className="btn btn-danger mr-3" onClick={()=>this.logout(callback)}>安全退出</button>
-                    <button className="btn btn-outline-danger" onClick={this.resetAll}>彻底升级</button>
+                <div className="mt-3 text-center">
+                        <button className="btn btn-danger" onClick={()=>this.logout(callback)}>安全退出</button>
                 </div>
             </div>
         </Page>);
@@ -928,11 +930,20 @@ export class Nav {
     }
 
     showReloadPage(msg: string) {
-        this.push(<ReloadPage message={msg} />);
-        env.setTimeout(undefined, this.reload, 10*1000);
+        let seconds = 5;
+        this.push(<ReloadPage message={msg} seconds={seconds} />);
+        env.setTimeout(undefined, this.reload, seconds*1000);
     }
 
-    reload = () => {
+    reload = async () => {
+        let waiting:Promise<void> = new Promise<void>((resolve, reject) => {
+            setTimeout(resolve, 100);
+        });
+
+        if ('serviceWorker' in navigator) {
+            let registration =await Promise.race([waiting, navigator.serviceWorker.ready]);
+            if (registration) registration.unregister();
+        }
         window.document.location.reload();
     }
 
@@ -940,13 +951,28 @@ export class Nav {
         this.push(<ConfirmReloadPage confirm={(ok:boolean):Promise<void> => {
             if (ok === true) {
                 this.showReloadPage('彻底升级');
-                localStorage.clear();
+                this.local.readToMemory();
+                //localStorage.clear();
+                env.localDb.removeAll();
+                this.local.saveToLocalStorage();
             }
             else {
                 this.pop();
             }
             return;
         }} />);
+    }
+
+    async checkVersion():Promise<string> {
+        let {href} = document.location;
+        href += (href.indexOf('?')>=0? '&':'?') + '_t_t_=' + new Date().getTime();
+        let ret = await fetch(href);
+        let r = await ret.text();
+        let parser = new DOMParser();
+        let htmlDoc = parser.parseFromString(r, 'text/html');
+        let elHtml = htmlDoc.getElementsByTagName('html');
+        let newVersion = elHtml[0].getAttribute('data-version');
+        return newVersion;
     }
 }
 export const nav: Nav = new Nav();

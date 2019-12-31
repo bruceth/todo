@@ -59,11 +59,9 @@ export class SearchBox extends React.Component<SearchBoxProps> { //}, SearchBoxS
             case 'md': inputSize = 'input-group-md'; break;
             case 'lg': inputSize = 'input-group-lg'; break;
         }
-        let lab:any;
-        if (label !== undefined) lab = <label className="input-group-addon">{label}</label>;
         return <form className={className} onSubmit={this.onSubmit} >
             <div className={classNames("input-group", inputSize)}>
-                {lab}
+                {label && <div className="input-group-addon align-self-center mr-2">{label}</div>}
                 <input ref={v=>this.input=v} onChange={this.onChange}
                     type="text"
                     name="key"

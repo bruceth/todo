@@ -9,7 +9,7 @@ export class CheckBoxWidget extends Widget {
     protected trueValue: any;
     protected falseValue: any;
 
-    protected init() {
+    init() {
         super.init();
         if (this.ui !== undefined) {
             let {trueValue, falseValue} = this.ui;
@@ -30,7 +30,8 @@ export class CheckBoxWidget extends Widget {
     setDisabled(value:boolean) {this.input.disabled = this.disabled = value}
 
     protected onInputChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-        this.setDataValue(evt.target.checked === true? this.trueValue : this.falseValue);
+        let v = evt.target.checked === true? this.trueValue : this.falseValue;
+        this.setDataValue(v);
     }
 
     protected onClick = () => {

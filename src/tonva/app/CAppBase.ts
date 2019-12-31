@@ -5,7 +5,7 @@ import { appInFrame, loadAppUqs, UqAppData } from "../net";
 import { centerApi } from "./centerApi";
 import { VUnitSelect, VErrorsPage, VStartError, VUnsupportedUnit } from "./vMain";
 
-type EntityType = Tuid | Action | Sheet | Query | Map;
+//type EntityType = Tuid | Action | Sheet | Query | Map;
 
 export interface IConstructor<T> {
     new (...args: any[]): T;
@@ -111,9 +111,6 @@ export abstract class CAppBase extends Controller {
             for (let uq of uqAppData.uqs) uq.newVersion = true;
         }
         let {id, uqs} = uqAppData;
-        if (!id) {
-            throw new Error(`${appOwner}/${appName} 没有在tonva系统注册`);
-        }
         this.uqsMan.id = id;
         await this.uqsMan.init(uqs);
         let retErrors = await this.uqsMan.load();

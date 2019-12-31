@@ -45,13 +45,13 @@ export abstract class Widget {
             this.visible = !(visible === false);            
         }
         this.value = this.defaultValue =  context.getValue(name); //defaultValue;
-        this.init();
+        // this.init();
     }
 
     protected get itemSchema(): ItemSchema {return this._itemSchema};
     protected get ui(): UiItem {return this._ui};
 
-    protected init() {
+    init() {
         this.rules = [];
         if (this.itemSchema.required === true) {
             this.rules.push(new RuleRequired(this.context.form.res));
