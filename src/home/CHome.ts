@@ -16,4 +16,14 @@ export class CHome extends CUqBase {
     testParser = () => {
         alert(test());
     }
+
+    actionTestExpression = async () => {
+        let rev = test();
+
+        let data = {
+            name: 'subject3',
+            a: rev,
+        };
+        await this.uqs.performance.TestExpression.submitConvert(data);
+    }
 }
