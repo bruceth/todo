@@ -6,7 +6,7 @@ import { nav, Image, VPage, Prop, IconText, FA, PropGrid, LMR, Page } from 'tonv
 // import { appConfig } from 'configuration';
 import { CHome } from './CHome';
 
-const itemBlock = "p-3 border border-info mr-1 mb-1 w-10c";
+const itemBlock = "p-3 border border-info mr-1 mb-1 w-10c cursor-pointer bg-white rounded";
 const itemStyle = {maxWidth: '45%'};
 
 export class VMain extends VPage<CHome> {
@@ -22,8 +22,9 @@ export class VMain extends VPage<CHome> {
         return <Page header="首页" headerClassName="bg-info">
             <button onClick={this.controller.test}>Test</button>
             <button onClick={this.controller.testParser}>测试表达式</button>
+            <button onClick={this.controller.actionTestExpression}>actionTestExpression</button>
             <div className="d-flex flex-wrap mt-3 ml-2 justify-content-start">
-                {arr.map((v, index) => <div key={index} className={itemBlock} style={itemStyle}>{v}</div>)}
+                {arr.map((v, index) => <div key={index} className={itemBlock} style={itemStyle} onClick={()=>alert(v)}>{v}</div>)}
             </div>
         </Page>;
     }

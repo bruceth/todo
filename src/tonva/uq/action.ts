@@ -4,18 +4,13 @@ import { ActionCaller } from './caller';
 export class Action extends Entity {
     get typeName(): string { return 'action';}
     async submit(data:object) {
-        //await this.loadSchema();
-        //let text = this.pack(data);
-        //return await this.uqApi.action(this.name, {data:text});
         return await new ActionSubmitCaller(this, data).request();
     }
     async submitReturns(data:object):Promise<{[ret:string]:any[]}> {
-        /*
-        await this.loadSchema();
-        let text = this.pack(data);
-        let result = await this.uqApi.actionReturns(this.name, {data:text});
-        */
        return await new SubmitReturnsCaller(this, data).request();
+    }
+    async submitConvert(data:object) {
+        return await new SubmitConvertCaller(this, data).request();
     }
 }
 
@@ -35,5 +30,14 @@ class SubmitReturnsCaller extends ActionSubmitCaller {
             ret[retSchema.name] = res[i];
         }
         return ret;
+    }
+}
+
+class SubmitConvertCaller extends ActionSubmitCaller {
+    get path():string {return 'action-convert/' + this.entity.name;}
+    buildParams():any {
+        return {
+            data: this.params
+        };
     }
 }
