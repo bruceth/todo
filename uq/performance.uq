@@ -1,0 +1,52 @@
+--计分项表
+TUID ScoreItem (
+    id,
+    name char(100) not null,            --计分项名
+    CalculationFormula char(1000),      --计算公式
+    IsValid smallint not null default 1,--是否有效
+    CreateTime datetime,
+    user,
+);
+
+--岗位与计分项关系表
+MAP RoleScoreItem (
+    key scoreItem ID ScoreItem,
+    key role ID Role,
+    CalculationFormula char(1000),      --计算公式
+    IsValid smallint not null default 1,--是否有效
+    CreateTime datetime,
+    user,
+);
+
+--参数配置表
+TUID ParameterConfiguration (
+    id,
+    name char(100) not null,            --参数名
+    Value char(1000),                   --参数值
+    CreateTime datetime,
+    user,
+);
+
+--业务数据表
+TUID BusinessData (
+    id,
+    scoreItem ID ScoreItem,             --计分项id
+    employee ID employee,               --员工编号id
+    number  int,                        --累积数量
+    Amount  dec(12, 2),                 --累积金额
+    Score   dec(12, 2),                 --累积分值
+    Year   char(10),                    --所属年份
+    Month   char(10),                   --所属月份         
+    CreateTime datetime,
+);
+
+--绩效结果表
+TUID BusinessData (
+    id,
+    scoreItem ID ScoreItem,             --计分项id
+    employee ID employee,               --员工编号id
+    Amount  dec(12, 2),                 --绩效金额
+    Year   char(10),                    --所属年份
+    Month   char(10),                   --所属月份         
+    CreateTime datetime,
+);
