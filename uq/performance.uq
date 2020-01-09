@@ -5,7 +5,7 @@ TUID ScoreItem (
     CalculationFormula char(1000),      --计算公式
     IsValid smallint not null default 1,--是否有效
     CreateTime datetime,
-    user,
+    user id [$user],
 );
 
 --岗位与计分项关系表
@@ -15,7 +15,7 @@ MAP RoleScoreItem (
     CalculationFormula char(1000),      --计算公式
     IsValid smallint not null default 1,--是否有效
     CreateTime datetime,
-    user,
+    user id [$user],
 );
 
 --参数配置表
@@ -24,7 +24,7 @@ TUID ParameterConfiguration (
     name char(100) not null,            --参数名
     Value char(1000),                   --参数值
     CreateTime datetime,
-    user,
+    user id [$user],
 );
 
 --业务数据表
@@ -41,7 +41,7 @@ TUID BusinessData (
 );
 
 --绩效结果表
-TUID BusinessData (
+TUID PerformanceResult (
     id,
     scoreItem ID ScoreItem,             --计分项id
     employee ID employee,               --员工编号id
