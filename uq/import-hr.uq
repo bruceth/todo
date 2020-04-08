@@ -2,3 +2,20 @@ import JKHr = 百灵威系统工程部/hr;
 
 TUID Employee from JKHr;
 TUID Role from JKHr;
+
+
+
+/*
+import JKProduct = 百灵威系统工程部/product;
+
+TUID Brand from JKProduct(
+	id,
+	main name char(50) not null,
+);
+
+TUID ProductX from JKProduct(
+	id,
+	main brand ID Brand not null,
+	main origin char(50),
+);
+*/

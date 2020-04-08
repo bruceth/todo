@@ -222,10 +222,10 @@ let rowKeySeed:number = 1;
 export class RowContext extends Context {
     readonly parentContext: Context;
     readonly arrSchema: ArrSchema;
-    readonly uiSchema: UiArr;
-    //readonly row: ArrRow;
     readonly rowKey: number;
-    readonly data: any;
+	readonly data: any;
+    //readonly uiSchema: UiArr;
+	
     constructor(parentContext:Context, arrSchema: ArrSchema, data: any, inNode: boolean) {
         let uiArr:UiArr;
         let {uiSchema} = parentContext;

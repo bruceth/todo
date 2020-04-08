@@ -17,6 +17,17 @@ export class TextAreaWidget extends Widget {
     setReadOnly(value:boolean) {this.input.readOnly = this.readOnly = value}
     setDisabled(value:boolean) {this.input.disabled = this.disabled = value}
 
+	protected onBlur = (evt: React.FocusEvent<any>) => {
+        this.onInputChange(evt);
+        this.checkRules();
+        this.context.checkContextRules();
+    }
+    protected onFocus = (evt: React.FocusEvent<any>) => {
+        this.clearError();
+        this.context.removeErrorWidget(this);
+        this.context.clearErrors();
+    }
+
     render() {
         let renderTemplet = this.renderTemplet();
         if (renderTemplet !== undefined) return renderTemplet;
@@ -28,7 +39,9 @@ export class TextAreaWidget extends Widget {
             cn['required-item'] = this.itemSchema.required === true;
         }
         return <>
-            <textarea ref={(input) => this.input=input} 
+			<textarea ref={(input) => this.input=input}
+				onBlur={this.onBlur} 
+				onFocus={this.onFocus}
                 className={classNames(this.className, cn)}
                 rows={this.ui && this.ui.rows}
                 maxLength={this.itemSchema.maxLength}

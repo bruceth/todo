@@ -5,8 +5,18 @@ import { test } from "parser/test";
 
 export class CHome extends CUqBase {
     protected async internalStart() {
+		let values1 = this.uqs.performance.test1.values;
+		let values2 = this.uqs.performance.test2.values;
+	}
+	
+	get tagTest1() {
+		return this.uqs.performance.test1;
+	}
 
-    }
+	get tagTest2() {
+		return this.uqs.performance.test2;
+	}
+
     tab = () => this.renderView(VMain);
 
     test = () => {

@@ -3,6 +3,7 @@ import { FieldRule, ContextRule } from '../form/rules';
 import { ItemSchema } from './schema';
 import { FieldProps } from '../form/field';
 import { Widget } from '../form/widgets';
+import { IValuesView } from './IValuesView';
 
 export type TypeWidget = new (context:Context, itemSchema:ItemSchema, fieldProps:FieldProps, children: React.ReactNode) => Widget;
 
@@ -10,7 +11,8 @@ export type UiType =  'form' | 'arr' | 'group' | 'button' | 'submit' | 'custom' 
     | 'id'
     | 'text' | 'textarea' | 'password' 
     | 'date' | 'datetime' | 'select' | 'url' | 'email'
-    | 'updown' | 'color' | 'checkbox' | 'checkboxes' | 'radio' | 'range';
+	| 'updown' | 'color' | 'checkbox' | 'checkboxes' | 'radio' | 'range' 
+	| 'tagSingle' | 'tagMulti';
 
 export type ChangingHandler = (context:Context, value:any, prev:any) => boolean;
 export type ChangedHandler = (context:Context, value:any, prev:any) => Promise<void>;
@@ -20,7 +22,8 @@ export interface UiItem {
     readOnly?: boolean;
     disabled?: boolean;
     visible?: boolean;
-    label?: string;
+	label?: string;
+	labelHide?: boolean;
     className?: string;
     onChanging?: ChangingHandler;
     onChanged?: ChangedHandler;
@@ -96,6 +99,26 @@ export interface UiSelect extends UiSelectBase {
 
 export interface UiRadio extends UiSelectBase {
     widget: 'radio';
+}
+/*
+export interface TagListItem {
+	id: number;
+	name: string;
+	ext: string;
+}
+*/
+export interface UiTag extends UiItem {
+	widget: 'tagSingle' | 'tagMulti';
+	valuesView: IValuesView;
+	wrapClassName?: string;
+}
+
+export interface UiTagSingle extends UiTag {
+	widget: 'tagSingle';
+}
+
+export interface UiTagMulti extends UiTag {
+    widget: 'tagMulti';
 }
 
 export interface UiItemCollection {

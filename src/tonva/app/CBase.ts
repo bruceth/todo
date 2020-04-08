@@ -1,4 +1,4 @@
-import { Controller } from "../components";
+import { Controller } from "../vm";
 import { IConstructor } from "./CAppBase";
 
 export abstract class CBase extends Controller {
@@ -9,10 +9,16 @@ export abstract class CBase extends Controller {
         super(undefined);
         this._cApp = cApp;
         this._uqs = cApp && cApp.uqs;
-    }
+	}
 
     protected get uqs(): any {return this._uqs}
-    get cApp(): any {return this._cApp}
+	get cApp(): any {return this._cApp}
+
+	internalT(str:string):any {
+		let r = super.internalT(str);
+		if (r!==undefined) return r;
+		return this._cApp.internalT(str);
+	}
 
     protected newC<T extends CBase>(type: IConstructor<T>):T {
         return new type(this.cApp);
@@ -29,7 +35,13 @@ export abstract class CSub extends CBase {
     constructor(owner: CBase) {
         super(owner.cApp);
         this._owner = owner;
-    }
+	}
+
+	internalT(str:string):any {
+		let r = super.internalT(str);
+		if (r!==undefined) return r;
+		return this._owner.internalT(str);
+	}
 
     protected get owner(): CBase {return this._owner}
 }

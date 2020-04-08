@@ -1,19 +1,18 @@
 import * as React from 'react';
 import { ItemSchema, UiRadio } from '../schema';
 import { nav } from '../nav';
-import { Page } from '../page';
+import { Page } from '../page/page';
 import { observer } from 'mobx-react';
 import { ItemEdit } from './itemEdit';
 
 export class RadioItemEdit extends ItemEdit {
-    protected uiItem: UiRadio;
+    get uiItem(): UiRadio {return this._uiItem as UiRadio}
 
-    constructor(itemSchema: ItemSchema, uiItem:UiRadio, label:string, value: any) {
-        super(itemSchema, uiItem, label, value);
+	init() {
         if (this.value === undefined) {
-            this.value = uiItem.defaultValue;
+            this.value = this._uiItem===undefined? undefined : this._uiItem.defaultValue;
         }
-    }
+	}
 
     protected async internalStart():Promise<any> {
         return new Promise<any>((resolve, reject) => {
@@ -42,16 +41,18 @@ export class RadioItemEdit extends ItemEdit {
         let content = list?
             list.map((v, index:number) => {
                 let {title, value} = v;
-                return <label key={index} className="px-3 py-2 cursor-pointer">
+                return <div key={index} className="col"><label className="px-3 py-2 cursor-pointer">
                     <input name={name} type="radio" value={value} 
                         onClick={()=>this.onChange(value)} 
                         defaultChecked={value === this.value} /> {title || value} &nbsp;
-                </label>;
+                </label></div>;
             })
             :
             <>no list defined</>;
         return <Page header={'更改' + this.label} right={right}>
-            <div className="m-3">{content}</div>
+            <div className="m-3">
+				<div className="row row-cols-2 row-cols-sm-3 row-cols-md-4">{content}</div>
+			</div>
         </Page>;
     })
 }

@@ -6,6 +6,57 @@ import { observable } from 'mobx';
 import { userApi } from '../net';
 import { User } from '../tool';
 
+export type UserLoader = (userId:number)=>Promise<any>;
+
+export class UserCache<T> {
+	private loader: UserLoader;
+	private map = observable(new Map<number, T|number>());
+
+	constructor(loader: UserLoader) {
+		if (loader === undefined) loader = (userId:number)=>userApi.user(userId);
+		this.loader = loader;
+	}
+
+	use(id:number|any) {
+		if (!id) return;
+		if (typeof id === 'object') id = id.id;
+		if (!id) return;
+		id = Number(id);
+		let ret = this.map.get(id);
+		if (ret === undefined) {
+			this.map.set(id, id);
+		}
+	}
+
+	getValue(id:number|any):any {
+		if (!id) return;
+		switch (typeof(id)) {
+			case 'object': 
+				id = id.id; 
+				if (!id) return;
+				break;
+		}
+		let ret = this.map.get(id);
+		if (!ret) return;
+		switch (typeof(ret)) {
+		default:
+			return ret;
+		case 'number':
+			if (ret < 0) return id;
+			this.map.set(id, -id);
+			this.loader(id).then(v => {
+				if (!v) v = null;
+				this.map.set(id, v);
+			}).catch(reason => {
+				console.error(reason);
+			});
+			return id;
+		}
+	}
+}
+
+const userCache = new UserCache(undefined);
+
 export interface UserIconProps {
     id: number;
     className?: string;
@@ -16,8 +67,10 @@ export interface UserIconProps {
 
 export const UserIcon = observer((props: UserIconProps):JSX.Element => {
     let {className, style, id, altImage, noneImage} = props;
-    let user = getUser(id);
-    if (!user) {
+    let user = userCache.getValue(id);
+    switch (typeof user) {
+	case 'undefined':
+	case 'number':
         return <div className={classNames(className, 'image-none')} style={style}>
             {noneImage || <i className="fa fa-file-o" />}
         </div>;
@@ -46,33 +99,15 @@ export interface UserViewProps {
 
 export const UserView = observer((props: UserViewProps):JSX.Element => {
     let {id, render} = props;
-    let user = getUser(id);
-    if (!user) {
-        return <></>;
+    let user = userCache.getValue(id);
+    switch (typeof user) {
+		case 'undefined':
+		case 'number':
+        	return <></>;
     }
     return render(user);
 });
 
-const map = observable(new Map<number, User>());
-
-function getUser(id: any):User {
-    if (id === null) return;
-    switch (typeof(id)) {
-        case 'object': 
-            id = id.id; 
-            if (!id) return;
-            break;
-    }    
-    if (map.has(id) === false) {
-        userApi.user(id).then(v => {
-            if (!v) v = null;
-            map.set(id, v);
-        }).catch(reason => {
-            console.error(reason);
-        });
-        return undefined;
-    }
-    let src = map.get(id);
-    if (src === null) return;
-    return src;
+export function useUser(id: number) {
+	userCache.use(id);
 }

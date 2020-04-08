@@ -79,7 +79,7 @@ export default class Login extends React.Component<LoginProps> {
             header = '登录';
         }
         return <Page header={header} footer={footer}>
-            <div className="d-flex h-100 flex-column justify-content-center align-items-center">
+            <div className="d-flex p-5 flex-column justify-content-center align-items-center">
                 <div className="flex-fill" />
                 <div className="w-20c">
                     {tonvaTop()}

@@ -1,6 +1,7 @@
 //import _ from 'lodash';
-import { Controller, nav } from "../components";
-import { Tuid, Action, Sheet, Query, Map, UQsMan, TVs } from "../uq";
+import { nav, t, setGlobalRes } from "../components";
+import { Controller } from '../vm';
+import { UQsMan, TVs } from "../uq";
 import { appInFrame, loadAppUqs, UqAppData } from "../net";
 import { centerApi } from "./centerApi";
 import { VUnitSelect, VErrorsPage, VStartError, VUnsupportedUnit } from "./vMain";
@@ -46,6 +47,14 @@ export abstract class CAppBase extends Controller {
     }
 
     get uqs(): any {return this._uqs;}
+
+	internalT(str:string):any {
+		return t(str);
+	}
+	
+	protected setRes(res:any) {
+		setGlobalRes(res);
+	}
 
     protected async beforeStart():Promise<boolean> {
         try {

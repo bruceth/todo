@@ -4,6 +4,9 @@ ul.va-list {
     padding: 0;
     margin-bottom: -1px;
 }
+ul.va-list:focus {
+	outline: none;
+}
 ul.va-list-top-border {
     padding-top: 1px;
 }

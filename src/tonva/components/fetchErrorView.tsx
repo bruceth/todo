@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {FetchError} from '../net/fetchError';
 import { refetchApi } from '../net';
-import { Page } from './page';
+import { Page } from './page/page';
 
 export interface FetchErrorProps extends FetchError {
     clearError: ()=>void

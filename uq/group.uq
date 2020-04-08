@@ -1,0 +1,103 @@
+TUID Group (
+	id,
+	parent ID Group,
+	main name char(100), 
+	main discription TEXT,
+	main count SMALLINT DEFAULT 0,
+	main owner ID [$User],
+	stamp (create, update),	
+	index parent_id (parent, id) unique,
+);
+
+MAP MyGroup (
+	KEY me ID [$User],
+	KEY [group] ID Group,
+	time TIMESTAMP,
+	unread SMALLINT DEFAULT 0,
+	index me_time(me, time),
+);
+
+MAP GroupMember (
+	KEY [group] ID Group,
+	KEY member ID [$User],
+);
+
+ACTION SaveGroup ver 1.0 (
+	parent ID Group,
+	name char(100),
+	discription TEXT
+)
+RETURNS ret (
+	[group] ID
+) {
+	VAR [group] ID;
+	TUID Group INTO [group] SET parent=parent, owner=$user, name=name, discription=discription, count=1;
+	BOOK MyGroup AT($user, [group]) SET time=$date;
+	BOOK GroupMember AT([group], $user);
+	INTO ret SELECT [group];
+};
+
+QUERY GetMyGroups()
+PAGE (
+	time TIMESTAMP desc,
+	[group] ID Group,
+	unread SMALLINT,
+) {
+	PAGE SELECT a.time, a.[group], a.unread
+		FROM MyGroup as a
+		WHERE a.me=$user and a.time<$pageStart
+		ORDER BY a.time desc
+		LIMIT $pageSize;
+};
+
+ACTION SaveGroupProp (
+	id ID,
+	name CHAR(100),
+	discription TEXT,
+) {
+	if NOT name IS NULL {
+		TUID Group ID id SET name=name;
+	}
+	if NOT discription IS NULL {
+		TUID Group ID id SET discription=discription;
+	}
+};
+
+QUERY GetGroupMembers (
+	group ID,
+)
+PAGE (
+	member ID $User ASC
+) {
+	PAGE SELECT a.member 
+		FROM GroupMember as a
+		WHERE a.group=group and a.member>$pageStart
+		ORDER BY a.member
+		LIMIT $pageSize;
+};
+
+ACTION AddGroupMember ver 1.2 (
+	group ID,
+	member ID,
+) {
+	IF exists(select id from [Group] where id=[group] and owner=$user) {
+		BOOK GroupMember AT([group], member);
+		TUID Group ID group SET count+=1;
+		BOOK MyGroup AT(member, group) SET time=$date;
+	}
+};
+
+ACTION RemoveGroupMember ver 1.2 (
+	group ID,
+	arr members (
+		member ID,
+	)
+) {
+	IF exists(select id from [Group] where id=[group] and owner=$user) {
+		FOREACH members {
+			DELETE a FROM GroupMember as a WHERE a.[group]=group and a.member=member;
+			TUID Group ID group SET count-=1;
+			DELETE a FROM MyGroup as a WHERE a.me=member AND a.[group]=group;
+		}
+	}
+};

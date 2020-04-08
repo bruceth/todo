@@ -1,6 +1,6 @@
 import * as React from 'react';
-import {nav, Page, Schema, UiSchema, UiTextItem, UiPasswordItem, UiButton, Form, Context, resLang, StringSchema, Controller, 
-    VPage, NumSchema} from '../components';
+import {nav, Page, Schema, UiSchema, UiTextItem, UiPasswordItem, UiButton, Form, Context, resLang, StringSchema, NumSchema} from '../components';
+import { Controller, VPage } from '../vm';
 import { userApi, RegisterParameter } from '../net';
 import '../css/va-form.css';
 import { RegisterRes, registerRes } from './res';

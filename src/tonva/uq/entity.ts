@@ -66,8 +66,11 @@ export abstract class Entity {
             schema = await this.uq.loadEntitySchema(this.name);
         }
         this.setSchema(schema);
-        this.buildFieldsTuid();
-    }
+		this.buildFieldsTuid();
+		await this.loadValues();
+	}
+	
+	protected async loadValues():Promise<any> {}
 
     // 如果要在setSchema里面保存cache，必须先调用clearSchema
     public clearSchema() {
@@ -78,12 +81,14 @@ export abstract class Entity {
         if (schema === undefined) return;
         let {name, version} = schema;
         this.ver = version || 0;
-        if (name !== this.name) this.jName = name;
-        //if (this.schema === undefined) 
+		this.setJName(name);
         this.cache.set(schema);
         this.schema = schema;
-        //this.buildFieldsTuid();
-    }
+	}
+	
+	protected setJName(name:string) {
+        if (name !== this.name) this.jName = name;
+	}
 
     public buildFieldsTuid() {
         let {fields, arrs, returns} = this.schema;
@@ -166,7 +171,7 @@ export abstract class Entity {
         let dt: Date;
         switch (typeof val) {
             default: debugger; throw new Error('escape datetime field in pack data error: value=' + val);
-            case 'undefined': return undefined;
+            case 'undefined': return '';
             case 'object': dt = (val as Date); break;
             case 'string':
             case 'number': dt = new Date(val); break;
@@ -178,7 +183,7 @@ export abstract class Entity {
         let dt: Date;
         switch (typeof val) {
             default: debugger; throw new Error('escape datetime field in pack data error: value=' + val);
-            case 'undefined': return undefined;
+            case 'undefined': return '';
             case 'string': return val;
             case 'object': dt = (val as Date); break;
             case 'number': dt = new Date(val); break;
@@ -296,7 +301,7 @@ export abstract class Entity {
         return ret;
     }
 
-    unpackReturns(data:string):any {
+    unpackReturns(data:string):{[name:string]:any[]} {
         if (data === undefined) debugger;
         let ret = {} as any;
         //if (schema === undefined || data === undefined) return;
@@ -370,6 +375,7 @@ export abstract class Entity {
             default: return v;
             case 'datetime':
             case 'time':
+			case 'timestamp':
                 let n = Number(v);
                 let date = isNaN(n) === true? new Date(v) : new Date(n*1000);
                 return date;

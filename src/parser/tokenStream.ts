@@ -89,7 +89,7 @@ export class TokenStream {
 
     private advance() {
         this.cur = (this.p >= this.len) ? 0 : this.buffer.charCodeAt(this.p++);
-        if (this.cur == Char.ENTER)
+        if (this.cur === Char.ENTER)
         {
             this.line++;
             this.at = 1;
@@ -350,8 +350,8 @@ export class TokenStream {
                 default:
                     if (this.cur >= Char.ZERO && this.cur <= Char.NINE) 
                         this.readNumber(this.cur - Char.ZERO);
-                    else if (this.cur>=Char.a && this.cur<=Char.z ||
-                        this.cur>=Char.A && this.cur<=Char.Z ||
+                    else if ((this.cur>=Char.a && this.cur<=Char.z) ||
+                        (this.cur>=Char.A && this.cur<=Char.Z) ||
                         this.cur>=0x100)
                         this.readVar();
                     else                        
@@ -402,7 +402,7 @@ export class TokenStream {
             if (this.cur === Char.STAR)
             {
                 this.advance();
-                if (this.cur == Char.SLASH)
+                if (this.cur === Char.SLASH)
                 {
                     this.advance();
                     break;
@@ -443,16 +443,16 @@ export class TokenStream {
         this.dec = firstDigit;
         this.isInteger = true;
         this.advance();
-        if (firstDigit == 0 && ( this.cur === Char.x || this.cur === Char.X))
+        if (firstDigit === 0 && ( this.cur === Char.x || this.cur === Char.X))
         {
             this.token = Token.HEX;
             this.advance();
             this.text = '';
             for (; ; )
             {
-                if (this.cur >= Char.ZERO && this.cur <= Char.NINE ||
-                    this.cur >= Char.a && this.cur <= Char.f ||
-                    this.cur >= Char.A && this.cur <= Char.F)
+                if ((this.cur >= Char.ZERO && this.cur <= Char.NINE) ||
+                    (this.cur >= Char.a && this.cur <= Char.f) ||
+                    (this.cur >= Char.A && this.cur <= Char.F))
                     this.text += String.fromCharCode(this.cur);
                 else break;
                 this.advance();
@@ -494,8 +494,8 @@ export class TokenStream {
         this.advance();
         while (true)
         {
-            if (this.cur == Char.NULL) return;
-            if (this.cur == quote)
+            if (this.cur === Char.NULL) return;
+            if (this.cur === quote)
             {
                 this.text = this.buffer.substring(start, this.p-1);
                 this.advance();
@@ -504,7 +504,7 @@ export class TokenStream {
             if (this.cur === Char.BACKSLASH)
             {
                 this.advance();
-                if (this.cur == quote) { this.advance(); break; }
+                if (this.cur === quote) { this.advance(); break; }
                 /*
                 switch (this.cur)
                 {
@@ -527,7 +527,7 @@ export class TokenStream {
         while (loop)
         {
             this.advance();
-            if (this.cur == Char.NULL)
+            if (this.cur === Char.NULL)
             {
                 this._var = this.buffer.substring(start, this.p-1);
                 this.lowerVar = this._var.toLowerCase();
@@ -539,9 +539,9 @@ export class TokenStream {
                 case Char.UNDERLINE:
                     break;
                 default:
-                    if (this.cur>=Char.ZERO && this.cur<=Char.NINE ||
-                        this.cur>=Char.a && this.cur<=Char.z ||
-                        this.cur>=Char.A && this.cur<=Char.Z ||
+                    if ((this.cur>=Char.ZERO && this.cur<=Char.NINE) ||
+                        (this.cur>=Char.a && this.cur<=Char.z) ||
+                        (this.cur>=Char.A && this.cur<=Char.Z) ||
                         this.cur>=0x100)
                         continue;
                     loop = false;

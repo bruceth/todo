@@ -9,30 +9,61 @@ export type QueryPageApi = (name:string, pageStart:any, pageSize:number, params:
 
 export class QueryPager<T extends any> extends PageItems<T> {
     private query: Query;
-    constructor(query: Query, pageSize?: number, firstSize?: number) {
-        super();
+    constructor(query: Query, pageSize?: number, firstSize?: number, itemObservable?:boolean) {
+        super(itemObservable);
         this.query = query;
         if (pageSize !== undefined) this.pageSize = pageSize;
         if (firstSize !== undefined) this.firstSize = firstSize;
     }
+
+	setReverse() {
+		this.appendPosition = 'head';
+	}
 
     protected async onLoad() {
         let {schema} = this.query;
         if (schema === undefined) await this.query.loadSchema();
     }
 
-    protected async load(param:any, pageStart:any, pageSize:number):Promise<T[]> {
-        if (pageStart === undefined) pageStart = 0;
-        let ret = await this.query.page(param, pageStart, pageSize);
-        return ret;
+    protected async loadResults(param:any, pageStart:number, pageSize:number):Promise<{[name:string]:any[]}> {
+        //if (pageStart === undefined) pageStart = 0;
+        //let ret = await this.query.page(param, pageStart, pageSize);
+		//return ret;
+		let ret = await this.query.page(param, pageStart, pageSize);
+		return ret;
     }
     protected setPageStart(item:T) {
         let {schema} = this.query;
         if (schema === undefined) return;
         let $page = (schema.returns as any[]).find(v => v.name === '$page');
         if ($page === undefined) return;
+        
         let {order} = $page;
         if (order === undefined) return;
+        /*
+        if (order === 'desc') {
+            this.appendPosition = 'head';
+        }
+        else {
+            this.appendPosition = 'tail';
+        }
+        */
+        if (item !== undefined) {
+            let field = $page.fields[0];
+            if (field) {
+                let start = item[field.name];
+                if (start === null)
+                    start = undefined;
+                else if (start !== undefined) {
+                    if (typeof start === 'object') {
+                        start = start.id;
+                    }
+                }
+                this.pageStart = start;
+            }
+        }
+
+        /*
         let {field, type, asc} = order;
         let start:any;
         if (item !== undefined) start = item[field];
@@ -65,6 +96,7 @@ export class QueryPager<T extends any> extends PageItems<T> {
             }
         }
         this.pageStart = start;
+        */
     }
 }
 
@@ -107,7 +139,8 @@ export class Query extends Entity {
                 case 'datetime': pageStart = (this.pageStart as Date).getTime(); break;
             }
         }
-        let page = await this.page(this.params, pageStart, this.pageSize+1);
+		let ret = await this.page(this.params, pageStart, this.pageSize+1);
+		let page = ret.$page;
         /*
         await this.loadSchema();
         let res = await this.tvApi.page(this.name, pageStart, this.pageSize+1, this.params);
@@ -135,12 +168,12 @@ export class Query extends Entity {
         return new QueryPageCaller(this, params, showWaiting);
     }
 
-    async page(params:any, pageStart:any, pageSize:number, showWaiting: boolean = true):Promise<any[]> {
+    async page(params:any, pageStart:any, pageSize:number, showWaiting: boolean = true):Promise<{[name:string]:any[]}> {
         /*
         await this.loadSchema();
         let res = await this.uqApi.page(this.name, pageStart, pageSize+1, this.buildParams(params));
         */
-        let p = {pageStart:pageStart, pageSize:pageSize+1, params:params};
+        let p = {pageStart:pageStart, pageSize:pageSize, params:params};
         let res = await this.pageCaller(p, showWaiting).request();
         //let data = this.unpackReturns(res);
         //return data.$page;// as any[];

@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { VPage, Page, FA, nav, LMR, List } from "../components";
+import { Page, FA, nav, LMR, List } from "../components";
+import { VPage } from '../vm';
 import { appInFrame } from '../net';
 import { CAppBase } from "./CAppBase";
 
@@ -118,6 +119,10 @@ export class VErrorsPage extends VPage<CAppBase> {
     private page = (errors:{errors:string[]}) => {
         return <Page header="ERROR">
             <div className="m-3">
+				<div className="p-3 d-flex justify-content-center align-items-center">
+					<button className="btn btn-danger" onClick={nav.resetAll}>重启网页</button>
+				</div>
+
                 <div>Load Uqs 发生错误：</div>
                 {errors.errors.map((r, i) => <div key={i}>{r}</div>)}
             </div>

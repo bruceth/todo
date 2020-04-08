@@ -3,17 +3,12 @@ import { observer } from 'mobx-react';
 import { observable } from 'mobx';
 import { UiImageItem } from '../schema';
 import { ImageUploader } from '../resUploader';
-//import { Image } from '../image';
 import { nav } from '../nav';
-//import { Page } from '../page';
 import { ItemEdit } from './itemEdit';
-//import { env } from '../../tool';
 
 export class ImageItemEdit extends ItemEdit {
-    protected uiItem: UiImageItem;
-    //private resUploader: ResUploader;
+    get uiItem(): UiImageItem {return this._uiItem as UiImageItem}
     @observable private resId: string;
-    //@observable private overSize: boolean = false;
 
     protected async internalStart():Promise<any> {
         this.resId = this.value;

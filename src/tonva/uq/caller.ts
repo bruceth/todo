@@ -88,8 +88,9 @@ export class QueryQueryCaller extends EntityCaller<any> {
 
 export class QueryPageCaller extends EntityCaller<any> {
     protected get params(): {pageStart:any; pageSize:number, params:any} {return this._params};
-    protected get entity(): Query {return this._entity as Query};
-    get path():string {return `query-page/${this.entity.name}`;}
+	protected get entity(): Query {return this._entity as Query};
+	//results: {[name:string]:any[]};
+	get path():string {return `query-page/${this.entity.name}`;}	
     buildParams() {
         let {pageStart, pageSize, params} = this.params;
         let p:any;
@@ -109,8 +110,9 @@ export class QueryPageCaller extends EntityCaller<any> {
         p['$pageSize'] = pageSize;
         return p;
     };
-    xresult(res:any) {
-        let data = this.entity.unpackReturns(res);
-        return data.$page;// as any[];
+    xresult(res:any): {[name:string]:any[]} {
+        let ret = this.entity.unpackReturns(res);
+		//return this.results.$page;// as any[];
+		return ret;
     }
 }

@@ -1,17 +1,77 @@
 --计分项表
 TUID ScoreItem (
     id,
-    name char(100) not null,            --计分项名
-    CalculationFormula char(1000),      --计算公式
-    IsValid smallint not null default 1,--是否有效
-    CreateTime datetime,
+    name char(50) not null,            --计分项名
+    value smallint,      				--分值，可以以工作时间一分钟为基本单位，也可以是点击次数
+	unit TAG ScoreUnit,					--分值单位
+	discription char(100) null,
+
+    valid smallint not null default 1,	--是否有效
     user id [$user],
+	stamp (create, update),
+);
+
+TAG ScoreUnit;
+
+TAG Period ver 1.2 (Day, Week, Month, Quarter, Year);
+
+MAP ScoreFormula (
+	KEY scoreItem ID ScoreItem,
+	KEY period TAG Period,
+	-- 可能是不是要跟岗位绑定，下一步再说
+	-- KEY jobPost ID JobPost DEFAULT 0,
+	sec1 INT,			-- 分段值
+	ratio1 SMALLINT,	-- 分段系数
+	sec2 INT,			-- 分段值
+	ratio2 SMALLINT,	-- 分段系数
+	sec3 INT,			-- 分段值
+	ratio3 SMALLINT,	-- 分段系数
+	sec4 INT,			-- 分段值
+	ratio4 SMALLINT,	-- 分段系数
+	sec5 INT,			-- 分段值
+	ratio5 SMALLINT,	-- 分段系数
+);
+
+MAP QueueFormula (
+	KEY scoreItem ID ScoreItem,
+	KEY period TAG Period,
+	-- 可能是不是要跟岗位绑定，下一步再说
+	-- KEY jobPost ID JobPost DEFAULT 0,
+	KEY orderNum SMALLINT,					-- 1表示第一名，2表示第二名，-10表示top 10%
+	queueScoreItem ID ScoreItem,			-- 计算之后，生成新的积分项，加入积分项流水
+	ratio SMALLINT,							-- 系数
+	offset INT,								-- 偏移，y = ratio*x + offset
+);
+
+BOOK QueueCalcDate (
+	KEY scoreItem ID ScoreItem,
+	KEY period TAG Period,
+	calcDate DATE,
+);
+
+-- 积分项岗位系数，暂时先不用吧
+/*
+MAP JobPostScoreRadio (
+	KEY jobPost ID JobPost,
+	KEY scoreItem ID ScoreItem,
+	radio SMALLINT,
+);
+*/
+
+HISTORY EmployeeScoreItem (
+	date,
+    employee ID Employee,               --员工
+	scoreItem ID ScoreItem,
+	value INT,
+	task ID,							-- Task 暂时不定义
+	index employee_date(employee, date),
 );
 
 --岗位与计分项关系表
 MAP RoleScoreItem (
     key scoreItem ID ScoreItem,
     key role ID Role,
+	test1Tag TAG Test1,
     CalculationFormula char(1000),      --计算公式
     IsValid smallint not null default 1,--是否有效
     CreateTime datetime,

@@ -1,0 +1,11 @@
+
+-- Project can have sub-project
+TUID Project (
+	id,
+	parent ID Project,
+	name CHAR(100),
+	content TEXT,
+	owner ID [$user],
+	index parent_id (parent, id) unique,
+);
+

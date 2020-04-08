@@ -1,47 +1,101 @@
 /* tab css */
+/*
 .tab {
     display: flex;
     flex-direction: column;
     flex: 1;
-    max-width: 860px;
+    width: 100%;
     align-self: center;
     height: 100%;
-  }
+}
   .tab>div.tab-content {
     display: flex;
     flex: 1 1 auto;
-    height: 3rem; /* 2019-7-2：不知道为什么，只有加了这个，不管是xrem，tab的滚动才成立 */
   }
-  .tab>div.tab-tabs {
-    display: flex;
+  .tab-tabs {
+	  width: 100%;
+  }
+  .tab-top, .tab-bottom {
+	display: flex;
+	position: fixed;
+	width: 100%;
+  }
+  .tab-top {
+	  top: 0;
+  }
+  .tab-bottom {
+	bottom:0;
+  }
+  */
+  ul.tv-tabs {
+	  list-style: none;
+	  padding: 0;
+	  margin: 0;
+  }
+  div.tv-tabs {
+	display: flex;
     align-items: center;
+	width: 100%;
+	/*
+	margin-left: auto;
+	margin-right: auto;
+	*/
+	background-color: #f0f0f0;
   }
-  .tab-sm>div.tab-tabs {
-    height: 2.5rem;
+  header>div.tv-tabs {
+	border-bottom: 1px lightgray solid;
   }
-  .tab-md>div.tab-tabs {
-    height: 3.2rem;
+  footer>div.tv-tabs {
+	border-top: 1px lightgray solid;
   }
-  .tab-lg>div.tab-tabs {
-    height: 4rem;
+  div.tv-tabs>div {
+	  flex: 1;
   }
-  .tab>div.tab-tabs, .tab>div.tab-tabs>div {
-    display: flex;
-    align-items: center;
+  div.tv-tabs-sm {
+	min-height: 3.2rem;
   }
-  .tab>div.tab-tabs>div {
-    flex-direction: column;
-    cursor: pointer;
+  div.tv-tabs-md {
+	min-height: 3.6rem;
   }
-  .tab>div>div {
-    overflow-x: hidden;
-    overflow-y: auto;
+  /*
+  @media (min-width: 576px) {
+	  .tv-tabs {
+		max-width: 540px;
+	}
+  }
+  @media (min-width: 768px) {
+	.tv-tabs {
+		max-width: 720px;
+	}
+  }
+  @media (min-width: 992px) {
+	.tv-tabs {
+		max-width: 960px;
+	}
+  }
+  @media (min-width: 992px) {
+	.tv-tabs {
+		max-width: 960px;
+	}
+  }
+  */
+  /*
+  .tab-content>div {
     width: 100%;
   }
-  .tab>div>div>div {
+  .tab>div.tab-content>div>article {
+	  height: 100%;
+  }
+  */
+  div.tv-tabs>div {
+	  flex: 1;
+	  display: flex;
+	  justify-content: center;
+  }
+  div.tv-tabs>div>div {
     position: relative;
   }
-  .tab>div>div>div>u {
+  div.tv-tabs>div>div>u {
     position: absolute;
     right: -0.8rem;
     top: 0rem;
@@ -57,7 +111,7 @@
     justify-content: center;
     border-radius: 0.6rem;
   }
-  .tab>div>div>div>u.dot {
+  div.tv-tabs>div>div>u.dot {
     width: 0.5rem;
     height: 0.5rem;
     min-width: 0.5rem;

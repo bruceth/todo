@@ -27,7 +27,8 @@ export interface ListProps {
     footer?: StaticRow;
     before?: StaticRow;
     loading?: StaticRow;
-    none?: StaticRow;
+	none?: StaticRow;
+	onFocus?: (evt: React.FocusEvent<HTMLUListElement>)=>void;
 }
 
 @observer
@@ -69,7 +70,7 @@ export class List extends React.Component<ListProps> {
         return this.listBase.selectedItems;
     }
     render() {
-        let {className, header, footer, before, loading, none} = this.props;
+        let {className, header, footer, before, loading, none, onFocus} = this.props;
         if (before === undefined) before = '-';
         if (loading === undefined) loading = () => <i className="fa fa-spinner fa-spin fa-2x fa-fw text-info" />;
         if (none === undefined) none = 'none';
@@ -98,8 +99,10 @@ export class List extends React.Component<ListProps> {
         }
         if (isLoading === true && items) {
             waitingMore = staticRow(loading, 'loading');
-        }
-        return <ul className={classNames('va-list', className)}>
+		}
+		let tabIndex:number;
+		if (onFocus !== undefined) tabIndex = -1;
+        return <ul className={classNames('va-list', className)} onFocus={onFocus} tabIndex={tabIndex}>
             {staticRow(header, 'header')}
             {content}
             {waitingMore}

@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { UiSelect } from '../schema';
 import { nav } from '../nav';
-import { Page } from '../page';
+import { Page } from '../page/page';
 import { observer } from 'mobx-react';
 import { ItemEdit } from './itemEdit';
 
 export class SelectItemEdit extends ItemEdit {
-    protected uiItem: UiSelect;
+    get uiItem(): UiSelect {return this._uiItem as UiSelect}
     protected async internalStart():Promise<any> {
         return new Promise<any>((resolve, reject) => {
             let element = React.createElement(this.page, {resolve:resolve, reject:reject});

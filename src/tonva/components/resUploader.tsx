@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { nav } from './nav';
+import { Loading } from './loading';
 import { Image as ImageControl } from './image';
-import { Page } from './page';
+import { Page } from './page/page';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
 import { LMR } from './simple';
@@ -96,23 +97,38 @@ export class ResUploader extends React.Component<ResUploaderProps> {
     }
 }
 
+function formatSize(size:number, pointLength:number=2, units?:string[]) {
+    var unit;
+    units = units || [ 'B', 'K', 'M', 'G', 'TB' ];
+    while ( (unit = units.shift()) && size > 1024 ) {
+        size = size / 1024;
+    }
+    return (unit === 'B' ? size : size.toFixed( pointLength === undefined ? 2 : pointLength)) + unit;
+}
+
 interface ImageUploaderProps {
     id?: string;
     label?: string;
-    size?: 'sm' | 'lg';
+    size?: 'sm' | 'md' | 'lg';
     onSaved?: (imageId:string) => Promise<void>;
 }
 
-const imageTypes = ['gif', 'jpg', 'jpeg', 'png'];
 const largeSize = 800;
+const mediumSize = 400;
 const smallSize = 180;
 
 @observer
 export class ImageUploader extends React.Component<ImageUploaderProps> {
+	private static imageTypes = ['gif', 'jpg', 'jpeg', 'png'];
     private imgBaseSize: number;
-    private file: File;
     private suffix: string;
     private resUploader: ResUploader;
+    @observable private file: File;    
+    @observable private desImgWidth: number;
+    @observable private desImgHeight: number;
+    @observable private desImgSize: number;
+    @observable private srcImgWidth: number;
+    @observable private srcImgHeight: number;
     @observable private isChanged: boolean = false;
     @observable private resId: string;
     @observable private enableUploadButton: boolean = false;
@@ -124,7 +140,6 @@ export class ImageUploader extends React.Component<ImageUploaderProps> {
     constructor(props: ImageUploaderProps) {
         super(props);
         this.resId = props.id;
-        this.imgBaseSize = props.size === 'lg'? largeSize : smallSize;
     }
 
     private onFileChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,17 +150,30 @@ export class ImageUploader extends React.Component<ImageUploaderProps> {
             this.file = evt.target.files[0];
             let pos = this.file.name.lastIndexOf('.');
             if (pos >= 0) this.suffix = this.file.name.substr(pos+1).toLowerCase();
-            if(imageTypes.indexOf(this.suffix) < 0){
-                this.fileError = `图片类型必须是 ${imageTypes.join(', ')} 中的一种`;
+            if(ImageUploader.imageTypes.indexOf(this.suffix) < 0){
+                this.fileError = `图片类型必须是 ${ImageUploader.imageTypes.join(', ')} 中的一种`;
                 return;
             }
             let reader = new FileReader();
             reader.readAsDataURL(this.file);
             reader.onload = async () => {
                 this.srcImage = reader.result as string;
-                this.desImage = await this.compress();
+                await this.setSize(this.props.size);
             };
         }
+    }
+
+    private async setSize(size?: 'sm' | 'md' | 'lg') {
+        switch (size) {
+            default:
+            case 'sm':
+                this.imgBaseSize = smallSize; break;
+            case 'md':
+                this.imgBaseSize = mediumSize; break;
+            case 'lg':
+                this.imgBaseSize = largeSize; break;
+        }
+        this.desImage = await this.compress();
     }
 
     private compress = ():Promise<string> => {
@@ -156,9 +184,15 @@ export class ImageUploader extends React.Component<ImageUploaderProps> {
                 //var that = this;
                 // 默认按比例压缩
                 let {width, height} = img;
+                this.srcImgWidth = width;
+                this.srcImgHeight = height;
                 let scale = width / height;
                 let w:number, h:number;
-                if (scale < 0) {
+                if (width <= this.imgBaseSize && height <= this.imgBaseSize) {
+                    w = width;
+                    h = height;
+                }
+                else if (scale < 0) {
                     w = this.imgBaseSize;
                     h = w / scale;
                 }
@@ -166,6 +200,8 @@ export class ImageUploader extends React.Component<ImageUploaderProps> {
                     h = this.imgBaseSize;
                     w = h * scale;
                 }
+                this.desImgWidth = Math.round(w);
+                this.desImgHeight = Math.round(h);
                 var quality = 0.7;  // 默认图片质量为0.7
                 //生成canvas
                 var canvas = document.createElement('canvas');
@@ -179,8 +215,10 @@ export class ImageUploader extends React.Component<ImageUploaderProps> {
                 canvas.setAttributeNode(anh);
                 ctx.drawImage(img, 0, 0, w, h);
                 let base64 = canvas.toDataURL('image/' + this.suffix , quality);
-                if (base64.length > 5000000) {
-                    this.fileError = "文件太大，无法上传";
+                let blob = this.convertBase64UrlToBlob(base64);
+                this.desImgSize = blob.size;
+                if (this.desImgSize > 5000000) {
+                    this.fileError = "图片大于4M，无法上传";
                     this.enableUploadButton = false;
                 }
                 resolve(base64);
@@ -238,6 +276,24 @@ export class ImageUploader extends React.Component<ImageUploaderProps> {
         </Page>);
     }
 
+    private levelDiv() {
+        if (this.props.size) return;
+        let arr = [{caption:'小图', size:'sm'}];
+        if (this.srcImgHeight > mediumSize || this.srcImgWidth > mediumSize) {
+            arr.push({caption:'中图', size:'md'});
+        }
+        if (this.srcImgHeight > largeSize || this.srcImgWidth > largeSize) {
+            arr.push({caption:'大图', size:'lg'});
+        }
+        if (arr.length < 2) return;
+        return <div>{arr.map((v, index) => {
+            let {caption, size} = v;
+            return <label key={index} className="mr-3"><input type="radio" name="size" 
+                onChange={()=>this.setSize(size as any)}
+                defaultChecked={index===0} /> {caption}</label>;
+        })}</div>
+    }
+
     render() {
         let {label} = this.props;
         let right = <button
@@ -252,21 +308,33 @@ export class ImageUploader extends React.Component<ImageUploaderProps> {
                             multiple={false} maxSize={2048} 
                             label="选择图片文件"
                             onFilesChange={this.onFileChange} />
-                        <div className="small text-muted">支持 {imageTypes.join(', ')} 格式图片。</div>
+                        <div className="small text-muted">支持 {ImageUploader.imageTypes.join(', ')} 格式图片。</div>
                         {this.fileError && <div className="text-danger">{this.fileError}</div>}
                     </div>
                     <LMR left=
                     {
-                        this.enableUploadButton && (
-                            this.uploaded === true? 
-                                <div className="text-success p-2">上传成功！</div>
-                                :
-                                <div className="mb-3">
-                                    <button className="btn btn-primary" onClick={this.upload}>上传</button>
+                        this.uploaded === true? 
+                            <div className="text-success p-2">上传成功！</div>
+                            :
+                            this.file && this.desImgSize > 0 && <div className="mb-3 d-flex align-items-end">
+                                <div className="mr-5">
+                                    {this.levelDiv()}
+                                    <div>分辨率：{this.desImgWidth} x {this.desImgHeight}
+                                    &nbsp; &nbsp;
+                                    文件大小：{formatSize(this.desImgSize)}
+                                    </div>
                                 </div>
-                        )
+                                <button className="btn btn-primary" 
+                                    disabled={!this.enableUploadButton}
+                                    onClick={this.upload}>上传</button>
+                            </div>
                     }
-                    right={this.desImage && <button className="btn btn-link btn-sm" onClick={this.showOrgImage}>查看原图</button>}
+                    right={this.desImage && 
+                        <button className="btn btn-link btn-sm text-right mb-3" onClick={this.showOrgImage}>
+                            原图大小: {formatSize(this.file.size)}<br/>
+                            分辨率：{this.srcImgWidth} x {this.srcImgHeight}
+                        </button>
+                    }
                     ></LMR>
                 </div>
                 <div className="text-center" 
@@ -280,13 +348,136 @@ export class ImageUploader extends React.Component<ImageUploaderProps> {
         </Page>;
     }
 }
-/*
-<div className="w-12c h-12c mr-4"
-style={{border: '1px dotted gray', padding: '8px'}}>
-<ImageControl className="w-100 h-100" src={this.srcImage} />
-</div>
-<div>
-<div className="small">图片预览</div>
-<ImageControl className="w-4c h-4c mt-3" src={this.desImage} />
-</div>
-*/
+
+interface AudioUploaderProps {
+    id?: string;
+    label?: string;
+    onSaved?: (imageId:string) => Promise<void>;
+}
+
+@observer
+export class AudioUploader extends React.Component<AudioUploaderProps> {
+	private static audioTypes = ['mp3', 'wav'];
+
+    private suffix: string;
+	private resUploader: ResUploader;
+	@observable private content: string;
+	@observable private file: File;    
+	@observable private fileSize: number;
+
+    @observable private isChanged: boolean = false;
+    @observable private resId: string;
+    @observable private enableUploadButton: boolean = false;
+    @observable private fileError: string;
+	@observable private uploaded: boolean = false;
+	@observable private uploading: boolean = false;
+
+    constructor(props: AudioUploaderProps) {
+        super(props);
+        this.resId = props.id;
+    }
+
+    private onFileChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+        this.fileError = undefined;
+        this.uploaded = false;
+        this.enableUploadButton = evt.target.files.length > 0;
+        if (this.enableUploadButton) {
+            this.file = evt.target.files[0];
+            let pos = this.file.name.lastIndexOf('.');
+            if (pos >= 0) this.suffix = this.file.name.substr(pos+1).toLowerCase();
+            if(AudioUploader.audioTypes.indexOf(this.suffix) < 0){
+                this.fileError = `音频类型必须是 ${AudioUploader.audioTypes.join(', ')} 中的一种`;
+                return;
+            }
+            let reader = new FileReader();
+            reader.readAsDataURL(this.file);
+            reader.onload = async () => {
+				this.content = reader.result as string;
+				this.fileSize = this.content.length;
+            };
+        }
+    }
+
+    private convertBase64UrlToBlob(urlData: string):Blob {
+        let arr = urlData.split(',');
+        let mime = arr[0].match(/:(.*?);/)[1];
+        let bstr = atob(arr[1]);
+        let n = bstr.length;
+        let u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
+
+    private upload = async () => {
+		if (!this.resUploader) return;
+		this.uploading = true;
+        let formData = new FormData();
+        let blob = this.convertBase64UrlToBlob(this.content);
+        formData.append('image', blob, this.file.name);
+        let ret = await this.resUploader.upload(formData);
+        if (typeof ret === 'object') {
+            let {error} = ret;
+            let type = typeof error;
+            let err:string;
+            switch (type) {
+                case 'undefined': err = 'error: undefined'; break;
+                case 'string': err = error; break;
+                case 'object': err = error.message; break;
+                default: err = String(err); break;
+            }
+            this.fileError = 'error: ' + type + ' - ' + err;
+            return;
+        }
+        this.resId = ret;
+        this.isChanged = (this.resId !== this.props.id);
+        this.uploaded = true;
+    }
+
+    private onSaved = (): Promise<void> => {
+        let {onSaved} = this.props;
+        onSaved && onSaved(this.resId);
+        return;
+    }
+
+    render() {
+        let {label} = this.props;
+        let right = <button
+            className="btn btn-sm btn-success align-self-center mr-2"
+            disabled={!this.isChanged}
+            onClick={this.onSaved}>保存</button>;
+        return <Page header={label || '更改文件'} right={right}>
+            <div className="my-3 px-3 py-3 bg-white">
+                <div>
+                    <div className="mb-3">
+                        <ResUploader ref={v=>this.resUploader=v} 
+                            multiple={false} maxSize={2048} 
+                            label="选择音频文件"
+                            onFilesChange={this.onFileChange} />
+                        <div className="small text-muted">支持 {AudioUploader.audioTypes.join(', ')} 格式。</div>
+                        {this.fileError && <div className="text-danger">{this.fileError}</div>}
+                    </div>
+                </div>
+            </div>
+			<LMR left=
+                    {
+                        this.uploaded === true? 
+                            <div className="text-success p-2">上传成功！</div>
+							:
+							this.uploading === true?
+								<div className="m-3"><Loading /></div>
+								:
+								this.file && this.content && <div className="m-3">
+									<div className="mb-3">
+										文件大小：{formatSize(this.fileSize)}
+									</div>
+									<button className="btn btn-primary" 
+										disabled={!this.enableUploadButton}
+										onClick={this.upload}>上传</button>
+								</div>
+					}
+			/>
+        </Page>;
+    }
+}

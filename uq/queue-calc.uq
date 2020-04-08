@@ -1,0 +1,85 @@
+ACTION QueueCalc ver 1.4 () {
+	VAR timeZone INT, lastScoreItem ID = 0, lastPeriod TAG Period = 0;
+	VAR startDate DATETIME, endDate DATETIME, calcDate DATETIME;
+	VAR startTime DATETIME, endTime DATETIME;
+	TABLE employeeScore (KEY row INT AUTOINC, employee ID, value INT);
+
+	SETTING 'time_zone' INT to timeZone;
+
+	FOREACH (VAR scoreItem ID, period TAG Period
+		OF SELECT gScoreItem as scoreItem, gPeriod as period
+			FROM QueueFormula as a
+			WHERE 1=1
+			GROUP BY a.scoreItem as gScoreItem, a.period as gPeriod
+			ORDER BY gScoreItem, gPeriod)
+	{
+		SET calcDate = NULL;
+		SET calcDate = a.calcDate FROM QueueCalcDate as a WHERE a.scoreItem=scoreItem and a.period=period;
+		IF calcDate IS NULL {
+			SET calcDate = '2020-2-1';
+		}
+
+		WHILE 1=1 {
+			VAR periodName CHAR(50);
+			SET periodName = TAGNAME Period(period);
+			IF periodName='day' {
+				SET startDate = calcDate;
+				SET endDate = DATEADD(day, 1, startDate);
+			}
+			elseif periodName='week' {
+				SET startDate = DATEADD(day, -WEEKDAY(calcDate), calcDate);
+				SET endDate = DATEADD(day, 7, startDate);
+			}
+			elseif periodName='month' {
+				SET startDate = concat(year(calcDate), '-', month(calcDate), '-01');
+				SET endDate = DATEADD(month, 1, startDate);
+			}
+			elseif periodName='quarter' {
+				SET startDate = concat(year(calcDate), '-', (month(calcDate)-1) DIV 3 + 1, '-01');
+				SET endDate = DATEADD(MONTH, 3, startDate);
+			}
+			elseif periodName='year' {
+				SET startDate = concat(year(calcDate), '-01-01');
+				SET endDate = concat(year(calcDate)+1, '-01-01');
+			}
+			else {
+				break;
+			}
+
+			SET startTime = DATEADD(hour, timeZone, startDate);
+			SET endTime = DATEADD(hour, timeZone, endDate);
+
+			-- select periodName, startTime, endTime, scoreItem, period;
+			if endTime>$date break;
+
+			var historyDate DATETIME = DATEADD(hour, -1, endTime);
+
+			DELETE FROM employeeScore WHERE 1=1;
+			INTO employeeScore SELECT gEmployee as employee, sum(a.value) as value
+				FROM EmployeeScoreItem as a
+				WHERE a.date>=startTime and a.date<endTime
+				GROUP BY a.employee as gEmployee;
+
+			FOREACH (VAR orderNum SMALLINT, queueScoreItem ID ScoreItem, ratio SMALLINT, offset INT
+				OF SELECT a.orderNum, a.queueScoreItem, a.ratio, a.offset
+					FROM QueueFormula as a
+					WHERE 1=1
+					ORDER BY a.orderNum)
+			{
+				FOREACH (VAR row INT, employeeId ID, value INT
+					OF SELECT a.row, a.employee as employeeId, a.value 
+					FROM employeeScore as a
+					ORDER BY a.row)
+				{
+					HISTORY EmployeeScoreItem date=historyDate 
+						SET employee=employeeId, scoreItem=queueScoreItem, value=value;
+					SET historyDate = DATEADD(MICROSECOND, 100, historyDate);
+				}
+			}
+
+			SET calcDate = endDate;
+			SET lastScoreItem=scoreItem, lastPeriod=period;
+			BOOK QueueCalcDate at(scoreItem, period) SET calcDate=endDate;
+		}
+	}
+};

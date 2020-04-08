@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { UiIdItem } from '../schema';
-import { Page } from '../page';
+import { Page } from '../page/page';
 import { observer } from 'mobx-react';
 import { ItemEdit } from './itemEdit';
 
 export class IdItemEdit extends ItemEdit {
-    protected uiItem: UiIdItem;
+    get uiItem(): UiIdItem {return this._uiItem as UiIdItem}
     protected async internalStart():Promise<any> {
         return new Promise<any>(async (resolve, reject) => {
             //let element = React.createElement(this.page, {resolve:resolve, reject:reject});

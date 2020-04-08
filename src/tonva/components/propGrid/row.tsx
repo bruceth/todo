@@ -32,7 +32,7 @@ export class PropGap extends PropRow {
             case '-': w = 'pb-1'; break;
         }
         let cn = className(w);
-        return <div key={'_g_' + key} className={cn} style={{backgroundColor: '#f0f0f0'}} />;
+        return <div key={'_g_' + key} className={cn} />;
     }
 }
 

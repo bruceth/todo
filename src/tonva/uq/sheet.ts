@@ -206,7 +206,7 @@ class GetSheetCaller extends SheetCaller<number> {
 }
 
 class SheetArchiveCaller extends SheetCaller<number> {
-    protected readonly params: number;  // id
+    //protected readonly params: number;  // id
     method = 'GET';
     //protected readonly suffix = 'archive';
     buildParams() {}
@@ -255,11 +255,17 @@ export class PageStateItems<T> extends PageItems<T> {
         super(true);
         this.sheet = sheet;
         this.pageSize = 10;
-    }
+	}
+	protected async loadResults(param:any, pageStart:any, pageSize:number):Promise<{[name:string]:any[]}> {
+		let ret = await this.sheet.getStateSheets(param, pageStart, pageSize);
+		return {$page: ret};
+	}
+	/*
     protected async load(param:any, pageStart:any, pageSize:number):Promise<any[]> {
         let ret = await this.sheet.getStateSheets(param, pageStart, pageSize);
         return ret;
-    }
+	}
+	*/
     protected setPageStart(item:any) {
         this.pageStart = item === undefined? 0 : item.id;
     }

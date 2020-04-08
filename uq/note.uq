@@ -1,0 +1,69 @@
+TUID Note (
+	id,
+	[group] ID [Group],
+	main content TEXT,
+	main type SMALLINT DEFAULT 0,	-- 0: 普通消息，1:Task，2:Todo，3:Act, 4:Assess
+	main obj ID,					-- 对应的obj id
+	owner ID [$User],
+	x TINYINT DEFAULT 0,
+	stamp (create),	
+	index group_id ([group], id) unique,
+);
+
+ACTION SaveNote(
+	[group] ID, 
+	content TEXT)
+RETURNS ret (
+	note ID
+){
+	VAR note ID;
+	TUID Note INTO note SET [group]=[group], content=content, owner=$user;
+	FOREACH (VAR member ID OF SELECT a.member FROM GroupMember as a WHERE a.[group]=[group]) {
+		BOOK MyGroup at(member, [group]) SET time=$date, unread+=1;
+	}
+	INTO ret SELECT note;
+};
+
+QUERY GetGroupNotes([group] ID [Group])
+PAGE (
+	id ID desc,
+	content TEXT,
+	owner ID,
+	type TINYINT,
+	obj ID,
+	[$create] DATETIME,
+	x TINYINT,
+	state TINYINT
+) 
+RETURNS retTask (
+	id ID,
+	taskId ID,
+	templet ID,
+	discription TEXT,
+	time TIMESTAMP,
+	owner ID,
+	x TINYINT,
+	todo ID,
+	state TINYINT,
+	worker ID,
+) 
+{
+	BOOK MyGroup AT($user, [group]) SET unread=0;
+	PAGE SELECT a.id, a.content, a.owner, a.[$create], a.type, a.obj, a.x, 
+		CASE WHEN a.type=1 THEN (SELECT state FROM Todo WHERE task=a.obj AND worker=$user)
+		ELSE NULL
+		END AS state
+		FROM Note as a
+		WHERE a.[group]=[group] and a.id<$pageStart
+		ORDER BY a.id desc
+		LIMIT $pageSize;
+
+	INTO retTask SELECT a.id, b.id as taskId, b.templet, c.discription
+		, IFNULL(d.time, b.time) as time
+		, b.owner, b.x, d.id as todo
+		, d.state, d.worker
+		FROM $Page as a
+			JOIN Task as b on a.type=1 and a.obj=b.id
+			JOIN TodoTemplet as c on b.templet=c.id
+			LEFT JOIN Todo as d on b.id=d.task and d.worker=$user;
+};

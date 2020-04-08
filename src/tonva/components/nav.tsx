@@ -2,7 +2,7 @@ import * as React from 'react';
 import {observable} from 'mobx';
 import marked from 'marked';
 import {User, Guest/*, UserInNav*/} from '../tool/user';
-import {Page} from './page';
+import {Page} from './page/page';
 import {netToken} from '../net/netToken';
 import FetchErrorView, { SystemNotifyPage } from './fetchErrorView';
 import {FetchError} from '../net/fetchError';
@@ -384,25 +384,21 @@ export class NavView extends React.Component<Props, NavViewState> {
         if (fetchError)
             elError = <FetchErrorView clearError={this.clearError} {...fetchError} />;
         let test = nav.testing===true && 
-            <span className="cursor-pointer position-absolute" style={{lineHeight:0}}>
+			<span className="cursor-pointer position-fixed" style={{top:0,left:'0.2rem',zIndex:90001}}>
                 <FA className="text-warning" name="info-circle" />
             </span>;
         //onClick={this.onClick}
-        return (
-        <ul className="va">
-            {
-                stack.map((item, index) => {
-                    let {key, view} = item;
-                    return <li key={key} style={index<top? {visibility: 'hidden'}:undefined}>
-                        {view}
-                    </li>
-                })
-            }
-            {elWait}
-            {elError}
-            {test}
-        </ul>
-        );
+        return <>
+			{stack.map((item, index) => {
+				let {key, view} = item;
+				return <div key={key} style={index<top? {visibility: 'hidden'}:undefined}>
+					{view}
+				</div>
+			})}
+			{elWait}
+			{elError}
+			{test}
+        </>;
     }
 
     private refresh() {
@@ -951,10 +947,12 @@ export class Nav {
         this.push(<ConfirmReloadPage confirm={(ok:boolean):Promise<void> => {
             if (ok === true) {
                 this.showReloadPage('彻底升级');
+				localStorage.clear();
+				/*
                 this.local.readToMemory();
-                //localStorage.clear();
                 env.localDb.removeAll();
-                this.local.saveToLocalStorage();
+				this.local.saveToLocalStorage();
+				*/
             }
             else {
                 this.pop();

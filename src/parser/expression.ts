@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { Token } from "./token";
 import { TokenStream } from './tokenStream';
 import { Atom, 
@@ -131,7 +130,7 @@ export abstract class Expression
 
     private C()
     {
-        if (this.ts.token == Token.NOT ||
+        if (this.ts.token === Token.NOT ||
             this.ts.isKeyword('not'))
         {
             this.ts.readToken();
@@ -344,7 +343,7 @@ export abstract class Expression
     }
     private predefinedFunc(func:string):boolean
     {
-        let paramCount = 0;
+        //let paramCount = 0;
         switch (func)
         {
             default:
@@ -381,7 +380,7 @@ export abstract class Expression
     ReadFixCountFunc(func:string, count:number)
     {
         let paramCount = this.readFuncParameters();
-        if (count != paramCount) this.error('函数'+func+'需要'+count+'个参数');
+        if (count !== paramCount) this.error('函数'+func+'需要'+count+'个参数');
         this.add(new OpFunction(func, count));
     }
 
@@ -395,7 +394,7 @@ export abstract class Expression
 
     private readFuncParameters():number
     {
-        if (this.ts.token == Token.RPARENTHESE)
+        if (this.ts.token === Token.RPARENTHESE)
         {
             this.ts.readToken();
             return 0;
@@ -405,12 +404,12 @@ export abstract class Expression
         {
             this.expValue();
             n++;
-            if (this.ts.token == Token.COMMA)
+            if (this.ts.token === Token.COMMA)
             {
                 this.ts.readToken();
                 continue;
             }
-            if (this.ts.token as any == Token.RPARENTHESE)
+            if (this.ts.token as any === Token.RPARENTHESE)
             {
                 this.ts.readToken();
                 break;

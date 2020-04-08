@@ -73,7 +73,8 @@ export class TuidsCache {
         let group:{[entity:string]: {tuid:Tuid; ids: string[]}} = {};
         let modifyMax:number = 0;
         for (let modify of ret.queue) {
-            let {id, entity, key} = modify;
+			let {id, entity, key} = modify;
+			if (!key) continue;
             let tuid = tuids[entity];
             if (tuid === undefined) continue;
             let item = group[entity];

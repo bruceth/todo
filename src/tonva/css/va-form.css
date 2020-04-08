@@ -108,6 +108,15 @@
 .w-max-4c {
   max-width: 4rem !important;
 }
+.w-5c {
+	width: 5rem !important;
+}
+.w-min-5c {
+min-width: 5rem !important;
+}
+.w-max-5c {
+max-width: 5rem !important;
+}
 .w-6c {
   width: 6rem !important;
 }
@@ -212,10 +221,19 @@
   height: 4rem !important;
 }
 .h-min-4c {
-  min-height: 4rem !important;
+	min-height: 4rem !important;
 }
 .h-max-4c {
-  max-height: 4rem !important;
+	max-height: 4rem !important;
+}
+.h-5c {
+	height: 5rem !important;
+}
+.h-min-5c {
+	min-height: 5rem !important;
+}
+.h-max-5c {
+	max-height: 5rem !important;
 }
 .h-6c {
   height: 6rem !important;

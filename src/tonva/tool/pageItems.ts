@@ -5,7 +5,8 @@ export abstract class PageItems<T> {
     constructor(itemObservable:boolean = false) {
         this._items = observable.array<T>([], {deep:itemObservable});
     }
-    private isFirst: boolean = true;
+	private isFirst: boolean = true;
+	private pageItemAction: (item:T, results:{[name:string]:any[]}) => void;
     @observable loading: boolean = false;
     @observable private beforeLoad: boolean = true;
     @observable protected loaded: boolean = false;
@@ -15,7 +16,11 @@ export abstract class PageItems<T> {
         if (this.beforeLoad === true) return null;
         if (this.loaded === false) return undefined;
         return this._items;
-    }
+	}
+	
+	setEachPageItem(pageItemAction: (item:T, results:{[name:string]:any[]}) => void) {
+		this.pageItemAction = pageItemAction;
+	}
 
     @observable topDiv:string;
     @observable bottomDiv:string;
@@ -32,8 +37,20 @@ export abstract class PageItems<T> {
     protected pageSize = 30;
     protected appendPosition:'head'|'tail' = 'tail';
 
-    protected abstract async load(param:any, pageStart:any, pageSize:number):Promise<T[]>;
-    protected abstract setPageStart(item:T):void;
+	protected abstract async loadResults(param:any, pageStart:any, pageSize:number):Promise<{[name:string]:any[]}>;
+	protected abstract setPageStart(item:T):void;
+	
+	protected async load(param:any, pageStart:any, pageSize:number):Promise<any[]> {
+		let results = await this.loadResults(param, pageStart, pageSize);
+		let pageList = results.$page;
+		if (this.pageItemAction !== undefined) {
+			let len = pageList.length;
+			for (let i=0; i<len; i++) {
+				this.pageItemAction(pageList[i], results);
+			}
+		}
+		return pageList;
+	}
 
     reset() {
         this.isFirst = true;
@@ -75,10 +92,17 @@ export abstract class PageItems<T> {
         let ret = await this.load(
                 this.param, 
                 this.pageStart,
-                pageSize);
+				pageSize);
         this.loading = false;
         this.loaded = true;
-        let len = ret.length;
+		let len = ret.length;
+		/*
+		if (this.itemAction !== undefined) {
+			for (let i=0; i<len; i++) {
+				this.itemAction(ret[i], ret);
+			}
+		}
+		*/
         if ((this.isFirst===true && len>this.firstSize) ||
             (this.isFirst===false && len>this.pageSize))
         {
@@ -94,10 +118,12 @@ export abstract class PageItems<T> {
             return;
         }
         this.setPageStart(ret[len-1]);
-        if (this.appendPosition === 'tail')
-            this._items.push(...ret);
-        else
-            this._items.unshift(...ret.reverse());
+        if (this.appendPosition === 'tail') {
+			this._items.push(...ret);
+		}
+        else {
+			this._items.unshift(...ret.reverse());
+		}
         this.isFirst = false;
         this.onLoaded();
     }

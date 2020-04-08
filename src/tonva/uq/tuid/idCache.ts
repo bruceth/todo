@@ -9,7 +9,8 @@ const maxCacheSize = 1000;
 
 export class IdCache {
     private queue: number[] = [];               // 每次使用，都排到队头
-    private cache = observable.map({}, {deep: false});    // 已经缓冲的
+	private cache = observable.map({}, {deep: false});    // 已经缓冲的
+	private loading:boolean = false;
 
     protected localArr:LocalArr;
     protected waitingIds: number[] = [];          // 等待loading的
@@ -25,7 +26,7 @@ export class IdCache {
     }
 
     useId(id:number, defer?:boolean) {
-        if (id === undefined || id === 0) return;
+        if (!id) return;
         if (isNumber(id) === false) return;
         if (this.cache.has(id) === true) {
             this.moveToHead(id);
@@ -76,7 +77,8 @@ export class IdCache {
     remove(id:number) {
         this.cache.delete(id);
         let index = this.queue.findIndex(v => v === id);
-        this.queue.splice(index, 1);
+		this.queue.splice(index, 1);
+		this.localArr.removeItem(id);
     }
 
     valueFromId(id:number|BoxId):any {
@@ -107,11 +109,12 @@ export class IdCache {
 
     async cacheIds():Promise<void> {
         if (this.waitingIds.length === 0) return;
-        let tuidValues = await this.loadIds();
-        await this.cacheIdValues(tuidValues);
+		let tuidValues = await this.loadIds();
+		if (tuidValues === undefined) return;
+        this.cacheIdValues(tuidValues);
     }
 
-    private async cacheIdValues(tuidValues: any[]) {
+    private cacheIdValues(tuidValues: any[]) {
         if (tuidValues === undefined) return;
         let tuids = this.unpackTuidIds(tuidValues);
         for (let tuidValue of tuids) {
@@ -129,12 +132,14 @@ export class IdCache {
             return (val !== undefined);
         });
         if (localedValues.length === 0) return;
-        await this.cacheIdValues(localedValues);
+        this.cacheIdValues(localedValues);
     }
     protected divName:string = undefined;
     protected async loadIds(): Promise<any[]> {
-        //let ret = await this.tuidInner.loadTuidIds(this.divName, this.waitingIds);
-        let ret = await this.loadTuidIdsOrLocal(this.waitingIds);
+		if (this.loading === true) return;
+		this.loading = true;
+		let ret = await this.loadTuidIdsOrLocal(this.waitingIds);
+		this.loading = false;
         return ret;
     }
     protected unpackTuidIds(values:string[]):any[] {
