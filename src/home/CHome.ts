@@ -1,11 +1,13 @@
-import { CUqBase } from "tonvaApp";
+import { CUqBase } from "../tapp";
 import { VMain } from "./VMain";
 import { VTest } from "./VTest";
 import { test } from "parser/test";
 
 export class CHome extends CUqBase {
     protected async internalStart() {
+		// eslint-disable-next-line
 		let values1 = this.uqs.performance.test1.values;
+		// eslint-disable-next-line
 		let values2 = this.uqs.performance.test2.values;
 	}
 	

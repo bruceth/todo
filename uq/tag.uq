@@ -1,6 +1,6 @@
 Tag Test1 ver 1.5 (a:'aaTest1', b:'bbTest1');
 Tag Test2 ver 1.1;
-
+/*
 QUERY a ver 1.0 (
 	p1 int,
 	tags char(100)
@@ -23,3 +23,4 @@ RETURNS ret (
 		from RoleScoreItem as a
 		where a.scoreItem=1 and a.role=1 and a.test1Tag=1;
 };
+*/

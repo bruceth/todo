@@ -221,17 +221,16 @@ div.tv-page {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
-/*
-  ul.va>li>* {
-	margin-left: auto;
-	margin-right: auto;
- }
-*/
+div.tv-page div.tv-page {
+	overflow-y: unset !important;
+	overflow-x: unset !important;
+}
+
   ul.va>li>iframe {
       height: 100%;
       border: none;
   }
-  ul.va>li.va-wait {
+  .va-wait {
     display: flex;
     position: absolute;
     left: 0;
@@ -244,10 +243,10 @@ div.tv-page {
     align-items: center;
     justify-content: center;
   }
-  ul.va>li.va-wait1 {
+  .va-wait1 {
     opacity: 0.1;
   }
-  ul.va>li.va-wait2 {
+  .va-wait2 {
     opacity: 0.5;
   }
   div.va-error {

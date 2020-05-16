@@ -1,48 +1,56 @@
 import * as React from 'react';
 import classNames from 'classnames';
-import { Page, VPage, tv, List, FA, Tuid } from 'tonva';
-import { CGroup } from './CGroup';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
-import { VNewTask } from './VNewTask';
-import { Note, NoteTask } from './note';
+import { VPage, tv, List, FA, Tuid, EasyTime } from 'tonva';
+import { CGroup } from './CGroup';
+import { NoteItem, NoteAssign } from './NoteItem';
 
 export class VGroup extends VPage<CGroup> {
 	@observable private inputed: boolean = false;
-    async open() {
-		this.openPage(this.page);
+
+	init() {
 		this.scrollToBottom();
 	}
-	
 	private scrollToBottom() {
 		setTimeout(() => this.divBottom?.scrollIntoView(), 20);
 	}
 
-	private renderNote = (noteItem:Note, index:number):JSX.Element => {
-		let {type, owner, obj} = noteItem;
+	private renderTime(noteItem:NoteItem, index:number):JSX.Element {
+		let {$create} = noteItem;
+		if (index > 0) {
+			let lastNoteItem:NoteItem;
+			lastNoteItem = this.controller.groupNotesPager.items[index-1];
+			if ($create.getTime() - lastNoteItem.$create.getTime() < 2 * 60 * 1000) {
+				return;
+			}
+		}
+		return <div className="pt-3 text-muted small text-center"><EasyTime date={$create} /></div>
+	}
+
+	private renderNote = (noteItem:NoteItem, index:number):JSX.Element => {
+		let {owner} = noteItem;
 		let isMe = (Tuid.equ(owner, this.controller.user.id));
-		let cnBox = classNames({"align-items-end my-2": isMe, "align-items-start": !isMe}, "flex-column");
-		let divBody = obj?
-			(obj as NoteTask).renderAsNote(()=>this.onTaskClick(noteItem, obj))
-			: 
-			this.renderMessage(noteItem);
-		return <div className={cnBox}>
-			{isMe===false && <div className="small text-muted mt-2 mb-1">{owner}</div>}
-			{divBody}
+		let cnBox = classNames(
+			{"align-items-end my-2": isMe, "align-items-start": !isMe},
+			"d-flex flex-column");
+
+		let onAssignClick = () => {
+			this.controller.showAssign(noteItem as NoteAssign);
+		}
+		return <div className="d-block">
+			{this.renderTime(noteItem, index)}
+			<div className={cnBox}>
+				{isMe===false && <div className="small text-muted mt-2 mb-1">{owner}</div>}
+				{noteItem.renderAsNote(onAssignClick)}
+			</div>
 		</div>;
 	}
 
-	private renderMessage = (noteItem:any) => {
-		let {content, owner} = noteItem;
-		let isMe = (Tuid.equ(owner, this.controller.user.id));
-		let cnDiv = classNames('p-3 rounded', {"bg-white": !isMe});
-		let bgStyle:{[prop:string]:string} = {maxWidth:'75%'};
-		if (isMe === true) bgStyle['backgroundColor'] = '#8f8';
-		return <div className={cnDiv} style={bgStyle}>{content}</div>;
-	}
-
-	private onTaskClick = async (noteItem:any, task:any) => {
-		this.controller.showEditTask(noteItem, task);
+	private inputRef = (input:any) => {
+		if (!input) return;
+		if (window.getComputedStyle(input).visibility === 'hidden') return;
+		this.input = input;
 	}
 
 	private addNote = async () => {
@@ -50,7 +58,7 @@ export class VGroup extends VPage<CGroup> {
 		let content:string = this.input.value;
 		this.input.value = '';
 		this.inputed = false;
-		await this.controller.addNote(content);
+		await this.controller.addNote(content, undefined, undefined);
 		this.scrollToBottom();
 	}
 
@@ -80,7 +88,7 @@ export class VGroup extends VPage<CGroup> {
 	private taskTodo = async () => {
 		this.input.value = '';
 		this.inputed = false;
-		let ret = await this.controller.vCall(VNewTask);
+		let ret = await this.controller.showNewTask();
 		if (ret === true) this.scrollToBottom();
 	}
 
@@ -92,54 +100,71 @@ export class VGroup extends VPage<CGroup> {
 		this.controller.showGroupDetail();
 	}
 
-    private page = observer(() => {
-		let {currentGroup, groupNotesPager, commandsShown} = this.controller;
-		//let {group} = groupItem;
-		let cnFooter = classNames('w-100 d-flex flex-column justify-content-center', {
-		});
-		let cnInputRow = classNames("d-flex px-2 align-items-center py-1 border-top", 
-			{
-				'align-items-start':  commandsShown,
+	header() {
+		let Header = observer(() => {
+			let {currentGroup} = this.controller;
+			return tv(currentGroup, v => {
+				let {name, count} = v;
+				return <>{name} &nbsp; {count && <small>({count}成员)</small>}</>
 			});
-
-		let right = <div className="d-flex px-3 align-items-center cursor-pointer"
+		});
+		return <Header />;
+	}
+	footer() {
+		let Footer = observer(() => {
+			let {commandsShown} = this.controller;
+			let cnFooter = classNames('w-100 d-flex flex-column justify-content-center', {
+			});
+			let cnInputRow = classNames("d-flex px-2 align-items-center py-1 border-top", 
+				{
+					'align-items-start':  commandsShown,
+				});
+			return <div className={cnFooter}>
+				<div className={cnInputRow}>
+					<input className="flex-fill form-control mr-2 mb-0" 
+						type="text" ref={this.inputRef} 
+						onKeyDown={this.onKeyDown} onChange={this.onInputChange} />
+					{
+						this.inputed === true?
+						<button onClick={this.addNote}
+							className="btn btn-sm btn-success text-nowrap">
+							发送
+						</button>
+						:
+						<button onClick={this.showCommands}
+							className="btn btn-sm btn-outline-dark">
+							<FA name="plus" />
+						</button>
+					}
+				</div>
+				{
+					commandsShown === true && <div className="d-flex flex-wrap px-3 py-4">
+						<div className="cursor-pointer" onClick={this.taskTodo}>
+							<div className="p-2 bg-white" style={{borderRadius:'0.6em'}}>
+								<FA name="tasks" size="lg" fixWidth={true} />
+							</div>
+							<div className="text-center mt-1 small text-muted"><small>任务</small></div>
+						</div>
+					</div>
+				}
+			</div>
+		});
+		return <Footer />;
+	}
+	right() {
+		return <div className="d-flex px-3 align-items-center cursor-pointer"
 			onClick={this.onDetail}>
 			<FA name="ellipsis-h" />
 		</div>;
-		
-		let footer = <div className={cnFooter}>
-			<div className={cnInputRow}>
-				<input className="flex-fill form-control mr-2 mb-0" 
-					type="text" ref={v=>this.input=v} onKeyDown={this.onKeyDown} onChange={this.onInputChange} />
-				{
-					this.inputed === true?
-					<button onClick={this.addNote}
-						className="btn btn-sm btn-success text-nowrap">
-						发送
-					</button>
-					:
-					<button onClick={this.showCommands}
-						className="btn btn-sm btn-outline-dark">
-						<FA name="plus" />
-					</button>
-				}
-			</div>
-			{
-				commandsShown === true && <div className="d-flex flex-wrap px-3 py-4">
-					<div className="cursor-pointer" onClick={this.taskTodo}>
-						<div className="p-2 bg-white" style={{borderRadius:'0.6em'}}><FA name="tasks" size="lg" fixWidth={true} /></div>
-						<div className="text-center mt-1 small text-muted"><small>任务</small></div>
-					</div>
-				</div>
-			}
-		</div>;
-
-        return <Page header={tv(currentGroup, v => <>{v.name} ({v.count})</>)} footer={footer} right={right}>
+	}
+	content() {
+		let {groupNotesPager} = this.controller;
+		return <>
 			<List className="px-3 flex-fill job-notes-list" 
 				items={groupNotesPager.items} 
 				item={{render: this.renderNote}}
 				onFocus={this.onListFocus} />
 			<div id={groupNotesPager.bottomDiv} ref={this.refDivBottom} className="h-1c"></div>
-        </Page>
-    })
+		</>;
+	}
 }

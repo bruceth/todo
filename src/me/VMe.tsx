@@ -1,35 +1,24 @@
-import * as React from 'react';
-import { VPage, Page } from 'tonva';
-// import { observable } from 'mobx';
-// import { observer } from 'mobx-react';
-// import { EditMeInfo } from './EditMeInfo';
-// import { appConfig } from 'configuration';
+import React from 'react';
+import { VPage, UserView, User } from 'tonva';
 import { CMe } from './CMe';
-import config from '../../package.json';
 
 export class VMe extends VPage<CMe> {
-    private arr: string[] = ['dddd', 'ccc', 'eee', 'fff'];
+	init(param?:any) {
+		// useUser(10);
+	}
+	logout(): boolean | (()=>Promise<void>) {return true;}
+	render(param?:any):JSX.Element {
+		this.init(param);
+		return this.renderPage();
+	}
 
-    async open(param?: any) {
-    }
-    render() {
-        for (let i=0; i<30; i++) {
-            this.arr.push('曹 ' + i);
-        }
-    
-        return <Page logout={true}>
-            曹泽锐 <br/>
-            <div className="h3 text-danger">
-                A A 
-                {this.arr.map((v, index) => {
-                    return <div key={index} className="border p-3">{v}</div>;
-                })}
-                <span className="text-success">B b</span>
-            </div>
-            版本：{config.version}
-        </Page>;
-    }
-
-
-   
+	header() {return  '我的'}
+	content() {
+		let renderUser = (user:User) => {
+			return <>{user.name}</>;
+		}
+		return <div className="p-3">
+			<UserView user={10} render={renderUser} />
+		</div>;
+	}
 }

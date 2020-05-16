@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ItemSchema, UiRadio, UiTag } from '../schema';
+import { UiTag } from '../schema';
 import { nav } from '../nav';
 import { Page } from '../page/page';
 import { observer } from 'mobx-react';
@@ -32,8 +32,6 @@ abstract class TagItemEdit extends ItemEdit {
 	protected abstract renderInputs():JSX.Element;
     private page = observer((props:{resolve:(value:any)=>void, reject: (resean?:any)=>void}):JSX.Element => {
         let {resolve} = props;
-        let {name} = this.itemSchema;
-        //let {valuesView} = this.uiItem;
         let right = <button
             className="btn btn-sm btn-success align-self-center"
             disabled={!this.isChanged}

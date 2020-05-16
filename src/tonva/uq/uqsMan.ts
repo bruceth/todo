@@ -83,7 +83,7 @@ export class UQsMan {
         for (let i in this.collection) {
             let uq = this.collection[i];
             promises.push(uq.loadEntities());
-        }
+		}		
         let results = await Promise.all(promises);
         for (let result of results)
         {
@@ -92,7 +92,7 @@ export class UQsMan {
                 retErrors.push(retError);
                 continue;
             }
-        }
+		}
         return retErrors;
     }
 

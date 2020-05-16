@@ -7,6 +7,7 @@ export abstract class PageItems<T> {
     }
 	private isFirst: boolean = true;
 	private pageItemAction: (item:T, results:{[name:string]:any[]}) => void;
+	private itemConverter: (item:any, queryResults:{[name:string]:any[]}) => T;
     @observable loading: boolean = false;
     @observable private beforeLoad: boolean = true;
     @observable protected loaded: boolean = false;
@@ -20,6 +21,10 @@ export abstract class PageItems<T> {
 	
 	setEachPageItem(pageItemAction: (item:T, results:{[name:string]:any[]}) => void) {
 		this.pageItemAction = pageItemAction;
+	}
+
+	setItemConverter(itemConverter: (item:any, queryResults:{[name:string]:any[]}) => T) {
+		this.itemConverter = itemConverter;
 	}
 
     @observable topDiv:string;
@@ -43,6 +48,15 @@ export abstract class PageItems<T> {
 	protected async load(param:any, pageStart:any, pageSize:number):Promise<any[]> {
 		let results = await this.loadResults(param, pageStart, pageSize);
 		let pageList = results.$page;
+		if (this.itemConverter) {
+			let ret:T[] = [];
+			let len = pageList.length;
+			for (let i=0; i<len; i++) {
+				let item = this.itemConverter(pageList[i], results);
+				ret.push(item);
+			}
+			return ret;
+		}
 		if (this.pageItemAction !== undefined) {
 			let len = pageList.length;
 			for (let i=0; i<len; i++) {

@@ -41,7 +41,7 @@ export abstract class ItemEdit {
     }
 
 	renderContent() {		
-        let {name, type, required} = this._itemSchema;
+        let {name, type} = this._itemSchema;
         let divValue:any;
         let uiItem = this._uiItem;
         let label:string, labelHide:boolean;

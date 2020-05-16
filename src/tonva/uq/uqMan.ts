@@ -194,13 +194,8 @@ export class UqMan {
             return err;
         }
     }
-    /*
-    async loadEntities() {
-        let accesses = await this.uqApi.loadEntities();
-        this.buildEntities(accesses);
-    }
-    */
-    buildEntities(entities:any) {
+
+	buildEntities(entities:any) {
         if (entities === undefined) {
             debugger;
         }
@@ -209,22 +204,8 @@ export class UqMan {
         this.uqVersion = version;
         this.buildTuids(tuids);
         this.buildAccess(access);
-    }
-
-    /*
-    async checkAccess() {
-        return await this.uqApi.checkAccess();
-    }
-    */
-
-    async loadEntitySchema(entityName: string): Promise<any> {
-        return await this.uqApi.schema(entityName);
-    }
-
-    getTuid(name:string): Tuid {
-        return this.tuids[name];
-    }
-
+	}
+	
     private buildTuids(tuids:any) {
         for (let i in tuids) {
             let schema = tuids[i];
@@ -241,6 +222,14 @@ export class UqMan {
             let tuid = this.tuids[i];
             tuid.buildFieldsTuid();
         }
+	}
+
+    async loadEntitySchema(entityName: string): Promise<any> {
+        return await this.uqApi.schema(entityName);
+    }
+
+    getTuid(name:string): Tuid {
+        return this.tuids[name];
     }
 
     private buildAccess(access:any) {

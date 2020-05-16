@@ -1,3 +1,4 @@
+/*
 ACTION QueueCalc ver 1.4 () {
 	VAR timeZone INT, lastScoreItem ID = 0, lastPeriod TAG Period = 0;
 	VAR startDate DATETIME, endDate DATETIME, calcDate DATETIME;
@@ -83,3 +84,4 @@ ACTION QueueCalc ver 1.4 () {
 		}
 	}
 };
+*/

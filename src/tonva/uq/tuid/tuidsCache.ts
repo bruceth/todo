@@ -10,14 +10,10 @@ interface Modify {
 
 export class TuidsCache {
     private readonly uq: UqMan;
-    //private readonly uqApi: UqApi;
-    //private readonly tuids: {[name:string]: Tuid};
     private modifyMax: TuidModify;
     private cacheTimer: any;
     constructor(uq: UqMan) {
         this.uq = uq;
-        //this.uqApi = uq.uqApi;
-        //this.tuids = uq.tuids;
     }
 
     cacheTuids(defer:number) {

@@ -1,31 +1,35 @@
-import { CUqBase } from "tonvaApp";
+import { CUqBase, EnumNoteType } from "../tapp";
 import { VMain } from "./VMain";
 import { QueryPager, useUser } from "tonva";
 import { VGroup } from "./VGroup";
-import { VNewTask } from "./VNewTask";
 import { observable } from "mobx";
-import { CAct } from "act/CAct";
-import { VEditTask } from "./VEditTask";
 import { stateDefs } from "tools";
-import { Note, buildNote, NoteTask, Todo, Task } from "./note";
+import { Task, Assign } from "../models";
 import { VGroupDetail } from "./VGroupDetail";
+import { Performance } from '../tapp'
+import { NoteItem, NoteAssign, dataToNoteItem, createNoteAssign, createNoteText } from "./NoteItem";
 
 export class CGroup extends CUqBase {
+	private performance: Performance;
+
 	@observable commandsShown: boolean = false;
 	@observable currentGroup: any;
 	@observable currentTask: Task;
 
 	groupsPager: QueryPager<any>;
-	groupNotesPager: QueryPager<Note>;
-	//groupItem: any;
+	groupNotesPager: QueryPager<NoteItem>;
 
     protected async internalStart() {
+	}
+
+	init() {
+		this.performance = this.uqs.performance;
 	}
 	
 	tab = () => this.renderView(VMain);
 	
 	async load() {
-		this.groupsPager = new QueryPager(this.uqs.performance.GetMyGroups, 10, 30, true);
+		this.groupsPager = new QueryPager(this.performance.GetMyGroups, 10, 30, true);
 		await this.groupsPager.first(undefined);
 		let i0 = this.groupsPager.items[0];
 		if (i0) {
@@ -35,43 +39,39 @@ export class CGroup extends CUqBase {
 			}
 		}
 	}
-	/*
-	private async assureGroup():Promise<any> {
-		let ret = await this.uqs.performance.Group.assureBox(this.groupItem.group.id);
-		return ret;
-	}
-	*/
 
 	async saveGroup(parent:number, name:string, discription:string) {
 		let data = {parent, name, discription};
-		let ret = await this.uqs.performance.SaveGroup.submit(data);
+		let ret = await this.performance.SaveGroup.submit(data);
 		let retGroupId = ret?.group;
-		let groupBoxId = this.uqs.performance.Group.boxId(retGroupId);
+		let groupBoxId = this.performance.Group.boxId(retGroupId);
 		this.groupsPager.items.unshift({group: groupBoxId, time: new Date()});
 	}
 
 	async saveGroupProp(props: {id:number, name:string, discription:string}) {
-		await this.uqs.performance.SaveGroupProp.submit(props);
-		this.uqs.performance.Group.resetCache(props.id);
+		await this.performance.SaveGroupProp.submit(props);
+		this.performance.Group.resetCache(props.id);
 	}
 
 	async setGroup(groupId?:number) {
 		if (!groupId) groupId = this.currentGroup?.id;
 		if (!groupId) return;
-		let {Group} = this.uqs.performance;
-		Group.resetCache(groupId);
+		let {Group} = this.performance;
+		//Group.resetCache(groupId);
 		this.currentGroup = await Group.assureBox(groupId);
 	}
 
+	private noteItemConverter = (item:any, queryResults:{[name:string]:any[]}):NoteItem => {
+		return dataToNoteItem(this, item, queryResults);
+	}
 	showGroup = async (item: any) => {
-		let {performance} = this.uqs;
-		await this.setGroup(item.group.id);
-		this.groupNotesPager = new QueryPager(performance.GetGroupNotes, 10, 30, true);
-		this.groupNotesPager.setEachPageItem(buildNote);
+		this.groupNotesPager = new QueryPager<NoteItem>(this.performance.GetGroupNotes, 10, 30, true);
+		this.groupNotesPager.setItemConverter(this.noteItemConverter);
 		this.groupNotesPager.setReverse();
 		await this.groupNotesPager.first({group: item.group});
 		item.unread = 0;
 		this.openVPage(VGroup);
+		this.setGroup(item.group.id);
 	}
 
 	private afterAddNote() {
@@ -79,47 +79,83 @@ export class CGroup extends CUqBase {
 		this.commandsShown = false;
 	}
 
-	addNote = async (content: string) => {
-		let ret = await this.uqs.performance.SaveNote.submit({group: this.currentGroup, content});
+	addNote = async (content: string, type:EnumNoteType, obj: number) => {
+		let ret = await this.performance.PushNote.submit({group: this.currentGroup, content, type, obj});
 		let retNoteId = ret?.note;
-		this.groupNotesPager.items.push({
-			id: retNoteId, 
-			group: this.currentGroup,
-			content, 
-			owner:this.user.id, 
-			$create: new Date(),
-			x: 0,
+		let nts:NoteItem;
+		switch (type) {
+		default:
+		case EnumNoteType.Text:
+			nts = createNoteText(this, this.user.id, content);
+			break;
+		case EnumNoteType.Assign:
+			nts = createNoteAssign(this, this.user.id, obj);
+			break;
+		}
+		nts.id = retNoteId;
+		this.groupNotesPager.items.push(nts);
+		this.afterAddNote();
+	}
+	saveTaskProp = async (prop:string, value:any) => {
+		await this.performance.Assign.saveProp(this.currentTask.id, prop, value);
+	}
+
+	publishAssign = async (assign: Assign):Promise<void> => {
+		let ret:{note:number} = await this.performance.PublishAssign.submit({
+			assignId: assign.id,
+			groupId: this.currentGroup.id
 		});
+		if (!ret) alert('publish assign error');
+		let nts = createNoteAssign(this, this.user.id, ret.note);
+		nts.id = ret.note;
+
+		// eslint-disable-next-line
+		let {id, caption, discription} = assign;
+		nts.id = id;
+		//nts.caption = caption;
+		//nts.discription = discription;
+		this.groupNotesPager.items.push(nts);
 		this.afterAddNote();
 	}
 
-	showNewTask = () => {
-		this.openVPage(VNewTask);
+	showNewTask = async ():Promise<boolean> => {
+		let ret = await this.cApp.showNewAssign();
+		return ret;
 	}
-
-	showEditTask = async (noteItem:any, task:any) => {
-		let {rettodo, acts, assess} = await this.uqs.performance.GetTodo.query({taskId: task});
-		let todo = rettodo[0];
-		this.openVPage(VEditTask, {noteItem, task: task, todo, acts, assess:assess[0]});
+	showAssign = async (noteItem:NoteAssign) => {
+		this.cApp.showAssign(noteItem.assignId); 
 	}
+/*
+	private processTask = async (task:Task): Promise<void> => {
+		let ret = await this.performance.TodoTask.submit({groupId: this.currentGroup.id, taskId: task.id});
+	}
+*/
 
+/*
 	showAct = async (noteItem:any, task:any) => {
 		let cAct = this.newC(CAct);
 		await cAct.start({noteItem, task: task});
 		await cAct.showDialog();
 	}
-
-	newTask = (caption:string) => {
+*/
+/*
+	newTask = async (caption:string) => {
+		let ret = await this.performance.Task.save(undefined, {caption});
 		this.currentTask = {
-			id: undefined,
+			id: ret.id,
 			caption,
 			discription: undefined,
-			time: new Date(),
+			group: 1,
 			owner: this.user.id,
-			todos: []
+			$create: new Date(),
+			$update: new Date(),
+			state: 0,
+			todos: [],
+			history: undefined,
+			meTask: undefined,
 		};
 	}
-
+*/
 	/*
 	task = async (discription:string):Promise<void> => {
 		let {performance} = this.uqs;
@@ -157,34 +193,45 @@ export class CGroup extends CUqBase {
 	}
 	*/
 
-	saveTodo = async (data: {todoContent: string}) => {
-		let {todoContent} = data;
-		await this.uqs.performance.SaveTodo.submit({group: this.currentGroup, todoContent});
+	saveTodo = async (todoContent: string):Promise<any> => {
+		let todo = {
+			id: undefined as any,
+			task: this.currentTask.id,
+			state: 0,
+			discription: todoContent,
+		};
+		let ret = await this.performance.Todo.save(undefined, todo);
+		todo.id = ret.id;
+		return todo;
 	}
 
 	// state 10: 待办，state 20: 正办
-	taskAct = async (note:Note, toState:stateDefs.todo|stateDefs.doing) => {
-		let {obj} = note
-		let task: NoteTask = obj as NoteTask;
-		let ret = await this.uqs.performance.TaskAct.submit({task: task, toState});
+	taskAct = async (noteItem:NoteItem, toState:stateDefs.todo|stateDefs.doing) => {
+		//let {obj} = note
+		//let task: NoteTask = obj as NoteTask;
+		
+		// eslint-disable-next-line
+		let ret = await this.performance.TaskAct.submit({task: undefined, toState});
+		/*
 		task.todo = {
 			id: ret.todo,
 			task: task.id,
-			worker: ret.worker,
+			//worker: ret.worker,
 			state: toState
 		} as Todo; //.state = toState;
+		*/
 	}
 
-	revokeTask = async (note:Note) => {
-		let {obj} = note
-		let task: NoteTask = obj as NoteTask;
-		await this.uqs.performance.RemoveTask.submit({note, task});
-		note.x = 1;
-		task.x = 1;
+	revokeTask = async (noteItem:NoteItem) => {
+		//let {obj} = note
+		//let task: NoteTask = obj as NoteTask;
+		await this.performance.RemoveTask.submit({noteItem, undefined});
+		//note.x = 1;
+		//task.x = 1;
 	};
 
 	async showGroupDetail() {
-		let groupMembersPager = new QueryPager(this.uqs.performance.GetGroupMembers, 10, 30);
+		let groupMembersPager = new QueryPager(this.performance.GetGroupMembers, 10, 30);
 		groupMembersPager.setEachPageItem(item => {
 			useUser(item.member);
 		});
@@ -193,11 +240,11 @@ export class CGroup extends CUqBase {
 	}
 
 	async groupAddMember(member:any) {
-		await this.uqs.performance.AddGroupMember.submit({group: this.currentGroup, member: member});
+		await this.performance.AddGroupMember.submit({group: this.currentGroup, member: member});
 	}
 
 	async groupRemoveMembers(members:any[]) {
-		await this.uqs.performance.RemoveGroupMember.submit({
+		await this.performance.RemoveGroupMember.submit({
 			group: this.currentGroup, 
 			members: members
 		});

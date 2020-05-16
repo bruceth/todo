@@ -12,7 +12,8 @@ export abstract class VPage<C extends Controller> extends View<C> {
 
 	render(param?:any):JSX.Element {
 		this.init(param);
-		return this.content();
+		//return this.content();
+		return this.renderPage();
 	}
 
 	init(param?:any):void {return;}
@@ -21,9 +22,12 @@ export abstract class VPage<C extends Controller> extends View<C> {
 	right():JSX.Element {return null;}
 	content():JSX.Element {return null;}
 	footer():JSX.Element {return null;}
-	renderPage():JSX.Element {
+	logout(): boolean | (()=>Promise<void>) {return false;}
+	protected renderPage():JSX.Element {
+		let header = this.header();
+		if (!header) header = false;
 		return <Page
-			header={this.header()} right={this.right()} footer={this.footer()}
+			header={header} right={this.right()} footer={this.footer()}
 			onScroll={(e:any)=>this.onPageScroll(e)}
 			onScrollTop={(scroller: Scroller) => this.onPageScrollTop(scroller)}
 			onScrollBottom={(scroller: Scroller) => this.onPageScrollBottom(scroller)}
@@ -32,6 +36,7 @@ export abstract class VPage<C extends Controller> extends View<C> {
 			bgClassName={this.bgClassName}
 			afterBack={()=>this.afterBack()}
 			tabsProps={this.tabsProps}
+			logout={this.logout()}
 		>
 			{this.content()}
 		</Page>;
@@ -42,7 +47,7 @@ export abstract class VPage<C extends Controller> extends View<C> {
 	protected onPageScrollBottom(scroller: Scroller): void {}
 	protected afterBack():void {}
 	protected get back(): 'close' | 'back' | 'none' {return 'back'}
-	protected get headerClassName(): string {return;}
-	protected get bgClassName(): string {return;}
-	protected get tabsProps(): TabsProps {return;}
+	protected get headerClassName(): string {return null;}
+	protected get bgClassName(): string {return null;}
+	protected get tabsProps(): TabsProps {return null;}
 }

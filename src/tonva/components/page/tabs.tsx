@@ -45,7 +45,7 @@ class Tab {
     private _content: JSX.Element;
     
     get content(): JSX.Element {
-		if (this.load && this.loaded === false) return;
+		if (this.load && this.loaded === false) return null;
 		if (this.selected === false) return this._content;
 		if (!this._content) {
 			if (this.contentBuilder !== undefined) {
@@ -79,6 +79,8 @@ export const TabCaptionComponent = (label:string, icon:string, color:string) => 
     <div><i className={'fa fa-lg fa-' + icon} /></div>
     <small>{label}</small>
 </div>;
+
+export const TabCaption = TabCaptionComponent;
 
 export class TabsView {
 	private props: TabsProps;
@@ -269,14 +271,12 @@ export class TabsView {
     render() {
 		let {tabPosition} = this.props;
 		let tabs = <this.tabs />;
-		let cnContainer:string, header:any, footer:any;
+		let header:any, footer:any;
 		let visibility:React.CSSProperties = {display:'none'};
 		if (tabPosition === 'top') {
-			cnContainer = 'tv-page-header';
 			header = <header>{tabs}</header>;
 		}
 		else {
-			cnContainer = 'tv-page-footer';
 			footer = <footer>{tabs}</footer>;
 		}
 		return <>

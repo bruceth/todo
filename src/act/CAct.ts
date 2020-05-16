@@ -1,4 +1,4 @@
-import { CUqBase } from "tonvaApp";
+import { CUqBase } from "../tapp";
 import { VAct } from "./VAct";
 
 export class CAct extends CUqBase {
@@ -17,7 +17,7 @@ export class CAct extends CUqBase {
 	}
 
 	todoAct = async (toState:number) => {
-		await this.uqs.performance.TodoAct.submit({todoId: this.todo.id, toState});
+		//await this.uqs.performance.TodoAct.submit({todoId: this.todo.id, toState});
 		//this.toState = toState;
 		this.returnCall(toState);
 	}

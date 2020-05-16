@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { VPage, FA, LMR, Page, Form, ItemSchema, Context, List, tv, EasyTime } from 'tonva';
+import { VPage, FA, LMR, Page, Form, ItemSchema, Context, List, tv, EasyTime, Muted } from 'tonva';
 import { CGroup } from './CGroup';
 import { observer } from 'mobx-react';
 
@@ -11,8 +11,9 @@ export class VMain extends VPage<CGroup> {
 		let {group, time, unread} = item;
 		let right = <small className="text-muted"><EasyTime date={time} /></small>;
 		return <div className="px-3 py-2">{tv(group, v => {
+			let {name, count} = v;
 			return <LMR className="w-100" right={right}>
-				{v.name}
+				{name} {count && <Muted>({count}成员)</Muted>}
 				&nbsp; {unread>0 && <span className="badge badge-pill badge-danger">{unread}</span>}
 			</LMR>;
 		})}</div>;

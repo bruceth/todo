@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {observable, IObservableArray, autorun, IReactionDisposer, isObservableArray, observe} from 'mobx';
+import {observable, IObservableArray, isObservableArray, observe} from 'mobx';
 import classNames from 'classnames';
 import {ListBase} from './base';
 import {uid} from '../../tool/uid';
@@ -16,19 +16,15 @@ export interface SelectableItem {
 export class Selectable extends ListBase {
     @observable private _items: SelectableItem[];
     private inputItems:{[uid:string]: HTMLInputElement} = {};
-    private disposer: IReactionDisposer;
 
     constructor(list: List) {
         super(list);
-        //this.disposer = autorun(this.buildItems);
         this.buildItems();
         this.listenArraySplice();
     }    
 
-    //dispose() {this.disposer()};
-
     private listenArraySplice() {
-        let {items, selectedItems, compare} = this.list.props;
+        let {items} = this.list.props;
         if (items === undefined) return;
         if (items === null) return;
         let itemsArray:any;

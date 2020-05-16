@@ -1,3 +1,5 @@
+ENUM EnumNoteType (Text=0, Assign=10, TaskTodo=20 );
+
 TUID Note (
 	id,
 	[group] ID [Group],
@@ -10,14 +12,19 @@ TUID Note (
 	index group_id ([group], id) unique,
 );
 
-ACTION SaveNote(
+ACTION PushNote(
 	[group] ID, 
-	content TEXT)
+	content TEXT,
+	type TINYINT,
+	obj ID)
 RETURNS ret (
 	note ID
 ){
 	VAR note ID;
-	TUID Note INTO note SET [group]=[group], content=content, owner=$user;
+	IF type is null {
+		SET type=EnumNoteType.Text;
+	}
+	TUID Note INTO note SET [group]=[group], content=content, type=type, obj=obj, owner=$user;
 	FOREACH (VAR member ID OF SELECT a.member FROM GroupMember as a WHERE a.[group]=[group]) {
 		BOOK MyGroup at(member, [group]) SET time=$date, unread+=1;
 	}
@@ -33,37 +40,27 @@ PAGE (
 	obj ID,
 	[$create] DATETIME,
 	x TINYINT,
-	state TINYINT
 ) 
-RETURNS retTask (
-	id ID,
-	taskId ID,
-	templet ID,
+RETURNS assigns (
+	assignId ID,
+	caption CHAR(100),
 	discription TEXT,
 	time TIMESTAMP,
-	owner ID,
-	x TINYINT,
-	todo ID,
-	state TINYINT,
-	worker ID,
+	owner ID
 ) 
 {
+	VAR a INT;
+	set a=0;
 	BOOK MyGroup AT($user, [group]) SET unread=0;
-	PAGE SELECT a.id, a.content, a.owner, a.[$create], a.type, a.obj, a.x, 
-		CASE WHEN a.type=1 THEN (SELECT state FROM Todo WHERE task=a.obj AND worker=$user)
-		ELSE NULL
-		END AS state
+	PAGE SELECT a.id, a.content, a.owner, a.[$create], a.type, a.obj, a.x
 		FROM Note as a
 		WHERE a.[group]=[group] and a.id<$pageStart
 		ORDER BY a.id desc
 		LIMIT $pageSize;
 
-	INTO retTask SELECT a.id, b.id as taskId, b.templet, c.discription
-		, IFNULL(d.time, b.time) as time
-		, b.owner, b.x, d.id as todo
-		, d.state, d.worker
+	INTO assigns SELECT b.id as assignId, b.caption, b.discription
+		, b.[$update] as time
+		, b.owner
 		FROM $Page as a
-			JOIN Task as b on a.type=1 and a.obj=b.id
-			JOIN TodoTemplet as c on b.templet=c.id
-			LEFT JOIN Todo as d on b.id=d.task and d.worker=$user;
+			JOIN Assign as b on a.type=EnumNoteType.Assign and a.obj=b.id;
 };

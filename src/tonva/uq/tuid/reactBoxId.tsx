@@ -4,10 +4,10 @@ import { Tuid } from './tuid';
 import { observer } from 'mobx-react';
 
 const TuidContent = (tuidName:string, values:any, x?:any) => {
-    return <>{tuidName}: {stringify(values)}</>;
+    return <>{tuidName}: {uqStringify(values)}</>;
 };
 
-function stringify(values: any): string {
+export function uqStringify(values: any): string {
     let s = '{';
     if (values === undefined) return 'undefined';
     for (let i in values) {

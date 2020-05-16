@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { CGroup } from "./CGroup";
-import { VPage, Page, Edit, Schema, UiSchema, StringSchema, UiTextItem, UiTextAreaItem, ItemSchema, FA, QueryPager, UserCache, UserView, UserIcon, Loading, Form, ButtonSchema, UiButton, Context, userApi, useUser, Tuid, List, tv } from "tonva";
+import { VPage, Page, Edit, Schema, UiSchema, StringSchema, UiTextItem, UiTextAreaItem, ItemSchema, FA, QueryPager, UserView, UserIcon, Loading, Form, ButtonSchema, UiButton, Context, userApi, useUser, Tuid, List } from "tonva";
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
 
@@ -37,7 +37,7 @@ export class VGroupDetail extends VPage<CGroup> {
 		return <div key={id} className="m-2 cursor-pointer"
 			onClick={()=>this.onMember(id)}>
 			<UserView id={id} render={user => {
-				let {icon, name, nick} = user;
+				let {name, nick} = user;
 				return 	<>
 				<div className="w-3c h-3c rounded border ">
 					<UserIcon id={id} className="w-100 h-100 rounded" />

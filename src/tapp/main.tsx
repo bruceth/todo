@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { VPage, TabCaptionComponent, Page, Tabs } from 'tonva';
-import { CApp } from '../CApp';
-// import { setting } from 'configuration';
+import { VPage, TabCaptionComponent, Page } from 'tonva';
+import { CApp } from './CApp';
 
 const color = (selected: boolean) => selected === true ? 'text-primary' : 'text-muted';
 
@@ -9,9 +8,6 @@ export class VMain extends VPage<CApp> {
     async open(param?: any) {
         this.openPage(this.render);
     }
-    // opensrc = () => {
-    //     window.open(setting.downloadAppurl);
-    // }
 
     render = (param?: any): JSX.Element => {
         let { cGroup, cTodo, cHome, cMe/*, cPosts, cMedia, cTemplets*/ } = this.controller;
@@ -30,7 +26,7 @@ export class VMain extends VPage<CApp> {
                 onShown: onShown,
             }
 		});
-		return <Tabs tabs={faceTabs} />;
+		return <Page tabsProps={{tabs:faceTabs}} />;
 		/*
         return <Page header={false} headerClassName={"bg-info"} >
             <Tabs tabs={faceTabs} />

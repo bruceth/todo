@@ -83,7 +83,8 @@ export abstract class Entity {
         this.ver = version || 0;
 		this.setJName(name);
         this.cache.set(schema);
-        this.schema = schema;
+		this.schema = schema;
+		this.buildFieldsTuid();
 	}
 	
 	protected setJName(name:string) {
@@ -225,7 +226,8 @@ export abstract class Entity {
                             let c:number = d.charCodeAt(i);
                             switch(c) {
                                 case 9: r += d.substring(p, i) + '\\t'; p = i+1; break;
-                                case 10: r += d.substring(p, i) + '\\n'; p = i+1; break;
+								case 10: r += d.substring(p, i) + '\\n'; p = i+1; break;
+								case 92: r += d.substring(p, i) + '\\\\'; p = i+1; break;
                             }
                         }
                         return r + d.substring(p);

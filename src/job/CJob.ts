@@ -1,31 +1,46 @@
-import { CUqBase } from "tonvaApp";
+import { CUqBase, EnumTaskState } from "../tapp";
 import { VJob } from "./VJob";
 import { QueryPager } from "tonva";
-import { observable } from "mobx";
-import { CAct } from '../act/CAct';
-import { stateDefs } from "tools";
+
+export interface Doing {
+	task: number; // ID ASC,
+	assign: any; // ID Assign,
+	worker: number; // ID,
+	$create: Date; // TIMESTAMP, 
+	state: EnumTaskState; 
+}
 
 export class CJob extends CUqBase {
-	@observable myTodosList: any[];
+	myDoingsPager: QueryPager<Doing>;
 	myArchiveTodosPager: QueryPager<any>;
 
-    protected async internalStart() {		
+    protected async internalStart() {
+	}
+
+	init() {
+		this.myDoingsPager = new QueryPager(this.uqs.performance.GetMyTasks);
 	}
 
 	tab = () => this.renderView(VJob);
 
 	load = async () => {
-		let ret = await this.uqs.performance.GetMyTodos.query(undefined);
-		this.myTodosList = ret.ret;
+		this.myDoingsPager.first({});
 	}
 
-	showTodo = async (item: any) => {
-		let cAct = this.newC(CAct);
-		await cAct.start(item);
-		let toState = await cAct.showDialog();
-		if (toState !== stateDefs.todo && toState !== stateDefs.doing) {
-			let index = this.myTodosList.findIndex(v => v === item);
-			if (index>=0) this.myTodosList.splice(index, 1);
-		}
+	showTask = async (taskId: number) => {
+		await this.cApp.showTask(taskId);
+	}
+
+	showMyAssigns = async () => {
+		await this.cApp.showMyAssigns();
+	}
+
+	showMyTasks = async () => {
+		await this.cApp.showMyTasks();
+	}
+
+	testText = async () => {
+		let t = 'a\nb\ncc';
+		await this.uqs.performance.TestText.submit({i: 1, tIn: t});
 	}
 }

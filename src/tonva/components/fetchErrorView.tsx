@@ -29,22 +29,20 @@ export default class FetchErrorView extends React.Component<FetchErrorProps, nul
         else {
             errContent = <div>{error}</div>;
         }
-        return <li>
-            <article className="page-container">
-                <section>
-                    <div  className="va-error">
-                        <div>网络出现问题</div>
-                        <div>点击重新访问</div>
-                        <div style={{wordWrap:"break-word"}}>url: {url}</div>
-                        {errContent}
-                        <div className="p-3">
-                            <button type='button' onClick={this.reApi}>重新API</button>
-                            <button type='button' onClick={this.close}>关闭</button>
-                        </div>
-                    </div>
-                </section>
+        return <div>
+            <article>
+				<main className="va-error">
+					<div>网络出现问题</div>
+					<div>点击重新访问</div>
+					<div style={{wordWrap:"break-word"}}>url: {url}</div>
+					{errContent}
+					<div className="p-3">
+						<button type='button' onClick={this.reApi}>重新API</button>
+						<button type='button' onClick={this.close}>关闭</button>
+					</div>
+				</main>
             </article>
-        </li>;
+        </div>;
     }
 }
 

@@ -1,11 +1,10 @@
 import * as React from 'react';
 //import _ from 'lodash';
 import { observer } from 'mobx-react';
-import { Schema, UiSchema, ItemSchema, UiItem, UiSelectBase, UiRadio, UiTagSingle, UiTagMulti } from '../schema';
+import { Schema, UiSchema, ItemSchema, UiItem, UiRadio, UiTagSingle, UiTagMulti } from '../schema';
 import { ItemEdit } from './itemEdit';
 import { StringItemEdit } from './stringItemEdit';
 import { ImageItemEdit } from './imageItemEdit';
-import { Image } from '../image';
 import { RadioItemEdit } from './radioItemEdit';
 import { SelectItemEdit } from './selectItemEdit';
 import { IdItemEdit } from './idItemEdit';
@@ -111,9 +110,12 @@ export class Edit extends React.Component<EditProps> {
         try {
             changeValue = await itemEdit.start();
             if (changeValue !== value) {
+				// 2020-04-15：改值之后，应该赋值吧。所以移到这里来
+				this.props.data[itemSchema.name] = changeValue;
                 if (onItemChanged === undefined) {
                     alert(`${itemSchema.name} value changed, new: ${changeValue}, pre: ${value}`);
-                    this.props.data[itemSchema.name] = changeValue;
+					// 2020-04-15：改值之后，应该赋值吧。所以这一句移到前面去
+                    //this.props.data[itemSchema.name] = changeValue;
                 }
                 else {
                     await onItemChanged(itemSchema, changeValue, value);
@@ -123,7 +125,8 @@ export class Edit extends React.Component<EditProps> {
         }
         catch (err) {
             // 如果直接back，会触发reject，就到这里了
-            console.log('no value changed');
+			console.log('no value changed');
+			console.error(err);
         }
     }
 }

@@ -18,11 +18,6 @@ export abstract class Tuid extends Entity {
     cached: boolean;
     unique: string[];
 
-    /*
-    constructor(uq:UqMan, name:string, typeId:number) {
-        super(uq, name, typeId)
-    }*/
-
     public setSchema(schema:any) {
         super.setSchema(schema);
         let {id} = schema;
@@ -59,7 +54,8 @@ export abstract class Tuid extends Entity {
     abstract async loadMain(id:number|BoxId):Promise<any>;
 	abstract async load(id:number|BoxId):Promise<any>;
     abstract async all():Promise<any[]>;
-    abstract async save(id:number, props:any):Promise<TuidSaveResult>;
+	abstract async save(id:number, props:any):Promise<TuidSaveResult>;
+	abstract saveProp(id:number, prop:string, value:any):Promise<void>;
     abstract async search(key:string, pageStart:string|number, pageSize:number):Promise<any>;
     abstract async searchArr(owner:number, key:string, pageStart:string|number, pageSize:number):Promise<any>;
     abstract async loadArr(arr:string, owner:number, id:number):Promise<any>;
@@ -201,39 +197,17 @@ export class TuidInner extends Tuid {
     }
 
     async save(id:number, props:any):Promise<TuidSaveResult> {
-        /*
-        let {fields} = this.schema;
-        let params:any = {$id: id};
-        for (let field of fields as Field[]) {
-            let {name, tuid, type} = field;
-            let val = props[name];
-            if (tuid !== undefined) {
-                if (typeof val === 'object') {
-                    if (val !== null) val = val.id;
-                }
-            }
-            else {
-                switch (type) {
-                    case 'date':
-                    case 'datetime':
-                        val = new Date(val).toISOString();
-                        val = (val as string).replace('T', ' ');
-                        val = (val as string).replace('Z', '');
-                        break;
-                }
-            }
-            params[name] = val;
-        }
-        let ret = await this.uqApi.tuidSave(this.name, params);
-        return ret;
-        */
         let ret = new SaveCaller(this, {id:id, props:props}).request();
         if (id !== undefined) {
             this.idCache.remove(id);
             this.localArr.removeItem(id);
         }
         return ret;
-    }
+	}
+	async saveProp(id:number, prop:string, value:any):Promise<void> {
+		new SavePropCaller(this, {id, prop, value}).request();
+		this.idCache.remove(id);
+	}
     async all():Promise<any[]> {
         let ret: any[] = await new AllCaller(this, {}).request();
         return ret;
@@ -366,7 +340,9 @@ class LoadArrCaller extends TuidCaller<{arr:string, owner:number, id:number}> {
         return `tuid-arr/${this.entity.name}/${owner}/${arr}/${id}`;
     }
 }
-
+class SavePropCaller extends TuidCaller<{id:number, prop:string, value:any}> {
+    get path():string {return `tuid-prop/${this.entity.name}/`;}
+}
 class SaveArrCaller extends TuidCaller<{arr:string, owner:number, id:number, props:any}> {
     get path():string {
         let {arr, owner} = this.params;
@@ -425,7 +401,10 @@ export class TuidImport extends Tuid {
     }
     async save(id:number, props:any):Promise<TuidSaveResult> {
         return await this.tuidLocal.save(id, props);
-    }
+	}
+	async saveProp(id:number, prop:string, value:any):Promise<void> {
+		await this.tuidLocal.saveProp(id, prop, value);
+	}
     async all():Promise<any[]> {
         return await this.tuidLocal.all();
     }

@@ -25,6 +25,10 @@ export interface AppConfig {
     privacy?: string;
 }
 
+export interface Elements {
+	[id:string]: (element: HTMLElement)=>void,
+}
+
 export abstract class CAppBase extends Controller {
     protected _uqs: any;
 
@@ -55,7 +59,19 @@ export abstract class CAppBase extends Controller {
 	protected setRes(res:any) {
 		setGlobalRes(res);
 	}
-
+	
+	protected hookElements(elements: Elements) {
+		if (elements === undefined) return;
+		//nav.setSettings(appConfig);
+		//let cApp:CApp = (await start(CApp, appConfig)) as CApp;
+		for (let i in elements) {
+			let el = document.getElementById(i);
+			if (el) {
+				elements[i](el);
+			}
+		}
+	};
+	
     protected async beforeStart():Promise<boolean> {
         try {
             let retErrors = await this.load();

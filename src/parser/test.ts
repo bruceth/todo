@@ -10,7 +10,6 @@ export function test():string {
         ts.readToken();
         let exp = new ValueExpression(ts);
         exp.parse();
-        let s = null;
         return exp.run();
     }
     catch (err) {

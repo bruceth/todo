@@ -48,7 +48,7 @@ export class TagView implements IValuesView {
         </div>;
 	}
 	private renderRadio(item:TagValue, value: number, options: IValuesViewRenderOptions):JSX.Element {
-		let {id, name, ext} = item;
+		let {id, name} = item;
 		let {inputs, inputName, onInputChange} = options;
 		let ref = inputs && ((input:HTMLInputElement)=>inputs[id]=input);
 		return <label className="form-radio-inline">
@@ -60,7 +60,7 @@ export class TagView implements IValuesView {
 	}
 
 	private renderCheck(item:TagValue, checked: boolean, options: IValuesViewRenderOptions):JSX.Element {
-		let {id, name, ext} = item;
+		let {id, name} = item;
 		let {inputs, onInputChange} = options;
 		let ref = inputs && ((input:HTMLInputElement)=>inputs[id]=input);
 		return <label className="form-radio-inline">

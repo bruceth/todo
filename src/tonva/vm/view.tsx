@@ -1,7 +1,6 @@
 import * as React from 'react';
-import _ from 'lodash';
-import {nav, Page, resOptions} from '../components';
-import { User, env } from '../tool';
+import { Page } from '../components';
+import { env } from '../tool';
 import { Controller } from './controller';
 import { VPage } from './vpage';
 

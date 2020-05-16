@@ -1,4 +1,4 @@
-import { CUqBase } from '../tonvaApp';
+import { CUqBase } from '../tapp';
 import { VMe } from './VMe';
 
 export class CMe extends CUqBase {

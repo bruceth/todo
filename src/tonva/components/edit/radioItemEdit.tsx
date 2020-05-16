@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ItemSchema, UiRadio } from '../schema';
+import { UiRadio } from '../schema';
 import { nav } from '../nav';
 import { Page } from '../page/page';
 import { observer } from 'mobx-react';

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { VPage, Page, tv, FA, List, EasyTime } from "tonva";
 import { CAct } from './CAct';
-import { stateName, stateDefs } from 'tools';
+import { stateName, stateDefs } from '../tools';
 
 export class VAct extends VPage<CAct> {
     async open() {
