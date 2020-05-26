@@ -1,11 +1,12 @@
 {
-  "name": "performance",
+  "name": "todo",
+  "version": "1.0.0",
+  "private": true,
+  "homepage": ".",
   "author": {
     "name": "Henry",
     "email": "liaohengyi@outlook.com"
   },
-  "version": "0.1.0",
-  "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
