@@ -856,8 +856,12 @@ export class Nav {
 
     showReloadPage(msg: string) {
         let seconds = -1;
-        this.push(<ReloadPage message={msg} seconds={seconds} />);
-        env.setTimeout(undefined, this.reload, seconds*1000);
+		this.push(<ReloadPage message={msg} seconds={seconds} />);
+		/*
+		if (seconds > 0) {
+			env.setTimeout(undefined, this.reload, seconds*1000);
+		}
+		*/
     }
 
     reload = async () => {
