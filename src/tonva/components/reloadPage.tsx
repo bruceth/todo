@@ -18,7 +18,7 @@ export class ReloadPage extends React.Component<Props, State> {
         this.state = {seconds: props.seconds};
         this.timerHandler = setInterval(() => {
 			let {seconds} = this.state;
-			if (!seconds) return;
+			if (!seconds || seconds<0) return;
             seconds--;
             if (seconds <= 0) {
                 this.reload();
