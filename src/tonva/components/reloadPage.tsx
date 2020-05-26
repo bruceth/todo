@@ -17,7 +17,8 @@ export class ReloadPage extends React.Component<Props, State> {
         super(props);
         this.state = {seconds: props.seconds};
         this.timerHandler = setInterval(() => {
-            let seconds = this.state.seconds;
+			let {seconds} = this.state;
+			if (!seconds) return;
             seconds--;
             if (seconds <= 0) {
                 this.reload();
@@ -32,12 +33,24 @@ export class ReloadPage extends React.Component<Props, State> {
         nav.reload();
     }
     render() {
+		let {seconds} = this.state;
+		let content = seconds > 0?
+			<>
+				<span className="text-danger">程序升级中...</span>
+				<br/>
+				{this.state.seconds}秒钟之后自动重启动
+			</>
+			:
+			<>			
+				<span className="text-danger">程序需要升级</span>
+				<br/>
+				请点击下面按钮重启
+			</>;
+
         return <Page header={false}>
             <div className="text-center p-5">
                 <div className="text-info py-5">
-                    程序升级中...
-                    <br/>
-                    {this.state.seconds}秒钟之后自动重启动
+					{content}
                     <br/>
                     <span className="small text-muted">{this.props.message}</span>
                 </div>
