@@ -14,11 +14,12 @@ interface State {
 export class ReloadPage extends React.Component<Props, State> {
     private timerHandler:any;
     constructor(props:Props) {
-        super(props);
-        this.state = {seconds: props.seconds};
+		super(props);
+		let {seconds} = props;
+		if (seconds===undefined) return;
+		if (seconds <= 0) return;
+        this.state = {seconds};
         this.timerHandler = setInterval(() => {
-			let {seconds} = this.state;
-			if (!seconds || seconds<0) return;
             seconds--;
             if (seconds <= 0) {
                 this.reload();
