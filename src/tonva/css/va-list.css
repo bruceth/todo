@@ -43,24 +43,25 @@ ul.va-list>li>label>div {
     flex:1;
 }
 
-li.va-list-before {
+ul.va-list>li.va-list-before {
     color: green;
     font-size: 80%;
     padding: 8px 16px;
 }
-li.va-list-loading {
+ul.va-list>li.va-list-loading {
     color: black;
     font-size: 80%;
-    padding: 1.5rem 1rem;
+	padding: 1.5rem 1rem;
+	background-color: transparent;
 }
-li.va-list-none {
+ul.va-list>li.va-list-none {
     color: #e0e0e0;
     font-size: 80%;
     padding: 8px 16px;
 }
-li.va-list-header {
+ul.va-list>li.va-list-header {
     padding: 4px 16px;
 }
-li.va-list-footer {
+ul.va-list>li.va-list-footer {
     padding: 4px 16px;
 }

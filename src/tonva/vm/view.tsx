@@ -25,8 +25,8 @@ export abstract class View<C extends Controller> {
         return (new vm(this.controller)).render(param);
     }
 
-    protected async openVPage(vp: new (controller: C)=>VPage<C>, param?:any):Promise<void> {
-        await (new vp(this.controller)).open(param);
+    protected async openVPage(vp: new (controller: C)=>VPage<C>, param?:any, afterBack?:()=>Promise<void>):Promise<void> {
+        await (new vp(this.controller)).open(param, afterBack);
     }
 
     protected async event(type:string, value?:any) {
@@ -62,8 +62,8 @@ export abstract class View<C extends Controller> {
         this.controller.replacePage(React.createElement(view, param));
     }
 
-    protected openPageElement(page: JSX.Element) {
-        this.controller.openPage(page);
+    protected openPageElement(page: JSX.Element, onClosePage?: ()=>void) {
+        this.controller.openPage(page, onClosePage);
     }
 
     protected replacePageElement(page: JSX.Element) {

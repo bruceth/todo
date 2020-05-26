@@ -1,13 +1,15 @@
 import _ from 'lodash';
 import { observable } from 'mobx';
-import { CUqBase, EnumTaskState } from "../tapp";
+import { CUqBase } from "../tapp";
 import { VMyTasks } from "./VMyTasks";
 import { QueryPager } from "tonva";
 import { VTask } from "./VTask";
 import { Task, Assign, AssignTask } from "../models";
-import { Performance } from '../tapp'
+import { Performance, EnumTaskStep } from '../tapp'
 import { VTaskDone } from './VTaskDone';
 import { VTaskCheck } from './VTaskCheck';
+import { VTaskRate } from './VTaskRate';
+import { VTodoEdit } from './VTodoEdit';
 
 export class CTask extends CUqBase {
 	private performance: Performance;
@@ -22,21 +24,17 @@ export class CTask extends CUqBase {
 
 	init() {
 		this.performance = this.uqs.performance;
+		this.myTasksPager = new QueryPager(this.performance.GetMyTaskArchive, 10, 30, true);
+	}
+
+	async loadTaskArchive(step: EnumTaskStep) {
+		this.myTasksPager.reset();
+		await this.myTasksPager.first({step});
 	}
 
 	async showMyTasks() {
-		this.myTasksPager = new QueryPager(this.performance.GetMyTasks, 10, 30, true);
 		await this.myTasksPager.first({});
 		this.openVPage(VMyTasks);
-	}
-/*
-	async showNewAssign(publishTaskCallback:(assign:Assign)=>Promise<void>):Promise<boolean> {
-		this.publishAssignCallback = publishTaskCallback;
-		return this.vCall(VAssignNew);
-	}
-*/
-	async publishAssign() {
-		await this.publishAssignCallback(this.assign);
 	}
 
 	async showTask(taskId:number) {
@@ -44,44 +42,48 @@ export class CTask extends CUqBase {
 		let task:Task = {} as any;
 		_.mergeWith(task, retTask.task[0]);
 		task.todos = retTask.todos;
-		task.history = retTask.history;
+		task.flow = retTask.flow;
 		task.meTask = retTask.meTask;
 		this.task = task;
 		this.openVPage(VTask);
 	}
 
-	async todoTask() {		
-	}
-
 	async showTaskDone() {
 		this.openVPage(VTaskDone);
 	}
-
+	
 	async doneTask() {
-		await this.performance.TaskDone.submit({taskId: this.task.id});
+		let ret = await this.performance.TaskDone.submit({taskId: this.task.id});
+		this.cApp.refreshJob();
+		this.cApp.pushTaskNote(ret);
 	}
 
 	async showTaskCheck() {
 		this.openVPage(VTaskCheck);
 	}
 
-	newAssign = async (caption:string) => {
-		let ret = await this.performance.Assign.save(undefined, {caption});
-		this.assign = {
-			id: ret.id,
-			caption,
-			discription: undefined,
-			owner: this.user.id,
-			open: 0,
-			$create: new Date(),
-			$update: new Date(),
-			items: [],
-			//todos: [],
-			//history: undefined,
-			//meTask: undefined,
-		};
+	async passTask() {
+		let ret = await this.performance.TaskPass.submit({taskId: this.task.id});
+		this.cApp.refreshJob();
+		this.cApp.pushTaskNote(ret);
 	}
 
+	async failTask() {
+		let ret = await this.performance.TaskFail.submit({taskId: this.task.id});
+		this.cApp.refreshJob();
+		this.cApp.pushTaskNote(ret);
+	}
+
+	async showTaskRate() {
+		this.openVPage(VTaskRate);
+	}
+
+	async rateTask() {
+		let ret = await this.performance.TaskRate.submit({taskId: this.task.id});
+		this.cApp.refreshJob();
+		this.cApp.pushTaskNote(ret);
+	}
+	/*
 	saveAssignItem = async (todoContent: string):Promise<any> => {
 		let assignItem = {
 			id: undefined as any,
@@ -96,5 +98,12 @@ export class CTask extends CUqBase {
 
 	saveAssignProp = async (prop:string, value:any) => {
 		await this.performance.Assign.saveProp(this.assign.id, prop, value);
+	}
+	*/
+
+	showTodoEdit = async () => {
+		this.openVPage(VTodoEdit, undefined, ret => {
+			
+		});
 	}
 }

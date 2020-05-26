@@ -4,9 +4,15 @@ import { View } from "./view";
 import { Controller } from "./controller";
 
 export abstract class VPage<C extends Controller> extends View<C> {
-    open(param?:any):Promise<void> {
+	// private onClosePage:(ret:any)=>void;
+	protected retOnClosePage: any;
+
+    open(param?:any, onClosePage?:(ret:any)=>void):Promise<void> {
+		//this.onClosePage = onClosePage;
 		this.init(param);
-		this.openPageElement(this.renderPage());
+		let _onClosePage: ()=>void;
+		if (onClosePage !== undefined) _onClosePage = () => onClosePage(this.retOnClosePage);
+		this.openPageElement(this.renderPage(), _onClosePage);
 		return;
 	}
 
@@ -43,8 +49,8 @@ export abstract class VPage<C extends Controller> extends View<C> {
 	}
 
 	protected onPageScroll(e:any) {}
-	protected onPageScrollTop(scroller: Scroller): void {}
-	protected onPageScrollBottom(scroller: Scroller): void {}
+	protected async onPageScrollTop(scroller: Scroller): Promise<boolean> {return false;}
+	protected async onPageScrollBottom(scroller: Scroller): Promise<boolean> {return false;}
 	protected afterBack():void {}
 	protected get back(): 'close' | 'back' | 'none' {return 'back'}
 	protected get headerClassName(): string {return null;}

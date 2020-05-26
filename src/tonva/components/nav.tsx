@@ -10,7 +10,7 @@ import {appUrl, setAppInFrame, getExHash, getExHashPos} from '../net/appBridge';
 import {LocalData, env} from '../tool';
 import {guestApi, logoutApis, setCenterUrl, setCenterToken, WSChannel, appInFrame, host, resUrlFromHost} from '../net';
 import { WsBase, wsBridge } from '../net/wsChannel';
-import { resOptions } from './res';
+import { resOptions } from '../res/res';
 import { Loading } from './loading';
 
 import 'font-awesome/css/font-awesome.min.css';

@@ -8,6 +8,7 @@ export interface Doing {
 	worker: number; // ID,
 	$create: Date; // TIMESTAMP, 
 	state: EnumTaskState; 
+	date: Date;		// task act time
 }
 
 export class CJob extends CUqBase {
@@ -18,7 +19,7 @@ export class CJob extends CUqBase {
 	}
 
 	init() {
-		this.myDoingsPager = new QueryPager(this.uqs.performance.GetMyTasks);
+		this.myDoingsPager = new QueryPager(this.uqs.performance.GetMyTasks, 10, 100);
 	}
 
 	tab = () => this.renderView(VJob);

@@ -1,11 +1,25 @@
 import * as React from 'react';
 import { CAssign } from './CAssign';
-import { VPage, List, EasyTime, Muted, UserView, User, FA } from 'tonva';
+import { VPage, List, EasyTime, Muted, UserView, User, FA, QueryPager } from 'tonva';
 import { Assign, AssignTask } from 'models';
+import { stateText } from 'tapp';
 
 export class VMyAssigns extends VPage<CAssign> {
+	private archived: 0|1;
+	private myAssignsPager: QueryPager<Assign>;
+
+	init({myAssignsPager, archived}:{myAssignsPager: QueryPager<Assign>; archived:0|1;}) {
+		this.archived = archived;
+		this.myAssignsPager = myAssignsPager;
+	}
+
 	header() {
-		return '布置的任务';
+		return this.archived===1? '已归档作业':'作业';
+	}
+
+	right() {
+		if (this.archived === 1) return;
+		return <button className="btn btn-sm btn-primary mr-2 align-self-center" onClick={()=>this.controller.showMyAssignsArchived()}>已归档</button>;
 	}
 
 	private renderItem = (assign:Assign, index:number) => {
@@ -27,21 +41,21 @@ export class VMyAssigns extends VPage<CAssign> {
 
 	private renderUser = (user: User) => {
 		let {name, nick} = user;
-		return <>{nick || name}</>;
+		return <span className="text-info">{nick || name}</span>;
 	}
 
 	private renderAssignTasks(tasks: AssignTask[]) {
 		if (tasks === undefined || tasks.length === 0) return;
 		return <div>
 			{tasks.map((v, index) => {
-				let {worker, state} = v;
-				let t:string;
-				switch (state) {
-					default: t = '已领办'; break;
-				}
-				return <div className="small">
-					<FA className="text-primary" name="arrow-circle-right" /> &nbsp;
-					<UserView user={worker} render={this.renderUser} /> {t}
+				// eslint-disable-next-line
+				let {assign, worker, state, date} = v;
+				let {text, act} = stateText(state);
+				return <div key={index} className="small">
+					<FA className="text-danger mr-1" name="chevron-circle-right" />
+					<span className="text-primary">{text}</span> &nbsp;
+					<UserView user={worker} render={this.renderUser} /> &nbsp;
+					{act} &nbsp; <EasyTime date={date} />
 				</div>
 			})}
 		</div>;
@@ -51,10 +65,36 @@ export class VMyAssigns extends VPage<CAssign> {
 		this.controller.showAssign(assign.id);
 	}
 
+	/*
+	private cnTabSelected = (selected:boolean) => classNames({
+		"bg-white border border-success":selected,
+		"border":!selected,
+	},  'cursor-pointer px-4 py-2 rounded');
+	private tabs:TabProp[] = [
+		{
+			name: 'cur',
+			caption: (selected) => <div className={this.cnTabSelected(selected)}>未完</div>,
+			content: () => <div>
+				<List items={this.controller.myAssignsPager} 
+					item={{render: this.renderItem, onClick: this.onAssignClick}} />
+			</div>,
+			onShown: () => this.controller.loadAssigns(0),
+		},
+		{
+			name: 'archive',
+			caption: (selected) => <div className={this.cnTabSelected(selected)}>归档</div>,
+			content: () => <div>
+				<List items={this.controller.myAssignsPager} 
+					item={{render: this.renderItem, onClick: this.onAssignClick}} />
+			</div>,
+			onShown: () => this.controller.loadAssigns(1),
+		},
+	];
+	*/
+
 	content() {
-		return <div>
-			<List items={this.controller.myAssignsPager} 
-				item={{render: this.renderItem, onClick: this.onAssignClick}} />
-		</div>
+		// return <Tabs tabs={this.tabs} tabPosition="top" size="sm" /> 
+		return <List items={this.myAssignsPager} 
+			item={{render: this.renderItem, onClick: this.onAssignClick}} />;
 	}
 }

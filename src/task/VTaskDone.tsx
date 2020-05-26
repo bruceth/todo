@@ -1,10 +1,7 @@
 import * as React from 'react';
-import { observable } from 'mobx';
-import { observer } from 'mobx-react';
 import { VPage, Muted, EasyTime, UserView, User, useUser, Image, FA } from "tonva";
 import { CTask } from "./CTask";
 import { Task } from 'models';
-import { EnumTaskState } from '../tapp';
 import { VTodoList } from './VTodoList';
 
 export class VTaskDone extends VPage<CTask> {
@@ -22,14 +19,9 @@ export class VTaskDone extends VPage<CTask> {
 		return '办理';
 	}
 
-	private onTodo = async () => {
-		await this.controller.todoTask();
-		this.closePage();
-	}
-
 	private onDone = async () => {
 		await this.controller.doneTask();
-		this.closePage(2);
+		this.closePage(3);
 	}
 
 	private renderUser = (user: User) => {

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { Context } from '../context';
-import { FormRes } from '../formRes';
+import { FormRes } from '../../../res/formRes';
 
 export abstract class Rule {
     abstract check(defy:string[], value:any):void;

@@ -1,13 +1,13 @@
-import { Controller } from "tonva";
+import { CGroup } from "group/CGroup";
 
 export abstract class NoteItem {
 	id: number;
 	owner: number;
 	$create: Date;
-	protected readonly controller: Controller
-	constructor(controller: Controller) {
-		this.controller = controller;
+	protected readonly cGroup: CGroup
+	constructor(cGroup: CGroup) {
+		this.cGroup = cGroup;
 	}
-	abstract renderAsNote(onClick:()=>void):JSX.Element;
+	abstract renderAsNote():JSX.Element;
 	abstract renderInView():JSX.Element;
 }

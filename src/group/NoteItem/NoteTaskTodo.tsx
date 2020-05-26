@@ -1,5 +1,6 @@
 import React from 'react';
 import { NoteItem } from "./NoteItem";
+import { EnumTaskStep, EnumTaskState } from 'tapp';
 
 export class NoteTaskTodo extends NoteItem {
 	taskId: number;
@@ -8,7 +9,10 @@ export class NoteTaskTodo extends NoteItem {
 	time: Date;
 	owner: number;
 	x: number;
-	renderAsNote(onClick:()=>void):JSX.Element {
+	step: EnumTaskStep;
+	state: EnumTaskState;
+
+	renderAsNote():JSX.Element {
 		if (this.x === 1) {
 			// removed
 			return <div className="w-100 d-flex justify-content-center">
@@ -21,11 +25,24 @@ export class NoteTaskTodo extends NoteItem {
 		return this.renderInternal();
 	}
 
+	private onClick = () => {
+		this.cGroup.cApp.showTask(this.taskId);
+	}
+
 	private renderInternal():JSX.Element {
-		return <div className="border rounded px-3 py-1 text-muted bg-light">
-			领办 <span className="text-dark">{this.caption}</span>
+		let text:string;
+		switch (this.step) {
+			default: text = '未知 ' + this.step; break;
+			case EnumTaskStep.todo: text = '领办'; break;
+			case EnumTaskStep.done: text = '已办'; break;
+			case EnumTaskStep.check: text = '查验'; break;
+			case EnumTaskStep.rate: text = '评分'; break;
+		}
+		return <div className="border rounded px-3 py-1 text-muted bg-light cursor-pointer"
+			onClick={this.onClick}>
+			{text} <span className="text-dark">{this.caption}</span>
 			&nbsp;
-			<span className="">{this.discription}</span>
+			<small className="">{this.discription}</small>
 		</div>;
 	}
 }

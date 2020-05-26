@@ -8,6 +8,8 @@ import {Static} from './static';
 import {Selectable} from './selectable';
 import '../../css/va-list.css';
 import { IObservableArray } from 'mobx';
+import { resLang } from '../../res/res';
+import { ListRes, listRes } from '../../res';
 
 type StaticRow = string|JSX.Element|(()=>string|JSX.Element);
 
@@ -33,10 +35,12 @@ export interface ListProps {
 
 @observer
 export class List extends React.Component<ListProps> {
+	private static res:ListRes = resLang<ListRes>(listRes);
+
     private listBase: ListBase;
-    private selectable: Selectable;
+	private selectable: Selectable;
     constructor(props:ListProps) {
-        super(props);
+		super(props);
         this.buildBase();
     }
     _$scroll = (direct: 'top'|'bottom') => {
@@ -73,7 +77,7 @@ export class List extends React.Component<ListProps> {
         let {className, header, footer, before, loading, none, onFocus} = this.props;
         if (before === undefined) before = '-';
         if (loading === undefined) loading = () => <i className="fa fa-spinner fa-spin fa-2x fa-fw text-info" />;
-        if (none === undefined) none = 'none';
+        if (none === undefined) none = List.res.none;
         //this.listBase.selectedItems = selectedItems;
         let {items, loading:isLoading} = this.listBase;
         function staticRow(row:StaticRow, type:string) {

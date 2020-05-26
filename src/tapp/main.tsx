@@ -10,7 +10,7 @@ export class VMain extends VPage<CApp> {
     }
 
     render = (param?: any): JSX.Element => {
-        let { cGroup, cTodo, cHome, cMe/*, cPosts, cMedia, cTemplets*/ } = this.controller;
+        let { cGroup, cJob: cTodo, cHome, cMe/*, cPosts, cMedia, cTemplets*/ } = this.controller;
         let faceTabs = [
 			{ name: 'note', label: '首页', icon: 'home', content: cGroup.tab, },
 			{ name: 'todo', label: '工作', icon: 'list', content: cTodo.tab, onShown: cTodo.load },
@@ -22,7 +22,6 @@ export class VMain extends VPage<CApp> {
                 name: name,
                 caption: (selected: boolean) => TabCaptionComponent(label, icon, color(selected)),
                 content: content,
-                //notify: notify,
                 onShown: onShown,
             }
 		});

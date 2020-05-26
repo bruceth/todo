@@ -10,16 +10,23 @@ import { CGroup } from "group/CGroup";
 import { CJob } from "job/CJob";
 import { CTask } from 'task/CTask';
 import { CAssign } from 'assign/CAssign';
+import { EnumNoteType } from './uqs';
+import { CMember } from 'member/CMember';
+
+const gaps = [10, 3,3,3,3,3,5,5,5,5,5,5,5,5,10,10,10,10,15,15,15,30,30,60];
 
 export class CApp extends CUqApp {
 	cGroup: CGroup;
-	cTodo: CJob;
+	cJob: CJob;
     cHome: CHome;
 	cMe: CMe;
 	cAssign: CAssign;
 	cTask: CTask;
+	cMember: CMember;
 
     protected async internalStart() {
+		// eslint-disable-next-line 
+		let a = undefined??0;
 		let {test1, test2} = this.uqs.performance;
 		// eslint-disable-next-line
 		let [values1, values2] = await Promise.all([
@@ -29,17 +36,45 @@ export class CApp extends CUqApp {
  
 		this.cGroup = this.newC(CGroup);
 		this.cGroup.load();
-		this.cTodo = this.newC(CJob);
-		this.cTodo.start();
+		this.cJob = this.newC(CJob);
+		this.cJob.start();
         this.cHome = this.newC(CHome);
 		this.cMe = this.newC(CMe);
 		this.cAssign = this.newC(CAssign);
 		this.cTask = this.newC(CTask);
+		this.cMember = this.newC(CMember);
 		this.showMain();
-    }
+
+		setInterval(this.callTick, 1000);
+	}
+
+	private tick = 0;
+	private gapIndex = 0;
+	private callTick = async () => {
+		try {
+			if (!this.user) return;
+			++this.tick;
+			if (this.tick<gaps[this.gapIndex]) return;
+			console.error('tick ', new Date());
+			this.tick = 0;
+			if (this.gapIndex < gaps.length - 1) ++this.gapIndex;
+			let ret = await this.uqs.performance.$Poked.query(undefined, false);
+			let v = ret.ret[0];
+			if (v === undefined) return;
+			if (!v.poke) return;
+			this.gapIndex = 1;
+			this.cGroup.refresh();
+		}
+		catch {
+		}
+	}
 
     showMain(initTabName?: string) {
         this.openVPage(VMain, initTabName);
+	}
+
+	refreshJob() {
+		this.cJob.load();
 	}
 	
 	protected afterStart():Promise<void> {
@@ -93,5 +128,31 @@ export class CApp extends CUqApp {
 
 	async showMyAssigns():Promise<void> {
 		await this.cAssign.showMyAssigns();
+	}
+
+	async showMemberDetail(memberId:number):Promise<void> {
+		this.cMember.showDetail(memberId);
+	}
+
+	async pushTaskNote(retAfterTaskAction:any) {
+		if (!retAfterTaskAction) {
+			console.error('task action return undefined')
+			return;
+		}
+		let {task, step, state, group} = retAfterTaskAction;
+		let data = {
+			group, 
+			content: step + '|' + state, 
+			type:EnumNoteType.Task, 
+			obj:task
+		};
+		await this.uqs.performance.PushNote.submit(data);
+		this.resetTick();
+		this.cGroup.refresh();
+	}
+
+	resetTick() {
+		this.tick = 0;
+		this.gapIndex = 1;
 	}
 }

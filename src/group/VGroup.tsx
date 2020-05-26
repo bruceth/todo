@@ -2,9 +2,9 @@ import * as React from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
-import { VPage, tv, List, FA, Tuid, EasyTime } from 'tonva';
+import { VPage, tv, List, FA, Tuid, EasyTime, Scroller, UserView, User, Image } from 'tonva';
 import { CGroup } from './CGroup';
-import { NoteItem, NoteAssign } from './NoteItem';
+import { NoteItem } from './NoteItem';
 
 export class VGroup extends VPage<CGroup> {
 	@observable private inputed: boolean = false;
@@ -13,7 +13,9 @@ export class VGroup extends VPage<CGroup> {
 		this.scrollToBottom();
 	}
 	private scrollToBottom() {
-		setTimeout(() => this.divBottom?.scrollIntoView(), 20);
+		setTimeout(() => {
+			this.divBottom?.scrollIntoView();
+		}, 100);
 	}
 
 	private renderTime(noteItem:NoteItem, index:number):JSX.Element {
@@ -31,19 +33,27 @@ export class VGroup extends VPage<CGroup> {
 	private renderNote = (noteItem:NoteItem, index:number):JSX.Element => {
 		let {owner} = noteItem;
 		let isMe = (Tuid.equ(owner, this.controller.user.id));
-		let cnBox = classNames(
-			{"align-items-end my-2": isMe, "align-items-start": !isMe},
-			"d-flex flex-column");
-
-		let onAssignClick = () => {
-			this.controller.showAssign(noteItem as NoteAssign);
+		let vNote: any;
+		if (isMe === true) {
+			vNote = <div className="d-flex flex-column align-items-end my-2">
+				{noteItem.renderAsNote()}
+			</div>
+		}
+		else {
+			vNote = <UserView user={owner} render={(values:User)=> {
+				let {icon, nick, name} = values;
+				return <div className="d-flex align-items-start my-2">
+					<Image src={icon} className="w-2c h-2c mr-3" />
+					<div className="flex-fill d-flex flex-column align-items-start">
+						<div className="small text-muted mb-1">{nick || name}</div>
+						{noteItem.renderAsNote()}
+					</div>
+				</div>
+			}} />;
 		}
 		return <div className="d-block">
 			{this.renderTime(noteItem, index)}
-			<div className={cnBox}>
-				{isMe===false && <div className="small text-muted mt-2 mb-1">{owner}</div>}
-				{noteItem.renderAsNote(onAssignClick)}
-			</div>
+			{vNote}
 		</div>;
 	}
 
@@ -53,15 +63,16 @@ export class VGroup extends VPage<CGroup> {
 		this.input = input;
 	}
 
-	private addNote = async () => {
+	private addTextNote = async () => {
 		if (!this.input) return;
 		let content:string = this.input.value;
 		this.input.value = '';
 		this.inputed = false;
-		await this.controller.addNote(content, undefined, undefined);
+		await this.controller.addTextNote(content);
 		this.scrollToBottom();
 	}
 
+	
 	private divBottom: HTMLElement;
 	private refDivBottom = (divButtom:HTMLElement) => {
 		this.divBottom = divButtom;
@@ -70,7 +81,7 @@ export class VGroup extends VPage<CGroup> {
 	private input: HTMLInputElement;
 	private onKeyDown = (evt:React.KeyboardEvent<HTMLInputElement>) => {
 		if (evt.keyCode === 13) {
-			this.addNote();
+			this.addTextNote();
 		}
 	}
 
@@ -81,7 +92,7 @@ export class VGroup extends VPage<CGroup> {
 	private showCommands = () => {
 		this.controller.commandsShown = !this.controller.commandsShown;
 		if (this.controller.commandsShown) {
-			this.scrollToBottom();			
+			this.scrollToBottom();
 		}
 	}
 
@@ -126,7 +137,7 @@ export class VGroup extends VPage<CGroup> {
 						onKeyDown={this.onKeyDown} onChange={this.onInputChange} />
 					{
 						this.inputed === true?
-						<button onClick={this.addNote}
+						<button onClick={this.addTextNote}
 							className="btn btn-sm btn-success text-nowrap">
 							发送
 						</button>
@@ -158,13 +169,22 @@ export class VGroup extends VPage<CGroup> {
 		</div>;
 	}
 	content() {
-		let {groupNotesPager} = this.controller;
+		let {groupNotesPager} = this.controller;		
+		let bottomMark = observer(() => {
+			return <div id={groupNotesPager.bottomDiv} 
+				ref={this.refDivBottom} 
+				className="h-1c" />
+		});
 		return <>
-			<List className="px-3 flex-fill job-notes-list" 
+			<List className="px-3 flex-fill bg-transparent" 
 				items={groupNotesPager.items} 
 				item={{render: this.renderNote}}
 				onFocus={this.onListFocus} />
-			<div id={groupNotesPager.bottomDiv} ref={this.refDivBottom} className="h-1c"></div>
+			{React.createElement(bottomMark)}
 		</>;
+	}
+	protected async onPageScrollTop(scroller: Scroller): Promise<boolean> {
+		let ret = await this.controller.groupNotesPager.more();
+		return ret;
 	}
 }

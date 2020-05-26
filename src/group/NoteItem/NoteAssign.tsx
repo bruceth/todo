@@ -10,24 +10,27 @@ export class NoteAssign extends NoteItem {
 	time: Date;
 	x: number = 0;
 
-	renderAsNote(onClick:()=>void):JSX.Element {
+	renderAsNote():JSX.Element {
 		if (this.x === 1) {
 			// removed
 			return <div className="w-100 d-flex justify-content-center">
 				<div className="bg-light py-1 px-3 small text-muted">撤销了 <del>{this.discription}</del></div>
 			</div>
 		}
-		return this.renderInternal(onClick);
+		return this.renderInternal();
 	}
 	renderInView():JSX.Element {
-		return this.renderInternal(undefined);
+		return this.renderInternal();
 	}
 
-	private renderInternal(onClick:()=>void):JSX.Element {
-		let cn = 'bg-info rounded border border-info w-75';
-		if (onClick) cn += ' cursor-pointer';
+	private onClick = () => {
+		this.cGroup.showAssign(this);
+	}
+
+	private renderInternal():JSX.Element {
+		let cn = 'bg-info rounded border border-info w-75 cursor-pointer';
 		return <div className={cn}
-			onClick={onClick}>
+			onClick={this.onClick}>
 			<div className="d-flex align-items-center ">
 				<div className="d-flex align-items-center justify-content-center text-danger w-3c h-3c 
 					bg-white border-info rounded-left">

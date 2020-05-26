@@ -37,6 +37,10 @@
   }
 }
 
-ul.job-notes-list>li {
+ul.bg-transparent>li {
 	background-color: transparent;
+}
+
+ul.bg-gray>li {
+	background-color: gray;	
 }

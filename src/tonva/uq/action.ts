@@ -4,7 +4,9 @@ import { ActionCaller } from './caller';
 export class Action extends Entity {
     get typeName(): string { return 'action';}
     async submit(data:object) {
-        return await new ActionSubmitCaller(this, data).request();
+		let caller = new ActionSubmitCaller(this, data)
+		let ret = await caller.request();
+		return ret;
     }
     async submitReturns(data:object):Promise<{[ret:string]:any[]}> {
        return await new SubmitReturnsCaller(this, data).request();

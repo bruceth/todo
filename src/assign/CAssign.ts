@@ -20,17 +20,38 @@ export class CAssign extends CUqBase {
 
 	init() {
 		this.performance = this.uqs.performance;
-	}
-
-	async showMyAssigns() {
 		this.myAssignsPager = new QueryPager(this.performance.GetMyAssigns, 10, 30, true);
 		this.myAssignsPager.setItemConverter((item, results):Assign => {
 			let assign:Assign = item;
 			assign.tasks = (results.tasks as any[]).filter(v => v.assign===assign.id);
 			return assign;
 		});
-		await this.myAssignsPager.first({});
-		this.openVPage(VMyAssigns);
+	}
+
+	async loadAssigns(archived: 0|1) {
+		this.myAssignsPager.reset();
+		await this.myAssignsPager.first({archived});
+	}
+
+	private async showMyAssignsInternal(archived: 0|1) {
+		//this.myAssignsPager.first(undefined); //.reset();
+		//let archived: 0|1 = 0;
+		let myAssignsPager = new QueryPager(this.performance.GetMyAssigns, 10, 30, true);
+		myAssignsPager.setItemConverter((item, results):Assign => {
+			let assign:Assign = item;
+			assign.tasks = (results.tasks as any[]).filter(v => v.assign===assign.id);
+			return assign;
+		});
+		myAssignsPager.first({archived});
+		this.openVPage(VMyAssigns, {myAssignsPager, archived});
+	}
+
+	async showMyAssigns() {
+		await this.showMyAssignsInternal(0);
+	}
+
+	async showMyAssignsArchived() {
+		await this.showMyAssignsInternal(1);
 	}
 
 	async showNewAssign(publishTaskCallback:(assign:Assign)=>Promise<void>):Promise<boolean> {
@@ -40,7 +61,7 @@ export class CAssign extends CUqBase {
 
 	private async loadAssign(assignId:number) {
 		let retAssign = await this.performance.GetAssign.query({assignId});
-		let {assign, items, tasks} = retAssign;		
+		let {assign, items, tasks} = retAssign;
 		let assignObj:Assign = {} as any;
 		_.mergeWith(assignObj, assign[0]);
 		assignObj.items = items;
@@ -50,16 +71,22 @@ export class CAssign extends CUqBase {
 
 	async showAssign(assignId:number) {
 		await this.loadAssign(assignId);
-		this.openVPage(VAssign);
+		this.openVPage(VAssign, undefined, (ret:any) => {
+			//if (!ret) return;
+			let item = this.myAssignsPager.findItem(assignId);
+			if (!item) return;
+			this.myAssignsPager.refreshItems(item);
+		});
 	}
 
 	async publishAssign() {
 		await this.publishAssignCallback(this.assign);
 	}
 
-	taskAssign = async () => {
-		// eslint-disable-next-line
-		let ret = await this.performance.TaskAssign.submit({assignId: this.assign.id});
+	takeAssign = async () => {
+		let ret = await this.performance.TakeAssign.submit({assignId: this.assign.id});
+		this.cApp.refreshJob();
+		this.cApp.pushTaskNote(ret);
 		this.closePage();
 	}
 
@@ -68,7 +95,7 @@ export class CAssign extends CUqBase {
 	}
 
 	newAssign = async (caption:string) => {
-		let ret = await this.performance.Assign.save(undefined, {caption});
+		let ret = await this.performance.NewAssign.submit({caption});
 		this.assign = {
 			id: ret.id,
 			caption,
@@ -78,9 +105,6 @@ export class CAssign extends CUqBase {
 			$create: new Date(),
 			$update: new Date(),
 			items: [],
-			//todos: [],
-			//history: undefined,
-			//meTask: undefined,
 		};
 	}
 

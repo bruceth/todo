@@ -86,6 +86,7 @@ window.addEventListener('message', async function(evt) {
             await onAppApiReturn(message);
             break;
         default:
+			if ((message.source as string)?.startsWith('react-devtools') === true) break;
             this.console.log('message: %s', JSON.stringify(message));
             break;
     }

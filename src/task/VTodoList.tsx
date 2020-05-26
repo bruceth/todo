@@ -19,9 +19,11 @@ function keyFunc(ti:AssignInputItem) {
 export class VTodoList extends View<CTask> {
 	private allowEdit: boolean = false;
 	@observable private assignInputItems: AssignInputItem[] = [];
+	/*
 	@observable private assignInputItem: AssignInputItem;
 	@observable private isInputing = false;
 	private input: HTMLInputElement;
+	*/
 
 	init(items: AssignItem[], allowEdit:boolean = true) {
 		this.allowEdit = allowEdit;
@@ -36,6 +38,7 @@ export class VTodoList extends View<CTask> {
 	}
 
 	render():JSX.Element {
+		let r = observer(()=> {
 		let list:any;
 		if (this.assignInputItems.length > 0) {
 			list = <>
@@ -51,7 +54,9 @@ export class VTodoList extends View<CTask> {
 			</>;
 		}
 		return list;
-}
+	});
+	return React.createElement(r);
+	}
 
 	private renderTodo = (assignInputItem:AssignInputItem, index:number) => {
 		return React.createElement(this.observableTodo, {assignInputItem});
@@ -82,10 +87,12 @@ export class VTodoList extends View<CTask> {
 	});
 
 	private onTodoClick = (assignInputItem: AssignInputItem) => {
-		this.state.assignInputItem = assignInputItem;
-		this.setTimeout();
+		//this.state.assignInputItem = assignInputItem;
+		//this.setTimeout();
 	}
 
+
+/*
 	private onNewTodo = () => {
 		this.isInputing = true;
 	}
@@ -141,7 +148,8 @@ export class VTodoList extends View<CTask> {
 			if (isInputing !== undefined) this.isInputing = isInputing;
 		}, 200);
 	}
-
+*/
+/*
 	private refInput = (input:HTMLInputElement) => {
 		if (!input) return;
 		if (window.getComputedStyle(input).visibility === 'hidden') return;
@@ -167,7 +175,8 @@ export class VTodoList extends View<CTask> {
 		}
 		this.setTimeout();
 	}
-
+	*/
+/*
 	private onEnter = async () => {
 		let inputValue:string = this.input.value.trim();
 		let todo = await this.controller.saveAssignItem(inputValue);
@@ -194,7 +203,8 @@ export class VTodoList extends View<CTask> {
 		}
 		this.input.value = '';
 	}
-
+*/
+/*
 	footer() {
 		let Footer = observer(() => {
 			return  <div className="d-flex align-items-center py-1 px-3">
@@ -230,4 +240,5 @@ export class VTodoList extends View<CTask> {
 		});
 		return React.createElement(Footer);
 	}
+*/
 }

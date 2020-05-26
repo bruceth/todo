@@ -4,7 +4,7 @@ import { CTask } from "./CTask";
 import { Task } from 'models';
 import { VTodoList } from './VTodoList';
 
-export class VTaskCheck extends VPage<CTask> {
+export class VTaskRate extends VPage<CTask> {
 	private task: Task;
 	private vTodoList: VTodoList;
 
@@ -16,22 +16,12 @@ export class VTaskCheck extends VPage<CTask> {
 	}
 
 	header() {
-		return '查验';
+		return '评价';
 	}
 
-	private onPass = async () => {
-		await this.controller.passTask();
+	private onRate = async () => {
+		await this.controller.rateTask();
 		this.closePage(2);
-	}
-
-	private onFail = async () => {
-		await this.controller.failTask();
-		this.closePage(3);
-	}
-
-	private renderUser = (user: User) => {
-		let {icon, name, nick} = user;
-		return <><Image className="w-1-5c h-1-5c" src={icon} /> &nbsp; {nick || name}</>;
 	}
 
 	content() {
@@ -61,16 +51,16 @@ export class VTaskCheck extends VPage<CTask> {
 				{this.vTodoList.render()}
 			</div>
 			<div className="d-flex align-items-center px-3 py-2">
-				<button className="btn btn-success" onClick={this.onPass}>
-					<FA className="mr-2" name="check-circle" /> 通过
+				<button className="btn btn-success" onClick={this.onRate}>
+					<FA className="mr-2" name="check-circle" /> 评价
 				</button>
 				<div className="flex-fill"></div>
-				<button className="btn btn-outline-danger" onClick={this.onFail}>
-					<FA className="mr-2" name="times-circle" /> 不过
-				</button>
 			</div>
 		</div>;
-	}
+		/*<button className="btn btn-outline-danger" onClick={this.onFail}>
+			<FA className="mr-2" name="times-circle" /> 不过
+		</button>*/
+}
 	
 
 }

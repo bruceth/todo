@@ -28,8 +28,8 @@ export class VGroupDetail extends VPage<CGroup> {
 		await this.controller.saveGroupProp(props);
 	}
 
-	private onMember = (member:any) => {
-
+	private onMember = (memberId:number) => {
+		this.controller.cApp.showMemberDetail(memberId);
 	}
 
 	private renderMember = (member:any) => {

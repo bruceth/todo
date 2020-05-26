@@ -6,8 +6,8 @@ import { UiSchema, TempletType } from '../schema';
 import { factory } from './widgets';
 import 'font-awesome/css/font-awesome.min.css';
 import { ContextContainer, FormContext, Context } from './context';
-import { FormRes, formRes } from './formRes';
-import { resLang } from '../res';
+import { FormRes, formRes } from '../../res';
+import { resLang } from '../../res/res';
 
 export type FormButtonClick = (name:string, context: Context) => Promise<any>;
 export type InputEnter = (name:string, context: Context) => Promise<any>;

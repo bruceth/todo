@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 import { VPage, List, FA, tv, UserView, User, Image, EasyTime, Muted } from "tonva";
 import { CJob, Doing } from './CJob';
 import { Assign } from 'models';
-import { EnumTaskState } from 'tapp';
+import { stateText } from 'tapp';
 
 interface Cat {
 	icon: string;
@@ -22,11 +22,14 @@ export class VJob extends VPage<CJob> {
 	content() {
 		let page = observer(() => {
 			return <>
-				{this.renderCat(this.catProject)}
-				{this.renderCat(this.catAssigns)}
-				{this.renderCat(this.catTasks)}
-				<List className="my-3" items={this.controller.myDoingsPager}
-					item={{render: this.renderDoing, onClick: this.onClickDoing}} />
+				<div className="d-flex justify-content-around bg-white py-2">
+					{this.renderCat(this.catTasks)}
+					{this.renderCat(this.catAssigns)}
+					{this.renderCat(this.catProject)}
+				</div>
+				<List className="my-3 bg-gray" items={this.controller.myDoingsPager}
+					item={{render: this.renderDoing, onClick: this.onClickDoing, key: this.keyDoing, className:"bg-transparent"}}
+					none="无事" />
 			</>
 		});
 		return React.createElement(page);
@@ -35,42 +38,47 @@ export class VJob extends VPage<CJob> {
 		</div>*/
 	}
 
+	private keyDoing = (doing: Doing) => {
+		return doing.task;
+	}
+
 	private onClickDoing = (doing: Doing) => {
 		this.controller.showTask(doing.task);
 	}
 
-	private renderState(state:EnumTaskState):JSX.Element {
-		let pointer = <FA className="text-danger mr-2" name="chevron-circle-right" />;
-		switch (state) {
-			default:
-				return <>状态{state}未知</>;
-			case EnumTaskState.todo:
-				return <>{pointer} 待办</>;
-			case EnumTaskState.done:
-				return <>{pointer} 已办待核</>;
-		}
+	private renderState(doing:Doing):JSX.Element {
+		let {state, date} = doing;
+		let pointer = <FA className="text-danger mr-1" name="chevron-circle-right" />;
+		let {text, act} = stateText(state);
+		return <>{pointer} <small>{text}</small> &nbsp; <Muted>{act}于<EasyTime date={date} /></Muted></>;
 	}
 
 	private renderDoing = (doing:Doing, index: number) => {
-		let {assign, worker, state, $create} = doing;
+		let {assign, worker, $create} = doing;
 		let renderIcon = (user:User) => {
 			let {icon} = user;
-			return <Image className="w-1-5c h-1-5c mr-4 mt-1" src={icon} /> 
+			return <Image className="w-2c h-2c mt-1" src={icon} /> 
 		};
 		let renderNick = (user:User) => {
 			let {name, nick} = user;
-			return <>{nick || name}</>
+			return <small>{nick || name}</small>
 		};
 		return tv(assign, (values: Assign) => {
 			let {caption, discription} = values;
-			return <div className="px-3 py-2">
-				<UserView user={worker} render={renderIcon} />
-				<div className="flex-fill">
-					<UserView user={worker} render={renderNick} />
-					<div><b>{caption}</b> &nbsp; <Muted>{discription}</Muted></div>
-					<div className="text-primary">{this.renderState(state)}</div>
+			return <div className="my-1 bg-white">
+				<div className="px-3 py-2">
+					<UserView user={worker} render={renderIcon} />
 				</div>
-				<div><EasyTime date={$create} /></div>
+				<div className="flex-fill">
+					<div className="d-flex pt-1 pb-2">
+						<div className="flex-fill pl-2">
+							<UserView user={worker} render={renderNick} />
+							<div><b>{caption}</b> &nbsp; <Muted>{discription}</Muted></div>
+						</div>
+						<div className="pr-2"><Muted><EasyTime date={$create} /></Muted></div>
+					</div>
+					<div className="text-primary pl-2 py-1 border-top">{this.renderState(doing)}</div>
+				</div>
 			</div>;
 		});
 	}
@@ -88,18 +96,18 @@ export class VJob extends VPage<CJob> {
 	private catAssigns:Cat = {
 		icon: 'list-ol',
 		bgIcon: 'bg-success',
-		content: '布置的任务', 
+		content: '作业', 
 		action: this.controller.showMyAssigns,
 	}
 	private catTasks:Cat = {
 		icon: 'list-ol',
 		bgIcon: 'bg-info',
-		content: '经手的任务', 
+		content: '任务', 
 		action: this.controller.showMyTasks,
 	}
 	private renderCat = (cat:Cat) => {
 		let {icon, bgIcon, content, action} =cat;
-		return <div className="py-2 d-flex bg-white align-items-center border-bottom cursor-pointer" 
+		return <div className="py-2 px-3 d-flex bg-white align-items-center cursor-pointer" 
 			onClick={action}>
 			<div className={'d-flex w-2-5c h-2-5c text-center mx-3 rounded text-white align-items-center justify-content-center ' + bgIcon}>
 				<FA name={icon} fixWidth={true} size="lg" />

@@ -59,7 +59,7 @@ export abstract class Controller {
     private receiveHandlerId:number;
     private disposer:()=>void;
 
-    private dispose() {
+    private dispose = () => {
         // message listener的清理
         nav.unregisterReceiveHandler(this.receiveHandlerId);
         this.onDispose();
@@ -68,8 +68,8 @@ export abstract class Controller {
     protected onDispose() {
     }
 
-    protected async openVPage<C extends Controller>(vp: new (controller: C)=>VPage<C>, param?:any):Promise<void> {
-        await (new vp((this as any) as C)).open(param);
+    protected async openVPage<C extends Controller>(vp: new (controller: C)=>VPage<C>, param?:any, afterBack?:(ret:any)=>void):Promise<void> {
+        await (new vp((this as any) as C)).open(param, afterBack);
     }
 
     protected renderView<C extends Controller>(view: new (controller: C)=>View<C>, param?:any) {
@@ -118,7 +118,7 @@ export abstract class Controller {
 
     protected abstract internalStart(param?:any, ...params:any[]):Promise<void>;
     async start(param?:any, ...params:any[]):Promise<void> {
-        this.disposer = this.dispose.bind(this);
+        this.disposer = this.dispose;
         this.registerReceiveHandler();
         let ret = await this.beforeStart();
         if (ret === false) return;
@@ -155,8 +155,16 @@ export abstract class Controller {
         resolve(value);
     }
 
-    openPage(page:JSX.Element) {
-        nav.push(page, this.disposer);
+    openPage(page:JSX.Element, onClosePage?: ()=>void) {
+		let disposer: ()=>void;
+		if (onClosePage !== undefined) {
+			disposer = () => {
+				if (this.disposer) this.disposer();
+				onClosePage();
+			}
+		}
+
+        nav.push(page, disposer);
         this.disposer = undefined;
     }
 

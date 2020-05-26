@@ -10,12 +10,12 @@ export class VAssign extends VPage<CAssign> {
 		this.assign = this.controller.assign;
 	}
 
-	private onTaskAssign = () => {
-		this.controller.taskAssign();
+	private onTakeAssign = () => {
+		this.controller.takeAssign();
 	}
 
 	header() {
-		return '任务';
+		return '作业';
 	}
 
 	content():JSX.Element {
@@ -35,7 +35,7 @@ export class VAssign extends VPage<CAssign> {
 			</div>;
 		}
 		return <div className="m-3 rounded border bg-white">
-			<UserView user={owner} render={renderTop} />			
+			<UserView user={owner} render={renderTop} />
 			<div className="px-3 pt-2"><b>{caption}</b></div>
 			<div className="px-3 pt-2 pb-3">{discription}</div>
 			{this.renderItems()}
@@ -73,21 +73,26 @@ export class VAssign extends VPage<CAssign> {
 				<span className="ml-3">{nick || name}</span>
 			</>;
 		}
-		return <div className="py-2 border-top">{tasks.map((v, index) => {
-			let {worker, $create} = v;
-			return <div key={index}
-				className="px-3 py-2 d-flex cursor-pointer" 
-				onClick={()=>this.showTask(v.id)}>
-				<FA name="hand-paper-o mr-3 mt-2" className="text-info" fixWidth={true} />
-				<div className="">
-					<UserView user={worker} render={renderUser} />
-					<div>
-						<EasyTime date={$create} />
-						<span className="mx-3">领办</span>
-					</div>
-				</div>
-			</div>;
-		})}</div>;
+		return <div className="py-2">
+			<div className="border-top border-bottom px-3 bg-light"><Muted>已领办为任务</Muted></div>
+			{
+				tasks.map((v, index) => {
+					let {worker, $create} = v;
+					return <div key={index}
+						className="px-3 py-2 d-flex cursor-pointer" 
+						onClick={()=>this.showTask(v.id)}>
+						<FA name="hand-paper-o mr-3 mt-2" className="text-info" fixWidth={true} />
+						<div className="">
+							<UserView user={worker} render={renderUser} />
+							<div>
+								<EasyTime date={$create} />
+								<span className="mx-3">领办</span>
+							</div>
+						</div>
+					</div>;
+				})
+			}
+		</div>;
 	}
 
 	private renderCommands():JSX.Element {
@@ -105,7 +110,7 @@ export class VAssign extends VPage<CAssign> {
 		}
 
 		return <div className="px-3 py-2 border-top">
-			<button className="btn btn-primary" onClick={this.onTaskAssign}>领办</button>
+			<button className="btn btn-primary" onClick={this.onTakeAssign}>领办</button>
 		</div>;
 	}
 }

@@ -3,7 +3,7 @@ import {nav, Page, Schema, UiSchema, UiTextItem, UiPasswordItem, UiButton, Form,
 import { Controller, VPage } from '../vm';
 import { userApi, RegisterParameter } from '../net';
 import '../css/va-form.css';
-import { RegisterRes, registerRes } from './res';
+import { RegisterRes, registerRes } from '../res';
 import { tonvaTop, getSender } from './tools';
 
 export interface Values {

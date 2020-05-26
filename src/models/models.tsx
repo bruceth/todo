@@ -33,11 +33,14 @@ export interface AssignItem {
 }
 
 export interface AssignTask {
-	id: number; // ID ASC,
+	id: number; // Task ID ASC,
 	assign: number|any; // ID Assign,
 	worker: number; // ID,
 	$create: Date; // TIMESTAMP,
 	state: EnumTaskState;
+	date: Date;
+	stepDate: Date;
+	stepComment: string;
 }
 
 export interface Task {
@@ -51,7 +54,7 @@ export interface Task {
 	state: EnumTaskState;
 	todos: Todo[];
 	meTask: MeTask[];
-	history: TaskHistory[];
+	flow: TaskFlow[];
 }
 
 export interface Todo {
@@ -68,7 +71,7 @@ export interface MeTask {
 	act: number,			// EnumTaskStep
 }
 
-export interface TaskHistory {
+export interface TaskFlow {
 	date: Date,
 	user: number,
 	state: number,			// 0:初建，10:领办，20:已办，30:拒办，40:取消

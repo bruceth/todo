@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { VPage, Page, Form, ItemSchema, Schema, UiSchema, UiTagMulti, UiTagSingle, Context, Edit } from 'tonva';
+import { VPage, Page, Form, ItemSchema, Schema, UiSchema, UiTagMulti, UiTagSingle, Context, Edit, List } from 'tonva';
 import { CHome } from './CHome';
 import { observable } from 'mobx';
 
@@ -60,10 +60,13 @@ export class VMain extends VPage<CHome> {
             'adfasfd', 'asdfsadf', 'adsfasf', 'sdafsdf dsf a',
         ]
         return <Page header="首页" headerClassName="bg-info">
-            <button onClick={this.controller.test}>Test</button>
-            <button onClick={this.controller.testParser}>测试表达式</button>
-            <button onClick={this.controller.actionTestExpression}>actionTestExpression</button>
-            <div className="d-flex flex-wrap mt-3 ml-2 justify-content-start">
+			<div className="m-3">
+				<button className="mr-3 btn btn-outline-primary" onClick={this.controller.test}>Test</button>
+				<button className="mr-3 btn btn-outline-primary" onClick={this.controller.testParser}>测试表达式</button>
+				<button className="mr-3 btn btn-outline-primary" onClick={this.controller.actionTestExpression}>actionTestExpression</button>
+			</div>
+			<List items={[]} item={{render:this.renderListItem}} />
+            <div className="d-flex flex-wrap m-3 justify-content-start">
                 {arr.map((v, index) => <div key={index} className={itemBlock} style={itemStyle} onClick={()=>alert(v)}>{v}</div>)}
             </div>
 			<Form className="p-3" 
@@ -79,5 +82,9 @@ export class VMain extends VPage<CHome> {
 				onItemChanged={this.onEditItemChanged}
 			 />
         </Page>;
-    }
+	}
+	
+	private renderListItem = (item:any, index:number) => {
+		return <div>1</div>;
+	}
 }

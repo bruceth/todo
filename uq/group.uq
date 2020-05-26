@@ -9,16 +9,23 @@ TUID Group (
 	index parent_id (parent, id) unique,
 );
 
-MAP MyGroup (
+MAP MyGroup ver 1.5 (
 	KEY me ID [$User],
 	KEY [group] ID Group,
-	time TIMESTAMP,
+	time TIMESTAMP DEFAULT 1,
 	unread SMALLINT DEFAULT 0,
 	index me_time(me, time),
 );
 
 MAP GroupMember (
 	KEY [group] ID Group,
+	KEY member ID [$User],
+
+	index member_group (member, group) unique,
+);
+
+BOOK MyMember (
+	KEY me ID [$User],
 	KEY member ID [$User],
 );
 
@@ -84,6 +91,7 @@ ACTION AddGroupMember ver 1.2 (
 		BOOK GroupMember AT([group], member);
 		TUID Group ID group SET count+=1;
 		BOOK MyGroup AT(member, group) SET time=$date;
+		BOOK MyMember AT($user, member);
 	}
 };
 
@@ -100,4 +108,18 @@ ACTION RemoveGroupMember ver 1.2 (
 			DELETE a FROM MyGroup as a WHERE a.me=member AND a.[group]=group;
 		}
 	}
+};
+
+QUERY GetMyMembers (
+)
+PAGE (
+	member ID ASC,
+	count INT,
+)
+{
+	PAGE SELECT a.member, 
+		(SELECT count(*) FROM GroupMember as b WHERE b.member=a.member) as count
+		FROM MyMember as a
+		WHERE a.me=$user and a.member>$pageStart
+		ORDER BY a.member asc;
 };

@@ -1,0 +1,133 @@
+TUID Assign (
+	id,
+	main caption CHAR(100),
+	main discription TEXT,
+	main owner ID [$User],
+	open TINYINT DEFAULT 1, 			-- 0: 指定人，1：一个人，2：任何人
+	checker ID [$User],					-- null 就是owner
+	rater ID [$User],					-- null 就是owner
+	stamp (create, update),
+	INDEX owner_id (owner, id) UNIQUE,
+);
+
+TUID AssignItem (
+	id,
+	assign ID Assign,
+	discription TEXT,
+	INDEX assign_id(assign, id) UNIQUE,
+);
+
+BOOK MyAssign (
+	KEY me ID [$User],
+	KEY assign ID Assign,
+);
+
+BOOK AssignToGroup (
+	KEY assign ID Assign,
+	group ID Group,
+);
+
+ACTION NewAssign (
+	caption CHAR(100),
+) RETURNS ret (
+	id ID,
+) {
+	var assignId ID;
+	TUID Assign INTO assignId SET caption=caption, owner=$user;
+	BOOK MyAssign at($user, assignId);
+	INTO ret SELECT assignId as id;
+};
+
+ACTION PublishAssign(
+	groupId ID Group,
+	assignId ID Assign,
+)
+RETURNS ret (
+	note ID
+){
+	VAR note ID;
+	TUID Note INTO note SET [group]=[groupId], type=EnumNoteType.Assign, obj=assignId, owner=$user;
+	BOOK AssignToGroup at(assignId) SET group=groupId;
+	FOREACH (VAR member ID OF SELECT a.member FROM GroupMember as a WHERE a.[group]=[groupId]) {
+		BOOK MyGroup at(member, [groupId]) SET time=$date, unread+=1;
+		TUID [$User] ID (member) SET poke=1;
+	}
+	INTO ret SELECT [note];
+};
+
+QUERY GetAssign (
+	assignId ID,
+)
+RETURNS assign (
+	id ID,
+	caption CHAR(100),
+	discription TEXT,
+	owner ID [$User],
+	open TINYINT,
+	[$create] TIMESTAMP, 
+	[$update] TIMESTAMP
+)
+RETURNS items (
+	id ID,
+	discription TEXT,
+)
+RETURNS tasks (
+	id ID,
+	worker ID,
+	[$create] TIMESTAMP,
+	state TINYINT,
+) {
+	INTO assign SELECT a.id, a.caption, a.discription, a.owner, a.open, a.[$create], a.[$update]
+		FROM Assign as a 
+		WHERE a.id=assignId;
+	INTO items SELECT a.id, a.discription
+		FROM AssignItem as a
+		WHERE a.assign=assignId
+		ORDER BY a.id;
+	INTO tasks SELECT a.id, a.worker, a.[$create], b.state
+		FROM Task as a LEFT JOIN TaskState as b on a.id=b.task
+		WHERE a.assign=assignId;
+};
+
+-- 获取我布置的任务
+QUERY GetMyAssigns (
+	archived TINYINT,		-- 0 or null: 当前任务，1：归档任务
+)
+PAGE (
+	id ID desc,
+	caption CHAR(100),
+	discription TEXT,
+	[$create] TIMESTAMP, 
+	[$update] TIMESTAMP,
+) 
+RETURNS tasks (
+	assign ID,
+	id ID,
+	worker ID,
+	[$create] TIMESTAMP,
+	state TINYINT,
+	date TIMESTAMP,
+) {
+	IF archived IS NULL {
+		SET archived = 0;
+	}
+	IF archived=1 {
+		Page SELECT a.id, a.caption, a.discription, a.[$create], a.[$update]
+			FROM Assign as a LEFT JOIN MyAssign as b ON a.id=b.assign AND b.me=$user
+			WHERE a.owner=$user AND b.assign is null And a.id<$pageStart
+			ORDER BY a.id DESC
+			LIMIT $pageSize;
+	}
+	else {
+		Page SELECT a.id, a.caption, a.discription, a.[$create], a.[$update]
+			FROM MyAssign as b JOIN Assign as a ON b.assign=a.id
+			WHERE b.me=$user AND a.id<$pageStart
+			ORDER BY a.id DESC
+			LIMIT $pageSize;
+	}
+	INTO tasks SELECT a.id as assign, b.id, b.worker, b.[$create], c.state, c.date
+		FROM [$Page] as a 
+			JOIN Task as b ON a.id=b.assign
+			LEFT JOIN TaskState as c on b.id=c.task;
+};
+

@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { IVPage } from './page';
 import { IObservableValue } from 'mobx/lib/internal';
 import '../../css/va-tab.css';
+import { ScrollView } from './scrollView';
 
 export type TabCaption = (selected:boolean) => JSX.Element;
 
@@ -17,6 +18,9 @@ export interface TabProp {
     load?: () => Promise<void>;
 	onShown?: () => Promise<void>;
 	isSelected?: boolean;
+	onScroll?: () => void;
+	onScrollTop?: () => Promise<boolean>;
+	onScrollBottom?: () => Promise<boolean>;
 }
 
 export interface TabsProps {
@@ -40,7 +44,10 @@ class Tab {
 	page: IVPage;
     notify: IObservableValue<number>;
     load?: () => Promise<void>;
-    onShown?: () => Promise<void>;
+	onShown?: () => Promise<void>;
+	onScroll?: () => void;
+	onScrollTop?: () => Promise<boolean>;
+	onScrollBottom?: () => Promise<boolean>;
 
     private _content: JSX.Element;
     
@@ -97,7 +104,7 @@ export class TabsView {
 		this.size = size || 'md';
         this.tabArr = tabs.map(v => {
             let tab = new Tab();
-            let {name, caption, content, page, notify, load, onShown, isSelected} = v;
+            let {name, caption, content, page, notify, load, onShown, isSelected, onScroll, onScrollTop, onScrollBottom} = v;
 			tab.name = name;
 			if (isSelected === true || name === selected) {
 				this.selectedTab = tab;
@@ -113,7 +120,10 @@ export class TabsView {
 			}
             tab.notify = notify;
             tab.load = load;
-            tab.onShown = onShown;
+			tab.onShown = onShown;
+			tab.onScroll = onScroll;
+			tab.onScrollTop = onScrollTop;
+			tab.onScrollBottom = onScrollBottom;
             return tab;
         });
         this.tabBg = tabBack;
@@ -213,8 +223,8 @@ export class TabsView {
 		return <>
 			{this.tabArr.map((v,index) => {
 				let {tabPosition} = this.props;
-				let {content, page} = v;
-				let tabs = <this.tabs />;
+				let {content, page, onScroll, onScrollTop, onScrollBottom} = v;
+				let tabs = React.createElement(this.tabs);
 				let pageHeader:any, pageFooter:any;
 				if (page !== undefined) {
 					pageHeader = page.header();
@@ -257,13 +267,23 @@ export class TabsView {
 
 				let style:React.CSSProperties;
 				if (v.selected===false) style = displayNone;
-				return <div key={index} className={classNames('tv-page', this.contentBg)} style={style}>
-					<article>
+				/*return <ScrollView key={index} className={classNames('tv-page', this.contentBg)}
+					style={style}
+					onScroll={onScroll} onScrollTop={onScrollTop} onScrollBottom={onScrollBottom}>
+					<article data-a="tab" className={this.contentBg}>
 						{header}
 						{content}
 						{footer}
 					</article>
-				</div>;
+				</ScrollView>;
+				*/
+				return <ScrollView key={index} className={classNames(this.contentBg)}
+					style={style}
+					onScroll={onScroll} onScrollTop={onScrollTop} onScrollBottom={onScrollBottom}>
+					{header}
+					{content}
+					{footer}
+				</ScrollView>;
 			})}
 		</>;
 	});
@@ -307,6 +327,22 @@ export class TabsView {
 		return this.tabsView.render();
     }
 };
+
+@observer export class RootTabs extends React.Component<TabsProps> {
+	private readonly tabsView: TabsView;
+    constructor(props: TabsProps) {
+		super(props);
+		this.tabsView = new TabsView(props);
+		setTimeout(() => {
+			this.tabsView.tabClick(undefined);
+		}, 100);
+    }
+
+    render() {
+		return React.createElement(this.tabsView.content);
+    }
+};
+
 /*
 {
 	tabPosition === 'top'? 

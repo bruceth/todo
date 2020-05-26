@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { observable } from 'mobx';
-import { observer } from 'mobx-react';
 import { VPage, Muted, EasyTime, UserView, User, useUser, Image, FA } from "tonva";
 import { CTask } from "./CTask";
 import { Task } from 'models';
 import { EnumTaskState } from '../tapp';
 import { VTodoList } from './VTodoList';
+import { VTodoEdit } from './VTodoEdit';
 
 interface Command {
 	//visible: ()=>boolean; //: boolean | IComputedValue<boolean>;
@@ -24,18 +23,12 @@ export class VTask extends VPage<CTask> {
 		useUser(this.task.assign.owner);
 	}
 
+	refreshTodos() {
+		this.vTodoList.init(this.task.todos, false);
+	}
+
 	header() {
 		return '任务';
-	}
-
-	private onTodo = async () => {
-		await this.controller.todoTask();
-		this.closePage();
-	}
-
-	private renderUser = (user: User) => {
-		let {icon, name, nick} = user;
-		return <><Image className="w-1-5c h-1-5c" src={icon} /> &nbsp; {nick || name}</>;
 	}
 
 	content() {
@@ -47,7 +40,7 @@ export class VTask extends VPage<CTask> {
 		let renderTop = (user:User):JSX.Element => {
 			let {icon, name, nick} = user;
 			return <div className="d-flex px-3 py-2 bg-light">
-				<Image className="w-2c h-2c" src={icon} /> 
+				<Image className="w-2c h-2c my-1" src={icon} /> 
 				<div className="ml-3">
 					<div>{nick || name}</div>
 					<div><Muted><EasyTime date={$create} /> {spanUpdate}</Muted></div>
@@ -65,7 +58,7 @@ export class VTask extends VPage<CTask> {
 				{this.vTodoList.render()}
 			</div>
 
-			{this.renderState()}
+			{/*this.renderState()*/}
 			{this.renderCommands()}
 		</div>;
 	}
@@ -125,8 +118,26 @@ export class VTask extends VPage<CTask> {
 		}
 	}
 
+	private onCmdRate = () => {
+		this.controller.showTaskRate();
+	}
+	private renderCmdRate():JSX.Element {
+		if (this.task.state === EnumTaskState.pass) {
+			return <button className="btn btn-primary" onClick={this.onCmdRate}>
+				评分
+				<FA className="ml-2" name="angle-right" />
+			</button>;
+		}
+	}
+
+
 	private onCmdEditTodos = () => {
-		this.controller.showTaskDone();
+		// this.controller.showTodoEdit();
+		this.openVPage(VTodoEdit, undefined, async () => {
+			this.refreshTodos();
+			return;
+		});
+
 	}
 	private renderCmdEditTodos():JSX.Element {
 		if (this.task.state === EnumTaskState.todo) {
@@ -148,10 +159,26 @@ export class VTask extends VPage<CTask> {
 	}
 
 	private renderCommands():JSX.Element {
-		return <div className="px-3 py-2 d-flex align-items-center">
-			{this.renderCmdDone()}
-			{this.gap()}
-			{this.renderCmdCheck()}
+		let divCmds:any[] = [
+			this.renderCmdDone(),
+			this.renderCmdCheck(),
+			this.renderCmdRate(),
+		];
+		let first = true;
+		return <div className="px-3 py-2 d-flex align-items-end">
+			{divCmds.map((v, index) => {
+				if (!v) return null;
+				let gap:any;
+				if (first === false) {
+					gap = this.gap();
+				}
+				else {
+					first = false;
+				}
+				return <React.Fragment key={index}>
+					{gap}{v}
+				</React.Fragment>;
+			})}
 			<div className="flex-fill"></div>
 			{this.renderCmdEditTodos()}
 			{this.gap()}
@@ -159,12 +186,15 @@ export class VTask extends VPage<CTask> {
 		</div>;
 	};
 
+	/*
 	private renderState() {
 		let {state} = this.task;
 		let divState:any;
 		switch (state) {
 			case EnumTaskState.start: divState = this.renderStart(); break;
 			case EnumTaskState.todo: divState = this.renderTodo(); break;
+			case EnumTaskState.pass: divState = this.renderPass(); break;
+			case EnumTaskState.fail: divState = this.renderFail(); break;
 		}
 		if (!divState) return;
 		return <div className="px-3">
@@ -172,10 +202,12 @@ export class VTask extends VPage<CTask> {
 		</div>
 	}
 
+	private onRate = () => {
+		alert('评分');
+	}
+
 	private renderStart() {
-		return <>
-			<button className="btn btn-success" onClick={this.onTodo}>领办</button>
-		</>;
+		return <button className="btn btn-success" onClick={this.onTodo}>领办</button>
 	}
 
 	private renderTodo() {
@@ -183,4 +215,13 @@ export class VTask extends VPage<CTask> {
 			
 		</>;
 	}
+
+	private renderPass() {
+		return <button className="btn btn-success" onClick={this.onRate}>评分</button>;
+	}
+
+	private renderFail() {
+		return <button className="btn btn-success" onClick={this.onTodo}>不知道怎么办</button>;
+	}
+	*/
 }

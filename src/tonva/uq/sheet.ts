@@ -266,7 +266,12 @@ export class PageStateItems<T> extends PageItems<T> {
         return ret;
 	}
 	*/
+	protected getPageId(item:T) {
+		return item === undefined? 0 : (item as any).id;
+	}
+	/*
     protected setPageStart(item:any) {
         this.pageStart = item === undefined? 0 : item.id;
-    }
+	}
+	*/
 }
