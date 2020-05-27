@@ -27,9 +27,9 @@ export class VJob extends VPage<CJob> {
 					{this.renderCat(this.catAssigns)}
 					{this.renderCat(this.catProject)}
 				</div>
-				<List className="my-3 bg-gray" items={this.controller.myDoingsPager}
+				<List className="my-2 bg-transparent" items={this.controller.myDoingsPager}
 					item={{render: this.renderDoing, onClick: this.onClickDoing, key: this.keyDoing, className:"bg-transparent"}}
-					none="无事" />
+					/>
 			</>
 		});
 		return React.createElement(page);

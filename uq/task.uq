@@ -216,7 +216,9 @@ PAGE (
 	state TINYINT,
 	date TIMESTAMP,
 ) {
-	Page SELECT a.task, b.assign, b.worker, b.[$create], c.state, c.date
+	Page SELECT a.task, b.assign, b.worker, 
+		b.[$create], c.state, 
+		c.date
 		FROM MyTask as a 
 			LEFT JOIN Task as b on a.task=b.id
 			LEFT JOIN TaskState as c on b.id=c.task
@@ -255,13 +257,17 @@ RETURNS flow (
 	state TINYINT,					-- EnumTaskState
 	comment TEXT,
 ) {
-	INTO task SELECT a.id, a.assign, b.caption, b.discription, b.owner, b.[$create], b.[$update], c.state
+	INTO task SELECT a.id, a.assign, b.caption, b.discription, b.owner, 
+		b.[$create], 
+		b.[$update], 
+		c.state
 		FROM Task as a 
 			LEFT JOIN Assign as b ON a.assign=b.id
 			LEFT JOIN TaskState as c ON a.id=c.task
 		WHERE a.id=taskId;
 
-	INTO todos SELECT a.id, a.discription, a.x, a.[$update]
+	INTO todos SELECT a.id, a.discription, a.x, 
+		a.[$update]
 		FROM Todo as a
 		WHERE a.task=taskId;
 
@@ -289,8 +295,10 @@ PAGE (
 	stepDate TIMESTAMP,
 	stepComment TEXT,
 ) {
-	Page SELECT a.task as id, b.assign, b.worker, b.[$create], 
-		c.state, c.date,
+	Page SELECT a.task as id, b.assign, b.worker, 
+		b.[$create], 
+		c.state, 
+		c.date,
 		(SELECT f.date FROM TaskFlow as f WHERE f.task=a.task AND f.step=step ORDER by f.seq DESC LIMIT 1) as stepDate,
 		(SELECT f.comment FROM TaskFlow as f WHERE f.task=a.task AND f.step=step ORDER by f.seq DESC LIMIT 1) as stepComment
 		FROM MyTaskArchive as a 

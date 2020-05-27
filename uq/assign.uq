@@ -77,7 +77,9 @@ RETURNS tasks (
 	[$create] TIMESTAMP,
 	state TINYINT,
 ) {
-	INTO assign SELECT a.id, a.caption, a.discription, a.owner, a.open, a.[$create], a.[$update]
+	INTO assign SELECT a.id, a.caption, a.discription, a.owner, a.open, 
+		a.[$create], 
+		a.[$update]
 		FROM Assign as a 
 		WHERE a.id=assignId;
 	INTO items SELECT a.id, a.discription
@@ -112,20 +114,26 @@ RETURNS tasks (
 		SET archived = 0;
 	}
 	IF archived=1 {
-		Page SELECT a.id, a.caption, a.discription, a.[$create], a.[$update]
+		Page SELECT a.id, a.caption, a.discription, 
+			a.[$create], 
+			a.[$update]
 			FROM Assign as a LEFT JOIN MyAssign as b ON a.id=b.assign AND b.me=$user
 			WHERE a.owner=$user AND b.assign is null And a.id<$pageStart
 			ORDER BY a.id DESC
 			LIMIT $pageSize;
 	}
 	else {
-		Page SELECT a.id, a.caption, a.discription, a.[$create], a.[$update]
+		Page SELECT a.id, a.caption, a.discription, 
+			a.[$create], 
+			a.[$update]
 			FROM MyAssign as b JOIN Assign as a ON b.assign=a.id
 			WHERE b.me=$user AND a.id<$pageStart
 			ORDER BY a.id DESC
 			LIMIT $pageSize;
 	}
-	INTO tasks SELECT a.id as assign, b.id, b.worker, b.[$create], c.state, c.date
+	INTO tasks SELECT a.id as assign, b.id, b.worker, 
+		b.[$create], 
+		c.state, c.date
 		FROM [$Page] as a 
 			JOIN Task as b ON a.id=b.assign
 			LEFT JOIN TaskState as c on b.id=c.task;

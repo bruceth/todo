@@ -39,7 +39,7 @@ export abstract class VPage<C extends Controller> extends View<C> {
 			onScrollBottom={(scroller: Scroller) => this.onPageScrollBottom(scroller)}
 			back={this.back}
 			headerClassName={this.headerClassName}
-			bgClassName={this.bgClassName}
+			className={this.className}
 			afterBack={()=>this.afterBack()}
 			tabsProps={this.tabsProps}
 			logout={this.logout()}
@@ -54,6 +54,6 @@ export abstract class VPage<C extends Controller> extends View<C> {
 	protected afterBack():void {}
 	protected get back(): 'close' | 'back' | 'none' {return 'back'}
 	protected get headerClassName(): string {return null;}
-	protected get bgClassName(): string {return null;}
+	protected get className(): string {return null;}
 	protected get tabsProps(): TabsProps {return null;}
 }

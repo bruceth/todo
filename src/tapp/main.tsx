@@ -10,19 +10,20 @@ export class VMain extends VPage<CApp> {
     }
 
     render = (param?: any): JSX.Element => {
-        let { cGroup, cJob: cTodo, cHome, cMe/*, cPosts, cMedia, cTemplets*/ } = this.controller;
+        let { cGroup, cJob, cHome, cMe } = this.controller;
         let faceTabs = [
-			{ name: 'note', label: '首页', icon: 'home', content: cGroup.tab, },
-			{ name: 'todo', label: '工作', icon: 'list', content: cTodo.tab, onShown: cTodo.load },
+			{ name: 'note', label: '首页', icon: 'home', content: cGroup.tab},
+			{ name: 'job', label: '工作', icon: 'list', content: cJob.tab, onShown: cJob.load, className: 'job-tab' },
             { name: 'home', label: '绩效', icon: 'tasks', content: cHome.tab, },
             { name: 'me', label: '我的', icon: 'user', content: cMe.tab }
         ].map(v => {
-            let { name, label, icon, content, onShown/*, notify, onShown*/ } = v;
+            let { name, label, icon, content, onShown, className } = v;
             return {
                 name: name,
                 caption: (selected: boolean) => TabCaptionComponent(label, icon, color(selected)),
                 content: content,
-                onShown: onShown,
+				onShown: onShown,
+				className: className
             }
 		});
 		return <Page tabsProps={{tabs:faceTabs}} />;

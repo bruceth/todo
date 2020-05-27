@@ -19,7 +19,6 @@ export interface PageProps extends ScrollProps {
     logout?: boolean | (()=>Promise<void>);
 	headerClassName?: string;
 	className?: string;
-	bgClassName?: string;
 	afterBack?: () => void;
 	tabsProps?: TabsProps;
 }
@@ -63,13 +62,12 @@ export class Page extends React.Component<PageProps> {
 		if (this.tabsView) {
 			return React.createElement(this.tabsView.content);
 		}
-		const {onScroll, onScrollTop, onScrollBottom, children, className, bgClassName} = this.props;
+		const {onScroll, onScrollTop, onScrollBottom, children, className} = this.props;
 		return <ScrollView
 			onScroll={onScroll}
 			onScrollTop={onScrollTop}
 			onScrollBottom={onScrollBottom}
 			className={className}
-			bgClassName={bgClassName}
 		>
 			{this.renderHeader()}
 			<main>{children}</main>

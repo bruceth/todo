@@ -121,9 +121,10 @@ export class UQsMan {
                     let lk = (key as string).toLowerCase();
                     let ret = target[lk];
                     if (ret !== undefined) return ret;
-                    debugger;
-                    console.error('error in uqs entity undefined');
-                    that.showReload(`代码错误：新增 uq ${uqName} entity ${String(key)}`);
+					debugger;
+					let err = `entity ${uqName}.${String(key)} not defined`;
+                    console.error(err);
+                    that.showReload('UQ错误：' + err);
                     return undefined;
                 }
             });

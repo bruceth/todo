@@ -20,7 +20,7 @@ export interface ScrollProps {
     onScroll?: (e:any) => void;
     onScrollTop?: (scroller: Scroller) => Promise<boolean>;
 	onScrollBottom?: (scroller: Scroller) => Promise<boolean>;
-	bgClassName?: string;
+	className?: string;
 }
 interface ScrollViewProps extends ScrollProps {
 	className?: string;
@@ -96,10 +96,10 @@ export class ScrollView extends React.Component<ScrollViewProps, null> {
 	}
 	
     render() {
-		let {className, bgClassName, style} = this.props;
-		return <div ref={this.refDiv} className={classNames('tv-page', bgClassName)}
+		let {className, style} = this.props;
+		return <div ref={this.refDiv} className={classNames('tv-page')}
 			onScroll={this.onScroll} style={style}>
-			<article className={className}>
+			<article data-a='tab' className={className}>
 				{this.props.children}
 			</article>
 		</div>;

@@ -44,3 +44,11 @@ ul.bg-transparent>li {
 ul.bg-gray>li {
 	background-color: gray;	
 }
+
+.job-tab {
+	background-color: #eeeeee;
+}
+
+.job-tab article {
+	background-color: transparent;
+}
