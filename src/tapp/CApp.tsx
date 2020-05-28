@@ -74,7 +74,7 @@ export class CApp extends CUqApp {
 	}
 
 	refreshJob() {
-		this.cJob.load();
+		this.cJob.refresh();
 	}
 	
 	protected afterStart():Promise<void> {

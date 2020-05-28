@@ -60,9 +60,10 @@ export interface Task {
 export interface Todo {
 	id: number;
 	task: number;
-	assignItem: AssignItem;
+	assignItem: number;
 	discription: string;
 	x: number;
+	hour?: number;
 	$update: Date;
 }
 

@@ -12,6 +12,7 @@ export interface Doing {
 }
 
 export class CJob extends CUqBase {
+	private loaded:boolean;
 	myDoingsPager: QueryPager<Doing>;
 	myArchiveTodosPager: QueryPager<any>;
 
@@ -20,12 +21,19 @@ export class CJob extends CUqBase {
 
 	init() {
 		this.myDoingsPager = new QueryPager(this.uqs.performance.GetMyTasks, 10, 100);
+		this.loaded = false;
 	}
 
 	tab = () => this.renderView(VJob);
 
 	load = async () => {
-		this.myDoingsPager.first({});
+		if (this.loaded === true) return;
+		this.loaded = true;
+		await this.myDoingsPager.first({});
+	}
+
+	refresh = async() => {
+		await this.myDoingsPager.refresh();
 	}
 
 	showTask = async (taskId: number) => {

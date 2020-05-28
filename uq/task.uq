@@ -228,7 +228,7 @@ PAGE (
 };
 
 
-QUERY GetTask (
+QUERY GetTask ver 1.0 (
 	taskId ID,
 )
 RETURNS task (
@@ -244,6 +244,7 @@ RETURNS task (
 RETURNS todos (
 	id ID,
 	discription TEXT,
+	assignItem ID,
 	x TINYINT,				-- 0: normal, 1: deleted
 	[$update] TIMESTAMP,
 )
@@ -266,7 +267,8 @@ RETURNS flow (
 			LEFT JOIN TaskState as c ON a.id=c.task
 		WHERE a.id=taskId;
 
-	INTO todos SELECT a.id, a.discription, a.x, 
+	INTO todos SELECT a.id, a.discription, 
+		a.assignItem, a.x, 
 		a.[$update]
 		FROM Todo as a
 		WHERE a.task=taskId;

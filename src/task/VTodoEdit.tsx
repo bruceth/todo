@@ -1,11 +1,24 @@
 import React from 'react';
 import { CTask } from "./CTask";
-import { VPage, Muted, EasyTime, User, Image, UserView, List } from "tonva";
+import { VPage, Muted, EasyTime, User, Image, UserView, List, FA } from "tonva";
 import { Todo } from 'models';
-import { observable } from 'mobx';
 import { observer } from 'mobx-react';
+import { parseTodo } from 'tools';
+import { observable } from 'mobx';
+
+interface TodoItem {
+	todo: Todo;
+	removed: boolean;
+}
 
 export class VTodoEdit extends VPage<CTask> {
+	@observable private todoItems: TodoItem[];
+
+	init() {
+		this.todoItems = this.controller.task.todos.map(v => {
+			return {todo: v, removed: false};
+		})
+	}
 	header() {return '增减事项'}
 	content() {
 		let {caption, discription, $create, $update, owner} = this.controller.task;
@@ -36,28 +49,102 @@ export class VTodoEdit extends VPage<CTask> {
 	}
 
 	private renderTodoList() {
-		let {todos} = this.controller.task;
-		
-		return <List items={todos} item={{render: this.renderTodo}} />;
+		return <List items={this.todoItems} item={{render: this.renderTodo}} />;
 	}
 
-	private renderTodo = (todo:Todo, index:number) => {
-		let {discription} = todo;
-		return <div className="px-3 py-2">
-			{discription}
-		</div>
-	}
-
-	@observable private ddd: boolean = false;
-	footer() {
-		let f = observer(() =><div className="bg-light p-3">
-			<div>
-				<button className="btn btn-primary" onClick={this.onSave}>保存并新增</button>
-			</div>
-			{this.ddd===true && <div>
-				<button className="btn btn-primary" onClick={this.onDel}>压缩</button>
-			</div>
+	private hourText(hour: number):string {
+		if (!hour) return;
+		let h = Math.floor(hour / 60);
+		let m = Math.floor(hour % 60);
+		let ret:string; // h + ':' + String(m).substr(1);
+		if (h > 0) {
+			ret = h + '时';
+			if (m > 0) {
+				ret += m + '分';
 			}
+		}
+		else {
+			ret = m + '分钟';
+		}
+		return ret;
+	}
+	private onTrashTodo = (item:TodoItem) => {
+		item.removed = true;
+	}
+	private onUndoTodo = (item:TodoItem) => {
+		item.removed = false;
+	}
+	private renderTodo = (item:TodoItem, index:number) => {
+		let render = observer(() => {
+			let {todo, removed} = item;
+			let {discription, hour, assignItem} = todo;
+			let textColor:string, dotColor:string, vDisp:any, dotIcon:string, actionIcon:string, onClick:()=>void;
+
+			if (removed === false) {
+				textColor = '';
+				if (assignItem) {
+					dotIcon = 'circle';
+					dotColor = 'text-primary';
+				}
+				else {
+					dotIcon = 'circle-o';
+					dotColor = 'text-info';
+				}
+				vDisp = discription;
+				onClick = ()=>this.onTrashTodo(item);
+				actionIcon = 'trash';
+			}
+			else {
+				textColor = 'text-muted';
+				dotIcon = 'times-circle-o';
+				dotColor = '';
+				vDisp = <del>{discription}</del>;
+				onClick = ()=>this.onUndoTodo(item);
+				actionIcon = 'undo';
+			}
+			return <div className={'py-2 d-flex ' + textColor}>
+				<small className="align-self-center"><small><FA name={dotIcon} className={'mx-3 ' + dotColor} fixWidth={true} /></small></small>
+				<div className="flex-fill">{vDisp}</div>
+				{hour && <div className="mx-3">{this.hourText(hour)}</div>}
+				<div className="px-3 cursor-pointer" onClick={onClick}>
+					<FA name={actionIcon} />
+				</div>
+			</div>
+		});
+		return React.createElement(render);
+	}
+	private onKeyDown = (evt:React.KeyboardEvent<HTMLInputElement>) => {
+		if (evt.keyCode === 13) this.onEnter();
+	}
+	private onEnter = async () => {
+		let input:HTMLInputElement = document.getElementById('$task-todo-input') as HTMLInputElement;
+		if (!input) return;
+		let {task} = this.controller;
+		let {content, hour} = parseTodo(input.value);
+		this.todoItems.push({
+			todo: {
+				id: 1,
+				task: task.id,
+				assignItem: undefined,
+				discription: content,
+				hour: hour,
+				x: 0,
+				$update: new Date()
+			},
+			removed: false
+		});
+		input.value = '';
+	}
+	footer() {
+		let f = observer(() =><div className="bg-light border-top py-2 px-1 d-flex">
+			<input id='$task-todo-input' className="flex-fill form-control"
+				type="text" 
+				placeholder="新增事项"
+				onKeyDown={this.onKeyDown}
+				/>
+			<button className="btn btn-sm btn-outline-primary" onClick={this.onEnter}>
+				<FA name="plus" />
+			</button>
 		</div>);
 		return React.createElement(f);
 	}
@@ -72,13 +159,13 @@ export class VTodoEdit extends VPage<CTask> {
 			x: 0,
 			$update: new Date()
 		};
-		this.ddd = true;
+		//this.ddd = true;
 		this.controller.task.todos.push(todo);
 		this.scrollToBottom();
 	}
 
 	private onDel = () => {
-		this.ddd = false;
+		//this.ddd = false;
 	}
 
 	private divBottom:HTMLDivElement;

@@ -18,7 +18,7 @@ export class TagView implements IValuesView {
 			names = this.tag.namesFromIds(values);
 		}
 		return <div className="d-flex flex-wrap ">{names.map((name, index)=>{
-			return <div className="mx-2 border border-muted rounded px-3 bg-light">{name}</div>
+			return <div key={index} className="mx-2 border border-muted rounded px-3 bg-light">{name}</div>
 		})}</div>;
 	}
 	renderRadios(value: number, options: IValuesViewRenderOptions): JSX.Element {
