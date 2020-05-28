@@ -8,9 +8,9 @@ export class VMain extends VPage<CGroup> {
 	}
 
 	private renderGroup = (item: any, index: number):JSX.Element => {
-		let {group, time, unread} = item;
+		let {group, time, unread, count} = item;
 		return <div className="px-3 py-2">{tv(group, v => {
-			let {name, count} = v;
+			let {name} = v;
 			// <FA className="" name="building-o" />
 			// {count && <Muted>({count}成员)</Muted>}
 			let vCount:any, bg:string;

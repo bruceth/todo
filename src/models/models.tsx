@@ -2,6 +2,10 @@ import { EnumNoteType, EnumTaskState } from '../tapp';
 
 export interface Group {
 	id: number;
+	count: number;
+	name: string;
+	discription: string;
+	owner: number;
 }
 
 export interface Note {

@@ -49,9 +49,10 @@ PAGE (
 	time TIMESTAMP desc,
 	[group] ID Group,
 	unread SMALLINT,
+	count INT,
 ) {
-	PAGE SELECT a.time, a.[group], a.unread
-		FROM MyGroup as a
+	PAGE SELECT a.time, a.[group], a.unread, b.count
+		FROM MyGroup as a JOIN Group as b on a.[group]=b.id
 		WHERE a.me=$user and a.time<$pageStart
 		ORDER BY a.time desc
 		LIMIT $pageSize;

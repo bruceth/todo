@@ -1,19 +1,29 @@
 import { CUqBase } from "../tapp";
 import { VMain } from "./VMain";
-import { QueryPager, useUser, Tuid } from "tonva";
+import { QueryPager, useUser, Tuid, BoxId } from "tonva";
 import { VGroup } from "./VGroup";
 import { observable } from "mobx";
 import { stateDefs } from "tools";
-import { Task, Assign } from "../models";
+import { Task, Assign, Group } from "../models";
 import { VGroupDetail } from "./VGroupDetail";
 import { Performance } from '../tapp'
 import { NoteItem, NoteAssign, dataToNoteItem, createNoteAssign, createNoteText } from "./NoteItem";
+
+export interface GroupItem {
+	id: number;
+	//name: string;
+	group: BoxId;
+	time: Date;
+	owner: number;
+	unread: number;
+	count: number;
+}
 
 export class CGroup extends CUqBase {
 	private performance: Performance;
 
 	@observable commandsShown: boolean = false;
-	@observable currentGroup: any;
+	@observable currentGroup: Group;
 	@observable currentTask: Task;
 
 	groupsPager: GroupsPager;
@@ -41,7 +51,14 @@ export class CGroup extends CUqBase {
 		let ret = await this.performance.SaveGroup.submit(data);
 		let retGroupId = ret?.group;
 		let groupBoxId = this.performance.Group.boxId(retGroupId);
-		this.groupsPager.items.unshift({group: groupBoxId, time: new Date()});
+		this.groupsPager.items.unshift({
+			id: retGroupId, 
+			group: groupBoxId, 
+			count: 1, 
+			time: new Date(),
+			unread: 0,
+			owner: this.user.id,
+		});
 	}
 
 	async saveGroupProp(props: {id:number, name:string, discription:string}) {
@@ -52,8 +69,8 @@ export class CGroup extends CUqBase {
 	async setGroup(groupId?:number) {
 		if (!groupId) groupId = this.currentGroup?.id;
 		if (!groupId) return;
-		let {Group} = this.performance;
-		this.currentGroup = await Group.assureBox(groupId);
+		let {Group:GroupTuid} = this.performance;
+		this.currentGroup = await GroupTuid.assureBox<Group>(groupId);
 	}
 
 	private noteItemConverter = (item:any, queryResults:{[name:string]:any[]}):NoteItem => {
@@ -165,6 +182,7 @@ export class CGroup extends CUqBase {
 
 	async groupAddMember(member:any) {
 		await this.performance.AddGroupMember.submit({group: this.currentGroup, member: member});
+		this.currentGroup.count ++;
 	}
 
 	async groupRemoveMembers(members:any[]) {
@@ -175,7 +193,7 @@ export class CGroup extends CUqBase {
 	}
 }
 
-class GroupsPager extends QueryPager<any> {
+class GroupsPager extends QueryPager<GroupItem> {
 	protected getRefreshPageId(item:any) {
 		if (item === undefined) return;
 		let pageId = item['group'];

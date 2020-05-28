@@ -2,9 +2,10 @@ import * as React from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
-import { VPage, tv, List, FA, Tuid, EasyTime, Scroller, UserView, User, Image } from 'tonva';
+import { VPage, tv, List, FA, Tuid, EasyTime, Scroller, UserView, User, Image, BoxId } from 'tonva';
 import { CGroup } from './CGroup';
 import { NoteItem } from './NoteItem';
+import { Group } from 'models';
 
 export class VGroup extends VPage<CGroup> {
 	@observable private inputed: boolean = false;
@@ -114,7 +115,7 @@ export class VGroup extends VPage<CGroup> {
 	header() {
 		let Header = observer(() => {
 			let {currentGroup} = this.controller;
-			return tv(currentGroup, v => {
+			return tv(currentGroup as any, (v:Group) => {
 				let {name, count} = v;
 				return <>{name} &nbsp; {count && <small>({count}成员)</small>}</>
 			});
