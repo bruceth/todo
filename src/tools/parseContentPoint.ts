@@ -1,5 +1,5 @@
-export function parseTodo(text:string) {
-	let content:string, hour:number;
+export function parseContentPoint(text:string) {
+	let content:string, point:number;
 	content = text.trim();
 	let pArr = [];
 	let len = content.length;
@@ -9,14 +9,14 @@ export function parseTodo(text:string) {
 		}
 	}
 	let plen = pArr.length;
-	if (plen === 0) return {content, hour};
+	if (plen === 0) return {content, point};
 	let pSep = pArr[0];
-	hour = parseHour(content.substring(0, pSep));
-	if (hour !== undefined) return {content:content.substr(pSep).trim(), hour};
+	point = parseHour(content.substring(0, pSep));
+	if (point !== undefined) return {content:content.substr(pSep).trim(), point};
 	pSep = pArr[plen-1];
-	hour = parseHour(content.substring(pSep+1, len));
-	if (hour === undefined) return {content, hour};
-	return {content:content.substring(0, pSep).trim(), hour};
+	point = parseHour(content.substring(pSep+1, len));
+	if (point === undefined) return {content, point};
+	return {content:content.substring(0, pSep).trim(), point};
 }
 
 const seps = [0x20, 9, 10, 13, 0x3000, 0xa0];

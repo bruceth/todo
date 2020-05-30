@@ -1,67 +1,87 @@
 import * as React from 'react';
-import { VPage, Muted, EasyTime, UserView, User, useUser, Image, FA } from "tonva";
-import { CTask } from "./CTask";
-import { Task } from 'models';
-import { VTodoList } from './VTodoList';
+import { Muted, EasyTime, UserView, User, useUser, Image, FA, Page } from "tonva";
+import { Todo } from 'models';
+import { observer } from 'mobx-react';
+import { VTaskBase, VTodo, EnumVTodoType } from './VTaskBase';
 
-export class VTaskDone extends VPage<CTask> {
-	private task: Task;
-	private vTodoList: VTodoList;
-
-	init() {
-		this.task = this.controller.task;
-		this.vTodoList = new VTodoList(this.controller);
-		this.vTodoList.init(this.task.todos, false);
-		useUser(this.task.assign.owner);
-	}
-
+export class VTaskDone extends VTaskBase {
 	header() {
 		return '办理';
 	}
 
 	private onDone = async () => {
 		await this.controller.doneTask();
-		this.closePage(3);
+		this.popToPage();
 	}
 
-	private renderUser = (user: User) => {
-		let {icon, name, nick} = user;
-		return <><Image className="w-1-5c h-1-5c" src={icon} /> &nbsp; {nick || name}</>;
+	private calcEnabled(todos: Todo[]):boolean {
+		if (todos === undefined || todos.length === 0) return true;
+		for (let todo of todos) {
+			let {done} = todo;
+			if (done === undefined) return false;
+		}
+		return true;
 	}
 
 	content() {
-		let {caption, discription, $create, $update, owner} = this.task;
-		let spanUpdate:any;
-		if ($update.getTime() - $create.getTime() > 6*3600*1000) {
-			spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
-		}
-		let renderTop = (user:User):JSX.Element => {
-			let {icon, name, nick} = user;
-			return <div className="d-flex px-3 py-2 bg-light">
-				<Image className="w-2c h-2c" src={icon} /> 
-				<div className="ml-3">
-					<div>{nick || name}</div>
-					<div><Muted><EasyTime date={$create} /> {spanUpdate}</Muted></div>
+		let render = observer(() => {
+			let {todos} = this.task;
+			let enabled = this.calcEnabled(todos);
+			return <div className="bg-white">
+				{this.renderTop()}
+				{this.renderTodos(todos, {pending:false, radios: 'done'})}
+				<div className="d-flex align-items-center px-3 py-2">
+					<button className="btn btn-success" onClick={this.onDone} disabled={!enabled}>
+						<FA className="mr-1" name="check-circle" />已办
+					</button>
+					<div className="flex-fill"></div>
+					<button className="btn btn-outline-warning">
+						<FA className="mr-1" name="times-circle" />放弃
+					</button>
 				</div>
 			</div>;
-		}
-		return <div className="bg-white">
-			<UserView user={owner} render={renderTop} />
-			<div className="px-3">
-				<div className="py-2"><b>{caption}</b></div>
-				{discription && <div className="">{discription}</div>}
-			</div>
+		});
+		return React.createElement(render);
+	}
 
-			<div className="pt-3">
-				{this.vTodoList.render()}
-			</div>
-			<div className="d-flex align-items-center px-3 py-2">
-				<button className="btn btn-success" onClick={this.onDone}><FA name="paper-plane-o" /> &nbsp; 完成</button>
-				<div className="flex-fill"></div>
-				<button className="btn btn-outline-warning">不办</button>
-			</div>
+	protected renderRadios(todo: Todo, vTodo:VTodo): JSX.Element {
+		let {id, done} = todo;
+		let radios = [
+			{val:1, text:'完成'},
+			{val:0, text:'未办'},
+		];
+
+		let onChange = async (evt:React.ChangeEvent<HTMLInputElement>) => {
+			let done:0|1 = Number(evt.target.value) as 0|1;
+			await this.controller.saveTodoDone(todo, done);
+		};
+
+		return <div>
+			{radios.map((v, index) => {
+				let {val, text} = v;
+				return <label key={index} className="mb-0 mx-3">
+					<input className="mr-1" type="radio" value={val} 
+						defaultChecked={done===val} name={'rg' + id} onChange={onChange} />
+					{text}
+				</label>					
+			})}
 		</div>;
 	}
-	
 
+	protected renderDoneMemo(todo: Todo, vTodo:VTodo): JSX.Element {
+		if (vTodo === undefined) return;
+		let {doneMemo} = todo;
+		return <div className="mt-1">
+			<span className={'cursor-pointer small text-' + vTodo.doneColor} onClick={() => this.editMemo(todo, vTodo)}>
+				<span className="mr-3">
+					<FA className="mr-1" name="pencil-square-o" />
+					<span className="text-muted">说明</span>
+				</span>
+				{doneMemo}
+			</span>
+		</div>;
+	}
+
+	protected getEditMemoText(todo:Todo):string {return todo.doneMemo;}
+	protected getEditMemoHeader(vTodo:VTodo):string {return vTodo.doneText + '说明';}
 }

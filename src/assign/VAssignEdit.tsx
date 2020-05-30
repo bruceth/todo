@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { VPage, ItemSchema, StringSchema, UiSchema, UiTextItem, UiTextAreaItem, Edit, Schema, Context } from "tonva";
+import { VPage, ItemSchema, StringSchema, UiSchema, UiTextItem, UiRange, UiTextAreaItem, Edit, Schema, Context, NumSchema } from "tonva";
 import { CAssign } from "./CAssign";
 import { observer } from 'mobx-react';
 import { VAssignItems } from './VAssignItems';
+import { hourText } from 'tools';
 
 export class VAssignEdit extends VPage<CAssign> {
 	private vAssignItems: VAssignItems;
@@ -27,11 +28,16 @@ export class VAssignEdit extends VPage<CAssign> {
 	}
 	private schema:Schema = [
 		{name:'caption', type:'string'} as StringSchema,
+		{name:'point', type:'number'} as NumSchema,
 		{name:'discription', type:'string'} as StringSchema,
 	];
 	private uiSchema:UiSchema = {
 		items: {
 			caption: {widget: 'text', label: '任务主题', labelHide: true} as UiTextItem,
+			point: {
+				widget: 'range', label: '工时分钟数', 
+				min: 0, max: 10000, step: 1, 
+				Templet: (value:any) => <>{hourText(value)}</>} as UiRange,
 			discription: {
 				widget: 'textarea', 
 				label: '任务说明', labelHide: true,

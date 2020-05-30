@@ -3,6 +3,7 @@ import { CAssign } from './CAssign';
 import { VPage, List, EasyTime, Muted, UserView, User, FA, QueryPager } from 'tonva';
 import { Assign, AssignTask } from 'models';
 import { stateText } from 'tapp';
+import { hourText } from 'tools';
 
 export class VMyAssigns extends VPage<CAssign> {
 	private archived: 0|1;
@@ -23,11 +24,13 @@ export class VMyAssigns extends VPage<CAssign> {
 	}
 
 	private renderItem = (assign:Assign, index:number) => {
-		let {caption, discription, $update, tasks} = assign;
+		let {caption, discription, $update, tasks, point} = assign;
+		let vHour = point && <Muted> &nbsp; ({hourText(point)})</Muted>;
 		return <div className="py-3 px-3">
 			<div>
 				<div>
-					<b>{caption}</b> 
+					<b>{caption}</b>
+					{vHour}
 					&nbsp; {discription}
 				</div>
 				{this.renderAssignTasks(tasks)}

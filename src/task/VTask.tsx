@@ -1,41 +1,32 @@
 import * as React from 'react';
-import { VPage, Muted, EasyTime, UserView, User, useUser, Image, FA } from "tonva";
-import { CTask } from "./CTask";
-import { Task } from 'models';
+import { Muted, EasyTime, UserView, User, Image, FA } from "tonva";
 import { EnumTaskState } from '../tapp';
-import { VTodoList } from './VTodoList';
 import { VTodoEdit } from './VTodoEdit';
+import { VTaskBase } from './VTaskBase';
 
-interface Command {
-	//visible: ()=>boolean; //: boolean | IComputedValue<boolean>;
-	action: (cmd: Command) => void;
-	render: (cmd: Command) => JSX.Element;
-}
-
-export class VTask extends VPage<CTask> {
-	private task: Task;
-	private vTodoList: VTodoList;
-
-	init() {
-		this.task = this.controller.task;
-		this.vTodoList = new VTodoList(this.controller);
-		this.vTodoList.init(this.task.todos, false);
-		useUser(this.task.assign.owner);
-	}
-
-	refreshTodos() {
-		this.vTodoList.init(this.task.todos, false);
-	}
-
+export class VTask extends VTaskBase {
 	header() {
 		return '任务';
 	}
 
 	content() {
-		let {caption, discription, $create, $update, owner} = this.task;
+		let {caption, discription, $create, $update, owner, todos, state} = this.task;
 		let spanUpdate:any;
 		if ($update.getTime() - $create.getTime() > 6*3600*1000) {
 			spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
+		}
+		let pending: boolean;
+		switch (state) {
+			case EnumTaskState.start:
+			case EnumTaskState.todo:
+			case EnumTaskState.doing:
+				pending = true; break;
+			case EnumTaskState.done:
+			case EnumTaskState.pass:
+			case EnumTaskState.rated:
+			case EnumTaskState.archive:
+			case EnumTaskState.cancel:
+				pending = false; break;
 		}
 		let renderTop = (user:User):JSX.Element => {
 			let {icon, name, nick} = user;
@@ -55,7 +46,7 @@ export class VTask extends VPage<CTask> {
 			</div>
 
 			<div className="pt-3">
-				{this.vTodoList.render()}
+				{this.renderTodos(todos, {pending})}
 			</div>
 
 			{/*this.renderState()*/}
@@ -63,46 +54,23 @@ export class VTask extends VPage<CTask> {
 		</div>;
 	}
 	
-	//@observable private step:EnumTaskStep = EnumTaskStep.author;
-	//@observable private state:EnumTaskState = EnumTaskState.todo;
-
-	// 已领办
-	private onCmdDone = (cmd:Command) => {
-		//this.state = EnumTaskState.start;
-		this.controller.showTaskDone();
-	}
-	private cmdDone: Command = {
-		//visible: () => {return this.state !== EnumTaskState.start},
-		action: this.onCmdDone,
-		render: cmd => {
-			let {action} = cmd;
-			return <button className="btn btn-primary" onClick={()=>action(cmd)}>
-				办理
-				<FA className="ml-2" name="angle-right" />
-			</button>;
-		}
-	};
-
-	/*
-	private cmdComment: Command = {
-		//visible: () => true,
-		action: this.onCmdComment,
-		render: cmd => {
-			let {action} = cmd;
-			return <div onClick={()=>action(cmd)}><FA name="commenting-o" /> 评论</div>
-		}
-	};
-	*/
+	private renderCmdButton(text:string, onClick:()=>void) {
+		return <button className="btn btn-primary" onClick={onClick}>
+			<FA className="mr-1" name="chevron-circle-right" />{text}
+		</button>;
+}
 
 	private onCmdDo = () => {
 		this.controller.showTaskDone();
 	}
 	private renderCmdDone():JSX.Element {
 		if (this.task.state === EnumTaskState.todo) {
+			return this.renderCmdButton('处理', this.onCmdDo);
+			/*
 			return <button className="btn btn-primary" onClick={this.onCmdDo}>
-				办理
-				<FA className="ml-2" name="angle-right" />
+				<FA className="text-danger ml-2" name="chevron-right-o" />办理
 			</button>;
+			*/
 		}
 	}
 
@@ -111,10 +79,12 @@ export class VTask extends VPage<CTask> {
 	}
 	private renderCmdCheck():JSX.Element {
 		if (this.task.state === EnumTaskState.done) {
+			return this.renderCmdButton('查验', this.onCmdCheck);
+			/*
 			return <button className="btn btn-primary" onClick={this.onCmdCheck}>
-				查验
-				<FA className="ml-2" name="angle-right" />
+				<FA className="text-danger ml-2" name="chevron-right-o" />查验
 			</button>;
+			*/
 		}
 	}
 
@@ -123,20 +93,23 @@ export class VTask extends VPage<CTask> {
 	}
 	private renderCmdRate():JSX.Element {
 		if (this.task.state === EnumTaskState.pass) {
+			return this.renderCmdButton('评分', this.onCmdRate);
+			/*
 			return <button className="btn btn-primary" onClick={this.onCmdRate}>
-				评分
-				<FA className="ml-2" name="angle-right" />
+				<FA className="text-danger ml-2" name="chevron-right-o" />评分
 			</button>;
+			*/
 		}
 	}
 
 
 	private onCmdEditTodos = () => {
 		// this.controller.showTodoEdit();
-		this.openVPage(VTodoEdit, undefined, async () => {
+		this.openVPage(VTodoEdit);
+		/*, undefined, async () => {
 			this.refreshTodos();
 			return;
-		});
+		});*/
 
 	}
 	private renderCmdEditTodos():JSX.Element {
@@ -185,43 +158,4 @@ export class VTask extends VPage<CTask> {
 			{this.renderCmdComment()}
 		</div>;
 	};
-
-	/*
-	private renderState() {
-		let {state} = this.task;
-		let divState:any;
-		switch (state) {
-			case EnumTaskState.start: divState = this.renderStart(); break;
-			case EnumTaskState.todo: divState = this.renderTodo(); break;
-			case EnumTaskState.pass: divState = this.renderPass(); break;
-			case EnumTaskState.fail: divState = this.renderFail(); break;
-		}
-		if (!divState) return;
-		return <div className="px-3">
-			{divState}
-		</div>
-	}
-
-	private onRate = () => {
-		alert('评分');
-	}
-
-	private renderStart() {
-		return <button className="btn btn-success" onClick={this.onTodo}>领办</button>
-	}
-
-	private renderTodo() {
-		return <>
-			
-		</>;
-	}
-
-	private renderPass() {
-		return <button className="btn btn-success" onClick={this.onRate}>评分</button>;
-	}
-
-	private renderFail() {
-		return <button className="btn btn-success" onClick={this.onTodo}>不知道怎么办</button>;
-	}
-	*/
 }

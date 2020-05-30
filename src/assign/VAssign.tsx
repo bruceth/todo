@@ -2,6 +2,7 @@ import React from 'react';
 import { VPage, UserView, User, Image, Muted, EasyTime, FA } from 'tonva';
 import { CAssign } from './CAssign';
 import { Assign } from 'models';
+import { hourText } from 'tools';
 
 export class VAssign extends VPage<CAssign> {
 	private assign:Assign;
@@ -19,7 +20,7 @@ export class VAssign extends VPage<CAssign> {
 	}
 
 	content():JSX.Element {
-		let {caption, discription, owner, $create, $update} = this.assign;
+		let {caption, discription, owner, $create, $update, point} = this.assign;
 		let spanUpdate:any;
 		if ($update.getTime() - $create.getTime() > 6*3600*1000) {
 			spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
@@ -34,9 +35,10 @@ export class VAssign extends VPage<CAssign> {
 				</div>
 			</div>;
 		}
+		let vHour = point && <Muted>({hourText(point)})</Muted>;
 		return <div className="m-3 rounded border bg-white">
 			<UserView user={owner} render={renderTop} />
-			<div className="px-3 pt-2"><b>{caption}</b></div>
+			<div className="px-3 pt-2"><b>{caption}</b> &nbsp; {vHour}</div>
 			<div className="px-3 pt-2 pb-3">{discription}</div>
 			{this.renderItems()}
 			{this.renderTasks()}

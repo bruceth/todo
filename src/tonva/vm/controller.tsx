@@ -191,7 +191,31 @@ export abstract class Controller {
 
     regConfirmClose(confirmClose: ()=>Promise<boolean>) {
         nav.regConfirmClose(confirmClose);
-    }
+	}
+	
+	topPageKey():number {
+		return nav.topKey();
+	}
+
+	popToPage(pageKey?:number) {
+		if (pageKey === undefined) {
+			if (this.topPageKeys !== undefined) {
+				pageKey = this.topPageKeys.pop();	
+			}
+		}
+		if (pageKey !== undefined) nav.popTo(pageKey);
+	}
+
+	private topPageKeys:number[];
+	pushTopPage() {
+		if (this.topPageKeys === undefined) this.topPageKeys = [];
+		if (this.topPageKeys.length > 3) {
+			let err = 'pushTopPage too much: ' + this.topPageKeys.length + ' levels';
+			console.error(err);
+			throw new Error(err);
+		}
+		this.topPageKeys.push(nav.topKey());
+	}
 
     async confirm(options: ConfirmOptions): Promise<'ok'|'yes'|'no'|undefined> {
         return new Promise<'ok'|'yes'|'no'|undefined> (async (resolve, reject) => {

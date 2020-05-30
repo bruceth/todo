@@ -22,9 +22,9 @@ export function stateText(state:EnumTaskState):{text:string; act:string} {
 		case EnumTaskState.done:
 			text = '待查验'; act = '完成'; break;
 		case EnumTaskState.pass:
-			text = '待评分'; act = '认可'; break;
+			text = '待评分'; act = '验收'; break;
 		case EnumTaskState.fail:
-			text = '待办'; act = '检查'; break;
+			text = '待办'; act = '拒签'; break;
 		case EnumTaskState.rated:
 			text = '已评分'; act = '评分'; break;
 		case EnumTaskState.archive:

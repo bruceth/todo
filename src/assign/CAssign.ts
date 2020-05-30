@@ -94,14 +94,15 @@ export class CAssign extends CUqBase {
 		await this.cApp.showTask(taskId);
 	}
 
-	newAssign = async (caption:string) => {
-		let ret = await this.performance.NewAssign.submit({caption});
+	newAssign = async (caption:string, point:number) => {
+		let ret = await this.performance.NewAssign.submit({caption, point});
 		this.assign = {
 			id: ret.id,
 			caption,
 			discription: undefined,
 			owner: this.user.id,
 			open: 1,
+			point: point,
 			$create: new Date(),
 			$update: new Date(),
 			items: [],

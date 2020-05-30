@@ -4,7 +4,7 @@ import { CUqBase } from "../tapp";
 import { VMyTasks } from "./VMyTasks";
 import { QueryPager } from "tonva";
 import { VTask } from "./VTask";
-import { Task, Assign, AssignTask } from "../models";
+import { Task, Assign, AssignTask, Todo } from "../models";
 import { Performance, EnumTaskStep } from '../tapp'
 import { VTaskDone } from './VTaskDone';
 import { VTaskCheck } from './VTaskCheck';
@@ -45,6 +45,7 @@ export class CTask extends CUqBase {
 		task.flow = retTask.flow;
 		task.meTask = retTask.meTask;
 		this.task = task;
+		this.pushTopPage();
 		this.openVPage(VTask);
 	}
 
@@ -83,27 +84,56 @@ export class CTask extends CUqBase {
 		this.cApp.refreshJob();
 		this.cApp.pushTaskNote(ret);
 	}
-	/*
-	saveAssignItem = async (todoContent: string):Promise<any> => {
-		let assignItem = {
-			id: undefined as any,
-			assign: this.assign.id,
-			state: 0,
-			discription: todoContent,
-		};
-		let ret = await this.performance.AssignItem.save(undefined, assignItem);
-		assignItem.id = ret.id;
-		return assignItem;
-	}
-
-	saveAssignProp = async (prop:string, value:any) => {
-		await this.performance.Assign.saveProp(this.assign.id, prop, value);
-	}
-	*/
 
 	showTodoEdit = async () => {
 		this.openVPage(VTodoEdit, undefined, ret => {
 			
 		});
+	}
+
+	async addTodo(content:string): Promise<Todo> {
+		let id:number = undefined;
+		let assignItem: number;
+		let todo = {
+			id: id, 
+			task: this.task.id,
+			assignItem,
+			discription: content,
+			x: 0,
+			$update: new Date()
+		};
+		let ret = await this.uqs.performance.Todo.save(undefined, todo);
+		todo.id = ret.id;
+		this.task.todos.push(todo);
+		return todo;
+	}
+
+	async xTodo(id:number, x:0|1) {
+		let {todos} = this.task;
+		let index = todos.findIndex(v => v.id === id);
+		if (index < 0) return;
+		await this.uqs.performance.Todo.saveProp(id, 'x', x);
+		let todo = todos[index];
+		todo.x = 1;
+	}
+
+	async saveTodoDone(todo:Todo, done:0|1) {
+		await this.performance.Todo.saveProp(todo.id, 'done', done);
+		todo.done = done;
+	}
+
+	async saveTodoDoneMemo(todo:Todo, memo:string) {
+		await this.performance.Todo.saveProp(todo.id, 'doneMemo', memo);
+		todo.doneMemo = memo;
+	}
+
+	async saveTodoCheck(todo:Todo, check:0|1) {
+		await this.performance.Todo.saveProp(todo.id, 'check', check);
+		todo.check = check;
+	}
+
+	async saveTodoCheckMemo(todo:Todo, checkMemo:string) {
+		await this.performance.Todo.saveProp(todo.id, 'checkMemo', checkMemo);
+		todo.checkMemo = checkMemo;
 	}
 }

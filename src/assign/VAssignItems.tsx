@@ -200,7 +200,7 @@ export class VAssignItems extends View<CAssign> {
 			{
 				this.isInputing === true?
 				<>
-					<input ref={this.refInput} className="flex-fill px-1"
+					<input ref={this.refInput} className="flex-fill px-1 form-control"
 						type="text" 
 						placeholder="事项内容"
 						onBlur={this.onInputBlur} 

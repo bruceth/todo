@@ -2,7 +2,7 @@ import * as React from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
-import { VPage, tv, List, FA, Tuid, EasyTime, Scroller, UserView, User, Image, BoxId } from 'tonva';
+import { VPage, tv, List, FA, Tuid, EasyTime, Scroller, UserView, User, Image } from 'tonva';
 import { CGroup } from './CGroup';
 import { NoteItem } from './NoteItem';
 import { Group } from 'models';
@@ -155,7 +155,7 @@ export class VGroup extends VPage<CGroup> {
 							<div className="p-2 bg-white" style={{borderRadius:'0.6em'}}>
 								<FA name="tasks" size="lg" fixWidth={true} />
 							</div>
-							<div className="text-center mt-1 small text-muted"><small>任务</small></div>
+							<div className="text-center mt-1 small text-muted"><small>作业</small></div>
 						</div>
 					</div>
 				}

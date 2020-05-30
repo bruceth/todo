@@ -18,13 +18,17 @@ TUID Task (
 	INDEX owner_id (assign, id) UNIQUE,
 );
 
-TUID Todo ver 1.0 (
+TUID Todo ver 1.3 (
 	id,
 	task ID Task,
 	assignItem ID AssignItem,			-- if null, worker added
 	discription TEXT,
 	x TINYINT DEFAULT 0,				-- 0: normal, 1: deleted
 	stamp (update),
+	done TINYINT,
+	doneMemo TEXT,
+	check TINYINT,
+	checkMemo TEXT,
 	
 	INDEX task_id (task, id) UNIQUE,
 );
@@ -33,6 +37,10 @@ BOOK TaskState ver 1.2 (
 	KEY task ID [Task],
 	state TINYINT DEFAULT 0,		-- EnumTaskState
 	date TIMESTAMP,
+	-- point INT,					-- 通常是分钟数，从Assign带过来的，直接用Assign里面的point
+	pointDone SMALLINT,				-- 实际完成分钟数
+	pointRate SMALLINT,				-- 评估分钟数
+	likes TINYINT,					-- 点赞数
 );
 
 BOOK TaskFlow ver 1.2 (
@@ -54,15 +62,6 @@ BOOK MyTaskArchive (
 	KEY me ID [$User],
 	KEY step TINYINT DEFAULT 0,	-- EnumTaskStep
 	KEY task ID [Task],
-);
-
-BOOK Assess (
-	KEY worker ID [$User],
-	KEY todo ID Todo,
-	timeSpend SMALLINT DEFAULT -1,		-- 实际时间成本分钟
-	outcomeRate TINYINT DEFAULT -1,		-- 完成评分，用点赞数表达。0表示普通完成，1表示一个赞，可以给10个赞
-	startTime TIMESTAMP,
-	endTime TIMESTAMP,
 );
 
 -- 领办布置的任务，返回task id
@@ -96,6 +95,7 @@ RETURNS ret (
 -- 办理任务，进入checker的队列
 ACTION TaskDone (
 	taskId ID Task,
+	pointDone SMALLINT,
 ) 
 RETURNS ret (
 	task ID,
@@ -112,7 +112,7 @@ RETURNS ret (
 	SET state = EnumTaskState.done;
 	BOOK MyTask at(checker, taskId);
 	BOOK MyTaskArchive at($user, step, taskId);
-	BOOK TaskState at(taskId) Set state=state;
+	BOOK TaskState at(taskId) Set state=state, pointDone=pointDone;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
 	BOOK TaskFlow at(taskId, seq) SET user=$user, step=step, state=state;
 	INTO ret SELECT taskId as task, step, state, 
@@ -175,6 +175,7 @@ RETURNS ret (
 -- Rate任务，archive
 ACTION TaskRate (
 	taskId ID Task,
+	pointRate SMALLINT,
 )
 RETURNS ret (
 	task ID,
@@ -197,7 +198,7 @@ RETURNS ret (
 	else {
 		SET state=EnumTaskState.rated;
 	}
-	BOOK TaskState at(taskId) Set state=state;
+	BOOK TaskState at(taskId) Set state=state, pointRate=pointRate;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
 	BOOK TaskFlow at(taskId, seq) SET user=$user, state=state;
 	BOOK MyTaskArchive at($user, step, taskId);
@@ -215,13 +216,18 @@ PAGE (
 	[$create] TIMESTAMP,
 	state TINYINT,
 	date TIMESTAMP,
+	point SMALLINT,
+	pointDone SMALLINT,
+	pointRate SMALLINT,
+	likes TINYINT,
 ) {
 	Page SELECT a.task, b.assign, b.worker, 
 		b.[$create], c.state, 
-		c.date
+		c.date, d.point, c.pointDone, c.pointRate, c.likes
 		FROM MyTask as a 
-			LEFT JOIN Task as b on a.task=b.id
+			JOIN Task as b on a.task=b.id			
 			LEFT JOIN TaskState as c on b.id=c.task
+			LEFT JOIN Assign as d on b.assign=d.id
 		WHERE a.me=$user and a.task>$pageStart
 		ORDER BY a.task ASC
 		LIMIT $pageSize;
@@ -240,6 +246,10 @@ RETURNS task (
 	[$create] TIMESTAMP, 
 	[$update] TIMESTAMP,
 	state TINYINT,
+	point SMALLINT,
+	pointDone SMALLINT,
+	pointRate SMALLINT,
+	likes TINYINT,
 )
 RETURNS todos (
 	id ID,
@@ -247,6 +257,10 @@ RETURNS todos (
 	assignItem ID,
 	x TINYINT,				-- 0: normal, 1: deleted
 	[$update] TIMESTAMP,
+	done TINYINT,
+	doneMemo TEXT,
+	check TINYINT,
+	checkMemo TEXT,
 )
 RETURNS meTask (
 	me ID [$User],
@@ -261,7 +275,7 @@ RETURNS flow (
 	INTO task SELECT a.id, a.assign, b.caption, b.discription, b.owner, 
 		b.[$create], 
 		b.[$update], 
-		c.state
+		c.state, b.point, c.pointDone, c.pointRate, c.likes
 		FROM Task as a 
 			LEFT JOIN Assign as b ON a.assign=b.id
 			LEFT JOIN TaskState as c ON a.id=c.task
@@ -269,7 +283,7 @@ RETURNS flow (
 
 	INTO todos SELECT a.id, a.discription, 
 		a.assignItem, a.x, 
-		a.[$update]
+		a.[$update], a.done, a.doneMemo, a.check, a.checkMemo
 		FROM Todo as a
 		WHERE a.task=taskId;
 
@@ -296,16 +310,22 @@ PAGE (
 	date TIMESTAMP,
 	stepDate TIMESTAMP,
 	stepComment TEXT,
+	point INT,
+	pointDone INT,
+	pointRate INT,
+	likes TINYINT,
 ) {
 	Page SELECT a.task as id, b.assign, b.worker, 
 		b.[$create], 
 		c.state, 
 		c.date,
 		(SELECT f.date FROM TaskFlow as f WHERE f.task=a.task AND f.step=step ORDER by f.seq DESC LIMIT 1) as stepDate,
-		(SELECT f.comment FROM TaskFlow as f WHERE f.task=a.task AND f.step=step ORDER by f.seq DESC LIMIT 1) as stepComment
+		(SELECT f.comment FROM TaskFlow as f WHERE f.task=a.task AND f.step=step ORDER by f.seq DESC LIMIT 1) as stepComment,
+		d.point, c.pointDone, c.pointRate, c.likes
 		FROM MyTaskArchive as a 
-			LEFT JOIN Task as b on a.task=b.id
+			JOIN Task as b on a.task=b.id
 			LEFT JOIN TaskState as c on b.id=c.task
+			LEFT JOIN Assign as d on b.assign=d.id
 		WHERE a.me=$user AND a.step=step AND a.task>$pageStart
 		ORDER BY a.task DESC
 		limit $pageSize;

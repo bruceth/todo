@@ -1,6 +1,7 @@
 import React from 'react';
 import { NoteItem } from "./NoteItem";
 import { EnumTaskStep, EnumTaskState } from 'tapp';
+import { FA } from 'tonva';
 
 export class NoteTaskTodo extends NoteItem {
 	taskId: number;
@@ -40,9 +41,10 @@ export class NoteTaskTodo extends NoteItem {
 		}
 		return <div className="border rounded px-3 py-1 text-muted bg-light cursor-pointer"
 			onClick={this.onClick}>
-			{text} <span className="text-dark">{this.caption}</span>
-			&nbsp;
-			<small className="">{this.discription}</small>
-		</div>;
+				<FA className="text-danger mr-1" name="chevron-circle-right" />
+				<span className="text-success mr-3">{text}</span>
+				<span className="text-dark mr-1">{this.caption}</span>
+				<small className="">{this.discription}</small>
+			</div>;
 	}
 }

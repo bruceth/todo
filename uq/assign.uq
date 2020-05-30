@@ -1,8 +1,9 @@
-TUID Assign (
+TUID Assign ver 1.1 (
 	id,
 	main caption CHAR(100),
 	main discription TEXT,
 	main owner ID [$User],
+	main point INT,						-- 分数，通常是工作分钟数
 	open TINYINT DEFAULT 1, 			-- 0: 指定人，1：一个人，2：任何人
 	checker ID [$User],					-- null 就是owner
 	rater ID [$User],					-- null 就是owner
@@ -29,16 +30,17 @@ BOOK AssignToGroup (
 
 ACTION NewAssign (
 	caption CHAR(100),
+	point SMALLINT,
 ) RETURNS ret (
 	id ID,
 ) {
 	var assignId ID;
-	TUID Assign INTO assignId SET caption=caption, owner=$user;
+	TUID Assign INTO assignId SET caption=caption, owner=$user, point=point;
 	BOOK MyAssign at($user, assignId);
 	INTO ret SELECT assignId as id;
 };
 
-ACTION PublishAssign(
+ACTION PublishAssign ver 1.0 (
 	groupId ID Group,
 	assignId ID Assign,
 )
@@ -64,6 +66,7 @@ RETURNS assign (
 	discription TEXT,
 	owner ID [$User],
 	open TINYINT,
+	point SMALLINT,
 	[$create] TIMESTAMP, 
 	[$update] TIMESTAMP
 )
@@ -76,8 +79,12 @@ RETURNS tasks (
 	worker ID,
 	[$create] TIMESTAMP,
 	state TINYINT,
+	point SMALLINT,
+	pointDone SMALLINT,
+	pointRate SMALLINT,
+	likes TINYINT,
 ) {
-	INTO assign SELECT a.id, a.caption, a.discription, a.owner, a.open, 
+	INTO assign SELECT a.id, a.caption, a.discription, a.owner, a.open, a.point,
 		a.[$create], 
 		a.[$update]
 		FROM Assign as a 
@@ -86,8 +93,10 @@ RETURNS tasks (
 		FROM AssignItem as a
 		WHERE a.assign=assignId
 		ORDER BY a.id;
-	INTO tasks SELECT a.id, a.worker, a.[$create], b.state
-		FROM Task as a LEFT JOIN TaskState as b on a.id=b.task
+	INTO tasks SELECT a.id, a.worker, a.[$create], b.state, c.point, b.pointDone, b.pointRate, b.likes
+		FROM Task as a 
+			LEFT JOIN TaskState as b on a.id=b.task
+			LEFT JOIN Assign as c on a.assign=c.id
 		WHERE a.assign=assignId;
 };
 
@@ -99,6 +108,7 @@ PAGE (
 	id ID desc,
 	caption CHAR(100),
 	discription TEXT,
+	point SMALLINT,
 	[$create] TIMESTAMP, 
 	[$update] TIMESTAMP,
 ) 
@@ -109,12 +119,16 @@ RETURNS tasks (
 	[$create] TIMESTAMP,
 	state TINYINT,
 	date TIMESTAMP,
+	point SMALLINT,
+	pointDone SMALLINT,
+	pointRate SMALLINT,
+	likes TINYINT,
 ) {
 	IF archived IS NULL {
 		SET archived = 0;
 	}
 	IF archived=1 {
-		Page SELECT a.id, a.caption, a.discription, 
+		Page SELECT a.id, a.caption, a.discription, a.point,
 			a.[$create], 
 			a.[$update]
 			FROM Assign as a LEFT JOIN MyAssign as b ON a.id=b.assign AND b.me=$user
@@ -123,7 +137,7 @@ RETURNS tasks (
 			LIMIT $pageSize;
 	}
 	else {
-		Page SELECT a.id, a.caption, a.discription, 
+		Page SELECT a.id, a.caption, a.discription, a.point,
 			a.[$create], 
 			a.[$update]
 			FROM MyAssign as b JOIN Assign as a ON b.assign=a.id
@@ -133,9 +147,11 @@ RETURNS tasks (
 	}
 	INTO tasks SELECT a.id as assign, b.id, b.worker, 
 		b.[$create], 
-		c.state, c.date
+		c.state, c.date, d.point, c.pointDone, c.pointRate, c.likes
 		FROM [$Page] as a 
 			JOIN Task as b ON a.id=b.assign
-			LEFT JOIN TaskState as c on b.id=c.task;
+			LEFT JOIN TaskState as c on b.id=c.task
+			LEFT JOIN Assign as d on b.assign=d.id;
+
 };
 

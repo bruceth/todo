@@ -1,24 +1,10 @@
 import React from 'react';
-import { CTask } from "./CTask";
 import { VPage, Muted, EasyTime, User, Image, UserView, List, FA } from "tonva";
 import { Todo } from 'models';
 import { observer } from 'mobx-react';
-import { parseTodo } from 'tools';
-import { observable } from 'mobx';
+import { VTaskBase } from './VTaskBase';
 
-interface TodoItem {
-	todo: Todo;
-	removed: boolean;
-}
-
-export class VTodoEdit extends VPage<CTask> {
-	@observable private todoItems: TodoItem[];
-
-	init() {
-		this.todoItems = this.controller.task.todos.map(v => {
-			return {todo: v, removed: false};
-		})
-	}
+export class VTodoEdit extends VTaskBase {
 	header() {return '增减事项'}
 	content() {
 		let {caption, discription, $create, $update, owner} = this.controller.task;
@@ -49,7 +35,7 @@ export class VTodoEdit extends VPage<CTask> {
 	}
 
 	private renderTodoList() {
-		return <List items={this.todoItems} item={{render: this.renderTodo}} />;
+		return <List items={this.controller.task.todos} item={{render: this.renderTodoEdit}} />;
 	}
 
 	private hourText(hour: number):string {
@@ -68,19 +54,22 @@ export class VTodoEdit extends VPage<CTask> {
 		}
 		return ret;
 	}
-	private onTrashTodo = (item:TodoItem) => {
-		item.removed = true;
+	//{hour && <div className="mx-3">{this.hourText(hour)}</div>}
+
+	private onTrashTodo = async (item:Todo) => {
+		await this.controller.xTodo(item.id, 1);
+		item.x = 1;
 	}
-	private onUndoTodo = (item:TodoItem) => {
-		item.removed = false;
+	private onUndoTodo = async (item:Todo) => {
+		await this.controller.xTodo(item.id, 0);
+		item.x = 0;
 	}
-	private renderTodo = (item:TodoItem, index:number) => {
+	private renderTodoEdit = (item:Todo, index:number) => {
 		let render = observer(() => {
-			let {todo, removed} = item;
-			let {discription, hour, assignItem} = todo;
+			let {discription, assignItem, x} = item;
 			let textColor:string, dotColor:string, vDisp:any, dotIcon:string, actionIcon:string, onClick:()=>void;
 
-			if (removed === false) {
+			if (x === 0) {
 				textColor = '';
 				if (assignItem) {
 					dotIcon = 'circle';
@@ -105,7 +94,6 @@ export class VTodoEdit extends VPage<CTask> {
 			return <div className={'py-2 d-flex ' + textColor}>
 				<small className="align-self-center"><small><FA name={dotIcon} className={'mx-3 ' + dotColor} fixWidth={true} /></small></small>
 				<div className="flex-fill">{vDisp}</div>
-				{hour && <div className="mx-3">{this.hourText(hour)}</div>}
 				<div className="px-3 cursor-pointer" onClick={onClick}>
 					<FA name={actionIcon} />
 				</div>
@@ -119,20 +107,7 @@ export class VTodoEdit extends VPage<CTask> {
 	private onEnter = async () => {
 		let input:HTMLInputElement = document.getElementById('$task-todo-input') as HTMLInputElement;
 		if (!input) return;
-		let {task} = this.controller;
-		let {content, hour} = parseTodo(input.value);
-		this.todoItems.push({
-			todo: {
-				id: 1,
-				task: task.id,
-				assignItem: undefined,
-				discription: content,
-				hour: hour,
-				x: 0,
-				$update: new Date()
-			},
-			removed: false
-		});
+		let todo = await this.controller.addTodo(input.value.trim())
 		input.value = '';
 	}
 	footer() {

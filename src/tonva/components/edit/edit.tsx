@@ -142,7 +142,8 @@ function createItemEdit(itemSchema: ItemSchema, uiItem:UiItem, label:string, val
             case 'id': itemEdit = IdItemEdit; break;
             case 'text': itemEdit = StringItemEdit; break;
             case 'image': itemEdit = ImageItemEdit; break;
-            case 'select': itemEdit = SelectItemEdit; break;
+			case 'select': itemEdit = SelectItemEdit; break;
+			case 'range': itemEdit = StringItemEdit; break;
             case 'radio': 
 				ie = new RadioItemEdit(itemSchema, uiItem as UiRadio, label, value);
 				break;

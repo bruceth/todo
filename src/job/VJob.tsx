@@ -21,6 +21,7 @@ export class VJob extends VPage<CJob> {
 
 	content() {
 		let page = observer(() => {
+			let none = <span className="p-3 text-success small">[无待办任务]</span>;
 			return <>
 				<div className="d-flex justify-content-around bg-white py-2">
 					{this.renderCat(this.catTasks)}
@@ -29,6 +30,7 @@ export class VJob extends VPage<CJob> {
 				</div>
 				<List className="my-2 bg-transparent" items={this.controller.myDoingsPager}
 					item={{render: this.renderDoing, onClick: this.onClickDoing, key: this.keyDoing, className:"bg-transparent"}}
+					none={none}
 					/>
 			</>
 		});

@@ -25,6 +25,7 @@ export interface Assign {
 	discription: string;
 	owner: number;
 	open: number; 		// 0:开放 1: 一个人执行 2:指定人
+	point: number;
 	$create: Date;
 	$update: Date;
 	items: AssignItem[];
@@ -67,8 +68,11 @@ export interface Todo {
 	assignItem: number;
 	discription: string;
 	x: number;
-	hour?: number;
 	$update: Date;
+	done?: 0|1;
+	doneMemo?: string;
+	check?: 0|1;
+	checkMemo?: string;
 }
 
 export interface MeTask {
