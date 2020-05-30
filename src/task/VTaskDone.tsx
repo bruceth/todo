@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { Muted, EasyTime, UserView, User, useUser, Image, FA, Page } from "tonva";
+import { FA } from "tonva";
 import { Todo } from 'models';
-import { observer } from 'mobx-react';
-import { VTaskBase, VTodo, EnumVTodoType } from './VTaskBase';
+import { VTaskBase, VTodo } from './VTaskBase';
 
 export class VTaskDone extends VTaskBase {
 	header() {
@@ -23,13 +22,14 @@ export class VTaskDone extends VTaskBase {
 		return true;
 	}
 
+	/*
 	content() {
 		let render = observer(() => {
 			let {todos} = this.task;
 			let enabled = this.calcEnabled(todos);
 			return <div className="bg-white">
 				{this.renderTop()}
-				{this.renderTodos(todos, {pending:false, radios: 'done'})}
+				{this.renderTodos(todos)}
 				<div className="d-flex align-items-center px-3 py-2">
 					<button className="btn btn-success" onClick={this.onDone} disabled={!enabled}>
 						<FA className="mr-1" name="check-circle" />已办
@@ -42,6 +42,19 @@ export class VTaskDone extends VTaskBase {
 			</div>;
 		});
 		return React.createElement(render);
+	}*/
+
+	protected renderCommands():JSX.Element {
+		let enabled = this.calcEnabled(this.task.todos);
+		return <div className="d-flex align-items-center px-3 py-2">
+			<button className="btn btn-success" onClick={this.onDone} disabled={!enabled}>
+				<FA className="mr-1" name="check-circle" />已办
+			</button>
+			<div className="flex-fill"></div>
+			<button className="btn btn-outline-warning">
+				<FA className="mr-1" name="times-circle" />放弃
+			</button>
+		</div>;
 	}
 
 	protected renderRadios(todo: Todo, vTodo:VTodo): JSX.Element {

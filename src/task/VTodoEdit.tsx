@@ -1,5 +1,5 @@
 import React from 'react';
-import { VPage, Muted, EasyTime, User, Image, UserView, List, FA } from "tonva";
+import { Muted, EasyTime, User, Image, UserView, List, FA } from "tonva";
 import { Todo } from 'models';
 import { observer } from 'mobx-react';
 import { VTaskBase } from './VTaskBase';
@@ -107,7 +107,7 @@ export class VTodoEdit extends VTaskBase {
 	private onEnter = async () => {
 		let input:HTMLInputElement = document.getElementById('$task-todo-input') as HTMLInputElement;
 		if (!input) return;
-		let todo = await this.controller.addTodo(input.value.trim())
+		await this.controller.addTodo(input.value.trim())
 		input.value = '';
 	}
 	footer() {

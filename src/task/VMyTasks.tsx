@@ -1,7 +1,6 @@
 import * as React from 'react';
 import classNames from 'classnames';
-import { CTask } from './CTask';
-import { VPage, List, EasyTime, Muted, tv, TabProp, Tabs, FA } from 'tonva';
+import { List, EasyTime, Muted, tv, TabProp, Tabs, FA } from 'tonva';
 import { Assign, AssignTask } from 'models';
 import { EnumTaskStep, stateText } from 'tapp';
 import { VTaskBase } from './VTaskBase';
@@ -81,11 +80,11 @@ export class VMyTasks extends VTaskBase {
 		},
 		{
 			name: 'rate',
-			caption: (selected) => <div className={this.cnTabSelected(selected)}>评分</div>,
+			caption: (selected) => <div className={this.cnTabSelected(selected)}>评价</div>,
 			content: () => <div>
 				<List items={this.controller.myTasksPager} 
 					item={{
-						render: (item, index) => this.renderTaskItem('评分', item, index), 
+						render: (item, index) => this.renderTaskItem('评价', item, index), 
 						onClick: this.onTaskClick
 					}} />
 			</div>,

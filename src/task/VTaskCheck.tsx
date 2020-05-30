@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { VPage, Muted, EasyTime, UserView, User, useUser, Image, FA } from "tonva";
-import { VTaskBase, VTodo, EnumVTodoType } from './VTaskBase';
+import { FA } from "tonva";
+import { VTaskBase, VTodo } from './VTaskBase';
 import { Todo } from 'models';
-import { observer } from 'mobx-react';
 
 export class VTaskCheck extends VTaskBase {
 	header() {
@@ -45,18 +44,18 @@ export class VTaskCheck extends VTaskBase {
 		}
 	}
 
+	/*
 	content() {
 		let render = observer(() => {
 			let {todos} = this.task;
-			let vCmds:any;
 			return <div className="bg-white">
 				{this.renderTop()}
-				{this.renderTodos(todos, {pending:false, radios: 'check'})}
+				{this.renderTodos(todos)}
 				{this.renderCommands()}
 			</div>;
 		});
 		return React.createElement(render);
-	}
+	}*/
 	
 	protected renderRadios(todo: Todo, vTodo:VTodo): JSX.Element {
 		let {id, done, check} = todo;
@@ -98,7 +97,7 @@ export class VTaskCheck extends VTaskBase {
 		let {done, check, checkMemo} = todo;
 		if (done !== 1) return;
 		if (check === undefined) return;
-		let {checkText, checkColor} = vTodo;
+		let {checkColor} = vTodo;
 		let onClick = this.onEditMemo(todo, vTodo);
 		let cursor = onClick && 'cursor-pointer';
 		return <div className="mt-1">

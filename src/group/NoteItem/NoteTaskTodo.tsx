@@ -37,7 +37,7 @@ export class NoteTaskTodo extends NoteItem {
 			case EnumTaskStep.todo: text = '领办'; break;
 			case EnumTaskStep.done: text = '已办'; break;
 			case EnumTaskStep.check: text = '查验'; break;
-			case EnumTaskStep.rate: text = '评分'; break;
+			case EnumTaskStep.rate: text = '评价'; break;
 		}
 		return <div className="border rounded px-3 py-1 text-muted bg-light cursor-pointer"
 			onClick={this.onClick}>

@@ -2,6 +2,7 @@ import React from 'react';
 import { CTask } from "./CTask";
 import { VPage, useUser, List, Page, FA, Muted, UserView, User, EasyTime, Image } from "tonva";
 import { Task, Todo } from 'models';
+import { observer } from 'mobx-react';
 
 export interface TodoOptions {
 	radios?: 'done' | 'check';
@@ -80,6 +81,22 @@ export abstract class VTaskBase extends VPage<CTask> {
 		useUser(this.task.assign.owner);
 	}
 
+	content() {
+		let render = observer(() => {
+			let {todos} = this.task;
+			return <div className="bg-white">
+				{this.renderTop()}
+				{this.renderTodos(todos)}
+				{this.renderCommands()}
+			</div>;
+		});
+		return React.createElement(render);
+	}
+
+	protected renderCommands():JSX.Element {
+		return;
+	}
+
 	protected renderTop():JSX.Element {
 		let {caption, discription, $create, $update, owner} = this.task;
 		let spanUpdate:any;
@@ -105,9 +122,8 @@ export abstract class VTaskBase extends VPage<CTask> {
 		</>;
 	}
 
-	protected renderTodos(todos: Todo[], options:TodoOptions):JSX.Element {
+	protected renderTodos(todos: Todo[]):JSX.Element {
 		if (todos.length === 0) return;
-		options = options || {};
 		return <div className="my-3 border-top border-bottom">
 			<div className="border-bottom bg-light small py-1 px-3 text-muted">事项</div>
 			<List items={todos} 
@@ -163,7 +179,7 @@ export abstract class VTaskBase extends VPage<CTask> {
 	}
 
 	private renderTodo = (todo: Todo, index: number): JSX.Element => {
-		let {id, discription, assignItem, x, done, doneMemo: memo} = todo;
+		let {discription, assignItem, x} = todo;
 		if (x === 1) return null;
 	
 		let vTodo = this.createVTodo(todo);

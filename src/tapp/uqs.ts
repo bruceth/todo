@@ -12,7 +12,21 @@ export enum EnumTaskState {
 };
 export enum EnumTaskStep {todo=20, done=22, check=40, rate=60};
 
-export function stateText(state:EnumTaskState):{text:string; act:string} {
+const stateTexts:{[key in EnumTaskState]?:{text:string;act:string;pending:boolean}} = {
+	[EnumTaskState.start]: {text:undefined, act:undefined, pending:true},
+	[EnumTaskState.todo]: {text:'待办', act:'领办', pending:true},		// todo=20
+	[EnumTaskState.doing]: {text:'待办', act:'领办', pending:true},		// doing=21
+	[EnumTaskState.done]: {text:'待查验', act:'完成', pending:false}, 	// done=22, 
+	[EnumTaskState.pass]: {text:'待评价', act:'验收', pending:false}, 	// pass=40, 
+	[EnumTaskState.fail]: {text:'待办', act:'拒签', pending:false},		// fail=41,
+	[EnumTaskState.rated]: {text:'已评价', act:'评价', pending:false}, 	// rated=60, 
+	[EnumTaskState.archive]: {text:'已评价', act:'评价', pending:false},		// archive=-20,
+	[EnumTaskState.cancel]: {text:'已归档', act:'归档', pending:false},		// cancel=-40
+}
+
+export function stateText(state:EnumTaskState):{text:string; act:string; pending:boolean} {
+	return stateTexts[state];
+	/*
 	let text:string, act:string;
 	switch (state) {
 		default:
@@ -22,15 +36,16 @@ export function stateText(state:EnumTaskState):{text:string; act:string} {
 		case EnumTaskState.done:
 			text = '待查验'; act = '完成'; break;
 		case EnumTaskState.pass:
-			text = '待评分'; act = '验收'; break;
+			text = '待评价'; act = '验收'; break;
 		case EnumTaskState.fail:
 			text = '待办'; act = '拒签'; break;
 		case EnumTaskState.rated:
-			text = '已评分'; act = '评分'; break;
+			text = '已评价'; act = '评价'; break;
 		case EnumTaskState.archive:
 			text = '已归档'; act = '归档'; break;
 		}
 	return {text, act};
+	*/
 }
 
 export interface Performance {

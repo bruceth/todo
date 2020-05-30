@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Muted, EasyTime, UserView, User, Image, FA } from "tonva";
+import { FA } from "tonva";
 import { EnumTaskState } from '../tapp';
 import { VTodoEdit } from './VTodoEdit';
 import { VTaskBase } from './VTaskBase';
@@ -9,13 +9,14 @@ export class VTask extends VTaskBase {
 		return '任务';
 	}
 
+	/*
 	content() {
 		let {caption, discription, $create, $update, owner, todos, state} = this.task;
 		let spanUpdate:any;
 		if ($update.getTime() - $create.getTime() > 6*3600*1000) {
 			spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
 		}
-		let pending: boolean;
+		let {pending} = stateText(state);
 		switch (state) {
 			case EnumTaskState.start:
 			case EnumTaskState.todo:
@@ -39,20 +40,12 @@ export class VTask extends VTaskBase {
 			</div>;
 		}
 		return <div className="bg-white">
-			<UserView user={owner} render={renderTop} />
-			<div className="px-3">
-				<div className="py-2"><b>{caption}</b></div>
-				{discription && <div className="">{discription}</div>}
-			</div>
-
-			<div className="pt-3">
-				{this.renderTodos(todos, {pending})}
-			</div>
-
-			{/*this.renderState()*/}
+			{this.renderTop()}
+			{this.renderTodos(todos)}
 			{this.renderCommands()}
 		</div>;
 	}
+	*/
 	
 	private renderCmdButton(text:string, onClick:()=>void) {
 		return <button className="btn btn-primary" onClick={onClick}>
@@ -93,10 +86,10 @@ export class VTask extends VTaskBase {
 	}
 	private renderCmdRate():JSX.Element {
 		if (this.task.state === EnumTaskState.pass) {
-			return this.renderCmdButton('评分', this.onCmdRate);
+			return this.renderCmdButton('评价', this.onCmdRate);
 			/*
 			return <button className="btn btn-primary" onClick={this.onCmdRate}>
-				<FA className="text-danger ml-2" name="chevron-right-o" />评分
+				<FA className="text-danger ml-2" name="chevron-right-o" />评价
 			</button>;
 			*/
 		}
@@ -131,7 +124,7 @@ export class VTask extends VTaskBase {
 		return <div className="ml-3 border-left" />;
 	}
 
-	private renderCommands():JSX.Element {
+	protected renderCommands():JSX.Element {
 		let divCmds:any[] = [
 			this.renderCmdDone(),
 			this.renderCmdCheck(),
