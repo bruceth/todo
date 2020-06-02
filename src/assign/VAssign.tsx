@@ -116,7 +116,7 @@ export class VAssign extends VPage<CAssign> {
 		return <div className="m-3 px-3">
 			<button className="btn btn-primary" onClick={this.onTakeAssign}>
 				<FA className="mr-2" name="chevron-circle-right" />
-				领办
+				开始领办
 			</button>
 		</div>;
 	}

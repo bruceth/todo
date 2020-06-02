@@ -66,7 +66,11 @@ BOOK MyTaskArchive (
 
 -- 领办布置的任务，返回task id
 ACTION TakeAssign (
-	assignId ID Assign
+	assignId ID Assign,
+	ARR todos (
+		assignItem ID,
+		discription TEXT,
+	)
 )
 RETURNS ret (
 	task ID,
@@ -78,11 +82,15 @@ RETURNS ret (
 	SET taskId=a.id FROM Task as a WHERE a.assign=assignId and a.worker=$user;
 	IF taskId IS NULL {
 		TUID Task INTO taskId SET assign=assignId, worker=$user;
+		/*
 		FOREACH (VAR itemId ID, discription TEXT 
 			OF SELECT a.id as itemId, a.discription FROM AssignItem as a
 			WHERE a.assign=assignId)
+		*/
+		FOREACH todos
 		{
-			TUID Todo SET task=taskId, assignItem=itemId, discription=discription;
+			-- TUID Todo SET task=taskId, assignItem=itemId, discription=discription;
+			TUID Todo SET task=taskId, assignItem=assignItem, discription=discription;
 		}
 		SET step = EnumTaskStep.todo;
 		SET state = EnumTaskState.todo;

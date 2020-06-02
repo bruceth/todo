@@ -4,9 +4,7 @@ import { VTaskBase, VTodo } from './VTaskBase';
 import { Todo } from 'models';
 
 export class VCheck extends VTaskBase {
-	header() {
-		return '查验';
-	}
+	header() {return '查验';}
 
 	private onPass = async () => {
 		this.openVPage(VCheckSubmit, 'pass');

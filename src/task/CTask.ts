@@ -50,7 +50,19 @@ export class CTask extends CUqBase {
 	}
 
 	async showNew(assign: Assign) {
-		let {caption, discription} = assign;
+		let {caption, discription, items} = assign;
+		let todos = items.map(v => {
+			let {id, discription} = v;
+			let ret:Todo = {
+				id: undefined,
+				task: undefined,
+				assignItem: id,
+				discription: discription,
+				x: 0,
+				$update: new Date()
+			};
+			return ret;
+		});
 		this.task = {
 			id: undefined,
 			assign,
@@ -60,7 +72,7 @@ export class CTask extends CUqBase {
 			$update: new Date(),
 			owner: this.user.id,
 			state: EnumTaskState.todo,
-			todos: [],
+			todos: todos,
 			meTask: undefined,
 			flow: undefined,
 		};
@@ -69,7 +81,10 @@ export class CTask extends CUqBase {
 	}
 
 	takeAssign = async ():Promise<boolean> => {
-		let ret = await this.performance.TakeAssign.submit({assignId: this.task.assign.id});
+		let ret = await this.performance.TakeAssign.submit({
+			assignId: this.task.assign.id, 
+			todos:this.task.todos
+		});
 		if (ret.length === 0) return false;
 		this.cApp.refreshJob();
 		this.cApp.pushTaskNote(ret);
