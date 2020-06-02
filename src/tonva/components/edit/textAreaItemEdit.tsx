@@ -5,7 +5,7 @@ import { Page } from '../page/page';
 import { observer } from 'mobx-react';
 import { ItemEdit } from './itemEdit';
 
-export class StringItemEdit extends ItemEdit {
+export class TextAreaItemEdit extends ItemEdit {
     get uiItem(): UiTextItem {return this._uiItem as UiTextItem}
     protected async internalStart():Promise<any> {
         return new Promise<any>((resolve, reject) => {
@@ -14,13 +14,13 @@ export class StringItemEdit extends ItemEdit {
         });
     }
 
-    private onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    private onChange = (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
         this.newValue = evt.target.value;
         let preValue = this.value;
         this.isChanged = (this.newValue !== preValue);
     }
 
-    private onBlur = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    private onBlur = (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
         this.verifyValue();
     }
 
@@ -41,18 +41,19 @@ export class StringItemEdit extends ItemEdit {
             className="btn btn-sm btn-success align-self-center"
             disabled={!this.isChanged}
             onClick={onSave}>保存</button>;
-		let onKeyDown = (evt: React.KeyboardEvent<HTMLInputElement>) => {
-			if (evt.keyCode === 13) onSave();
+		let onKeyDown = (evt: React.KeyboardEvent<HTMLTextAreaElement>) => {
+			// if (evt.keyCode === 13) onSave();
 		}
         return <Page header={this.label} right={right}>
             <div className="m-3">
-                <input type="text" 
+                <textarea
 					onChange={this.onChange}
 					onKeyDown={onKeyDown}
                     onBlur={this.onBlur}
                     onFocus={this.onFocus}
                     className="form-control" 
-                    defaultValue={this.value} />
+					defaultValue={this.value}
+					rows={6} />
                 {
                     this.uiItem && <div className="small muted m-2">{this.uiItem.placeholder}</div>
                 }

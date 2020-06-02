@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { CAssign } from './CAssign';
-import { VPage, List, EasyTime, Muted, UserView, User, FA, QueryPager } from 'tonva';
+import { VPage, List, EasyTime, Muted, UserView, User, FA, QueryPager, LMR } from 'tonva';
 import { Assign, AssignTask } from 'models';
 import { stateText } from 'tapp';
 import { hourText } from 'tools';
+
+const cnIcon = "d-flex justify-content-center align-items-center rounded border border-warning text-success w-3c h-3c font-1-5c mr-3";
 
 export class VMyAssigns extends VPage<CAssign> {
 	private archived: 0|1;
@@ -26,8 +28,10 @@ export class VMyAssigns extends VPage<CAssign> {
 	private renderItem = (assign:Assign, index:number) => {
 		let {caption, discription, $update, tasks, point} = assign;
 		let vHour = point && <Muted> &nbsp; ({hourText(point)})</Muted>;
-		return <div className="py-3 px-3">
-			<div>
+		let left = <div className={cnIcon}>{caption[0].toUpperCase()}</div>;
+		let right = <div><Muted><EasyTime date={$update} /></Muted></div>;
+		return <LMR className="py-3 px-3" left={left} right={right}>			
+			<div className="">
 				<div>
 					<b>{caption}</b>
 					{vHour}
@@ -35,11 +39,7 @@ export class VMyAssigns extends VPage<CAssign> {
 				</div>
 				{this.renderAssignTasks(tasks)}
 			</div>
-			<div className="flex-fill"></div>
-			<div>
-				<Muted><EasyTime date={$update} /></Muted>
-			</div>
-		</div>;
+		</LMR>;
 	}
 
 	private renderUser = (user: User) => {

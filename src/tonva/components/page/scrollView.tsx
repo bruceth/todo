@@ -99,7 +99,7 @@ export class ScrollView extends React.Component<ScrollViewProps, null> {
 		let {className, style} = this.props;
 		return <div ref={this.refDiv} className={classNames('tv-page')}
 			onScroll={this.onScroll} style={style}>
-			<article data-a='tab' className={className}>
+			<article className={className}>
 				{this.props.children}
 			</article>
 		</div>;

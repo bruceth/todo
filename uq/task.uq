@@ -15,7 +15,7 @@ TUID Task (
 	worker ID [$User],
 	stamp (create),
 
-	INDEX owner_id (assign, id) UNIQUE,
+	INDEX assign_id (assign, id) UNIQUE,
 );
 
 TUID Todo ver 1.3 (
@@ -75,21 +75,24 @@ RETURNS ret (
 	group ID,
 ) {
 	VAR taskId ID, step TINYINT, state TINYINT;
-	TUID Task INTO taskId SET assign=assignId, worker=$user;
-	FOREACH (VAR itemId ID, discription TEXT 
-		OF SELECT a.id as itemId, a.discription FROM AssignItem as a
-		WHERE a.assign=assignId)
-	{
-		TUID Todo SET task=taskId, assignItem=itemId, discription=discription;
+	SET taskId=a.id FROM Task as a WHERE a.assign=assignId and a.worker=$user;
+	IF taskId IS NULL {
+		TUID Task INTO taskId SET assign=assignId, worker=$user;
+		FOREACH (VAR itemId ID, discription TEXT 
+			OF SELECT a.id as itemId, a.discription FROM AssignItem as a
+			WHERE a.assign=assignId)
+		{
+			TUID Todo SET task=taskId, assignItem=itemId, discription=discription;
+		}
+		SET step = EnumTaskStep.todo;
+		SET state = EnumTaskState.todo;
+		BOOK MyTask at($user, taskId);
+		BOOK MyTaskArchive at($user, step, taskId);
+		BOOK TaskState at(taskId) Set state=state;
+		BOOK TaskFlow at(taskId, 1) SET user=$user, step=step, state=state;
+		INTO ret SELECT taskId as task, step, state, 
+			(SELECT a.[group] FROM AssignToGroup as a WHERE a.assign=assignId) as [group];
 	}
-	SET step = EnumTaskStep.todo;
-	SET state = EnumTaskState.todo;
-	BOOK MyTask at($user, taskId);
-	BOOK MyTaskArchive at($user, step, taskId);
-	BOOK TaskState at(taskId) Set state=state;
-	BOOK TaskFlow at(taskId, 1) SET user=$user, step=step, state=state;
-	INTO ret SELECT taskId as task, step, state, 
-		(SELECT a.[group] FROM AssignToGroup as a WHERE a.assign=assignId) as [group];
 };
 
 -- 办理任务，进入checker的队列

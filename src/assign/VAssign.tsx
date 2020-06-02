@@ -36,14 +36,16 @@ export class VAssign extends VPage<CAssign> {
 			</div>;
 		}
 		let vHour = point && <Muted>({hourText(point)})</Muted>;
-		return <div className="m-3 rounded border bg-white">
-			<UserView user={owner} render={renderTop} />
-			<div className="px-3 pt-2"><b>{caption}</b> &nbsp; {vHour}</div>
-			<div className="px-3 pt-2 pb-3">{discription}</div>
-			{this.renderItems()}
+		return <>
+			<div className="m-3 rounded border bg-white">
+				<UserView user={owner} render={renderTop} />
+				<div className="px-3 pt-2"><b>{caption}</b> &nbsp; {vHour}</div>
+				<div className="px-3 pt-2 pb-3">{discription}</div>
+				{this.renderItems()}
+			</div>
 			{this.renderTasks()}
 			{this.renderCommands()}
-		</div>;
+		</>;
 	}
 
 	private renderItems():JSX.Element {
@@ -75,7 +77,7 @@ export class VAssign extends VPage<CAssign> {
 				<span className="ml-3">{nick || name}</span>
 			</>;
 		}
-		return <div className="py-2">
+		return <div className="py-2 m-3 rounded border bg-white">
 			<div className="border-top border-bottom px-3 bg-light"><Muted>已领办为任务</Muted></div>
 			{
 				tasks.map((v, index) => {
@@ -111,8 +113,11 @@ export class VAssign extends VPage<CAssign> {
 				break;
 		}
 
-		return <div className="px-3 py-2 border-top">
-			<button className="btn btn-primary" onClick={this.onTakeAssign}>领办</button>
+		return <div className="m-3 px-3">
+			<button className="btn btn-primary" onClick={this.onTakeAssign}>
+				<FA className="mr-2" name="chevron-circle-right" />
+				领办
+			</button>
 		</div>;
 	}
 }

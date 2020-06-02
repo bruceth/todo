@@ -9,6 +9,7 @@ import { RadioItemEdit } from './radioItemEdit';
 import { SelectItemEdit } from './selectItemEdit';
 import { IdItemEdit } from './idItemEdit';
 import { TagSingleItemEdit, TagMultiItemEdit } from './tagItemEdit';
+import { TextAreaItemEdit } from './textAreaItemEdit';
 
 export interface EditProps {
     className?: string;
@@ -89,7 +90,7 @@ export class Edit extends React.Component<EditProps> {
 		</div>;
     }
 
-	private rowClick = async (itemEdit:ItemEdit/*, itemSchema: ItemSchema, uiItem: UiItem, label:string, value: any*/) => {
+	private rowClick = async (itemEdit:ItemEdit) => {
 		if (itemEdit === undefined) {
 			alert('item has no edit');
 			return;
@@ -140,7 +141,8 @@ function createItemEdit(itemSchema: ItemSchema, uiItem:UiItem, label:string, val
         switch (uiItem.widget) {
             default: break;
             case 'id': itemEdit = IdItemEdit; break;
-            case 'text': itemEdit = StringItemEdit; break;
+			case 'text': itemEdit = StringItemEdit; break;
+			case 'textarea': itemEdit = TextAreaItemEdit; break;
             case 'image': itemEdit = ImageItemEdit; break;
 			case 'select': itemEdit = SelectItemEdit; break;
 			case 'range': itemEdit = StringItemEdit; break;

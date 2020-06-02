@@ -12,6 +12,7 @@ import { CTask } from 'task/CTask';
 import { CAssign } from 'assign/CAssign';
 import { EnumNoteType } from './uqs';
 import { CMember } from 'member/CMember';
+import { Assign } from 'models';
 
 const gaps = [10, 3,3,3,3,3,5,5,5,5,5,5,5,5,10,10,10,10,15,15,15,30,30,60];
 
@@ -111,6 +112,10 @@ export class CApp extends CUqApp {
 	//====== App calls =======
 	async showTask(taskId:number):Promise<void> {
 		await this.cTask.showTask(taskId);
+	}
+
+	async showNewTask(assign:Assign) {
+		await this.cTask.showNew(assign);
 	}
 
 	async showMyTasks():Promise<void> {

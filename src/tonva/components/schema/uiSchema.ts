@@ -26,8 +26,8 @@ export interface UiItem {
 	labelHide?: boolean;
     className?: string;
     onChanging?: ChangingHandler;
-    onChanged?: ChangedHandler;
-    rules?: (ContextRule|FieldRule) | (ContextRule|FieldRule)[];
+	onChanged?: ChangedHandler;
+    rules?: (ContextRule|FieldRule) | ((ContextRule|FieldRule)[]);
     Templet?: TempletType;
     discription?: (string | JSX.Element | (()=>JSX.Element));
     discriptionClassName?: string;

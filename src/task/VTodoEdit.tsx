@@ -2,9 +2,9 @@ import React from 'react';
 import { Muted, EasyTime, User, Image, UserView, List, FA } from "tonva";
 import { Todo } from 'models';
 import { observer } from 'mobx-react';
-import { VTaskBase } from './VTaskBase';
+import { VBase } from './VBase';
 
-export class VTodoEdit extends VTaskBase {
+export class VTodoEdit extends VBase {
 	header() {return '增减事项'}
 	content() {
 		let {caption, discription, $create, $update, owner} = this.controller.task;
@@ -30,31 +30,29 @@ export class VTodoEdit extends VTaskBase {
 			</div>
 
 			{this.renderTodoList()}
+			<div className="border-top border-bottom bg-light">
+				{this.renderCommands()}
+			</div>
 			<div ref={div => this.divBottom = div} />
 		</div>;
 	}
 
 	private renderTodoList() {
-		return <List items={this.controller.task.todos} item={{render: this.renderTodoEdit}} />;
+		let header = <div className="px-3 py-1 mt-4 bg-light"><Muted>事项</Muted></div>;
+		return <List header={header} 
+			items={this.controller.task.todos} 
+			item={{render: this.renderTodoEdit}} />;
 	}
 
-	private hourText(hour: number):string {
-		if (!hour) return;
-		let h = Math.floor(hour / 60);
-		let m = Math.floor(hour % 60);
-		let ret:string; // h + ':' + String(m).substr(1);
-		if (h > 0) {
-			ret = h + '时';
-			if (m > 0) {
-				ret += m + '分';
-			}
-		}
-		else {
-			ret = m + '分钟';
-		}
-		return ret;
+	protected renderCommands() {
+		return <div className="px-3 py-2 d-flex align-items-end">
+			<div className="flex-grow-1"></div>
+			<button className="btn btn-outline-primary" onClick={()=>this.closePage()}>
+				完成返回
+			</button>
+		</div>;
+		// <FA className="mr-2" name="chevron-left" />
 	}
-	//{hour && <div className="mx-3">{this.hourText(hour)}</div>}
 
 	private onTrashTodo = async (item:Todo) => {
 		await this.controller.xTodo(item.id, 1);
@@ -107,7 +105,9 @@ export class VTodoEdit extends VTaskBase {
 	private onEnter = async () => {
 		let input:HTMLInputElement = document.getElementById('$task-todo-input') as HTMLInputElement;
 		if (!input) return;
-		await this.controller.addTodo(input.value.trim())
+		let val = input.value.trim();
+		if (val.length === 0) return;
+		await this.controller.addTodo(val)
 		input.value = '';
 	}
 	footer() {

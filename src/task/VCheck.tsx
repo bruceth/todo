@@ -3,7 +3,7 @@ import { FA } from "tonva";
 import { VTaskBase, VTodo } from './VTaskBase';
 import { Todo } from 'models';
 
-export class VTaskCheck extends VTaskBase {
+export class VCheck extends VTaskBase {
 	header() {
 		return '查验';
 	}
@@ -39,23 +39,10 @@ export class VTaskCheck extends VTaskBase {
 		}
 		else {
 			return <div className="px-3 py-2 text-info">
-				<FA className="mr-3" name="hand-o-right" /> 请先查验逐个事项，然后对任务查验
+				<FA className="mr-3" name="hand-o-right" /> 请先验收各个事项，然后验收任务
 			</div>;
 		}
 	}
-
-	/*
-	content() {
-		let render = observer(() => {
-			let {todos} = this.task;
-			return <div className="bg-white">
-				{this.renderTop()}
-				{this.renderTodos(todos)}
-				{this.renderCommands()}
-			</div>;
-		});
-		return React.createElement(render);
-	}*/
 	
 	protected renderRadios(todo: Todo, vTodo:VTodo): JSX.Element {
 		let {id, done, check} = todo;
@@ -114,7 +101,17 @@ export class VTaskCheck extends VTaskBase {
 	protected getEditMemoHeader(vTodo:VTodo):string {return vTodo.checkText + '说明';}
 }
 
-class VCheckSubmit extends VTaskCheck {
+const btnSuccess = {
+	text: '验收',
+	color: 'success',
+	icon: 'check'
+}
+const btnFail = {
+	text: '拒签',
+	color: 'danger',
+	icon: 'times'
+}
+class VCheckSubmit extends VCheck {
 	private checkResult: 'pass' | 'fail';
 	init(checkResult: 'pass' | 'fail') {
 		super.init();
@@ -136,21 +133,15 @@ class VCheckSubmit extends VTaskCheck {
 	}
 
 	protected renderCommands():JSX.Element {
-		let text:string, color:string;
-		if (this.checkResult === 'pass') {
-			text= '验收';
-			color = 'success';
-		}
-		else {
-			text = '拒签';
-			color = 'danger';
-		}
-		return <div>
+		let {color, text, icon} = (this.checkResult === 'pass')? btnSuccess:btnFail;
+		return <div className="py-3">
 			<div className="px-3">
 				<textarea className={'w-100 form-control border-' + color} placeholder={text + '说明'} />
 			</div>
-			<div className="p-3 text-center">
-				<button className={'btn w-25 btn-' + color} onClick={this.onSubmit}>提交{text}</button>
+			<div className="pt-3 text-center">
+				<button className={'btn w-25 btn-' + color} onClick={this.onSubmit}>
+					<FA className="mr-2" name={icon} /> 提交{text}
+				</button>
 			</div>
 		</div>;
 	}
@@ -160,6 +151,6 @@ class VCheckSubmit extends VTaskCheck {
 			case 'pass': await this.controller.passTask(); break;
 			case 'fail': await this.controller.failTask(); break;
 		}
-		this.popToPage();
+		this.closeAction('查验完成');
 	}
 }

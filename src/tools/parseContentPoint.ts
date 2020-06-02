@@ -25,7 +25,7 @@ function isSepChar(text:string, p:number):boolean {
 	return seps.indexOf(ch) >= 0;
 }
 
-function parseHour(text:string) {
+export function parseHour(text:string) {
 	let p = 0;
 	let len = text.length;
 	let h = parseNum();

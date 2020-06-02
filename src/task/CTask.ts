@@ -1,14 +1,15 @@
 import _ from 'lodash';
 import { observable } from 'mobx';
-import { CUqBase } from "../tapp";
+import { CUqBase, EnumTaskState } from "../tapp";
 import { VMyTasks } from "./VMyTasks";
 import { QueryPager } from "tonva";
 import { VTask } from "./VTask";
 import { Task, Assign, AssignTask, Todo } from "../models";
 import { Performance, EnumTaskStep } from '../tapp'
-import { VTaskDone } from './VTaskDone';
-import { VTaskCheck } from './VTaskCheck';
-import { VTaskRate } from './VTaskRate';
+import { VTakeAssign } from './VTakeAssign';
+import { VDone } from './VDone';
+import { VCheck } from './VCheck';
+import { VRate } from './VRate';
 import { VTodoEdit } from './VTodoEdit';
 
 export class CTask extends CUqBase {
@@ -17,7 +18,6 @@ export class CTask extends CUqBase {
 	publishAssignCallback:(assign:Assign)=>Promise<void>;
 	myTasksPager: QueryPager<AssignTask>;
 	@observable task: Task;
-	@observable assign: Assign;
 
 	protected async internalStart() {
 	}
@@ -45,12 +45,39 @@ export class CTask extends CUqBase {
 		task.flow = retTask.flow;
 		task.meTask = retTask.meTask;
 		this.task = task;
-		this.pushTopPage();
+		this.startAction();
 		this.openVPage(VTask);
 	}
 
-	async showTaskDone() {
-		this.openVPage(VTaskDone);
+	async showNew(assign: Assign) {
+		let {caption, discription} = assign;
+		this.task = {
+			id: undefined,
+			assign,
+			caption,
+			discription,
+			$create: new Date(),
+			$update: new Date(),
+			owner: this.user.id,
+			state: EnumTaskState.todo,
+			todos: [],
+			meTask: undefined,
+			flow: undefined,
+		};
+		this.startAction();
+		this.openVPage(VTakeAssign);
+	}
+
+	takeAssign = async ():Promise<boolean> => {
+		let ret = await this.performance.TakeAssign.submit({assignId: this.task.assign.id});
+		if (ret.length === 0) return false;
+		this.cApp.refreshJob();
+		this.cApp.pushTaskNote(ret);
+		return true;
+	}
+
+	async showDone() {
+		this.openVPage(VDone);
 	}
 	
 	async doneTask() {
@@ -60,7 +87,7 @@ export class CTask extends CUqBase {
 	}
 
 	async showTaskCheck() {
-		this.openVPage(VTaskCheck);
+		this.openVPage(VCheck);
 	}
 
 	async passTask() {
@@ -76,7 +103,7 @@ export class CTask extends CUqBase {
 	}
 
 	async showTaskRate() {
-		this.openVPage(VTaskRate);
+		this.openVPage(VRate);
 	}
 
 	async rateTask() {

@@ -18,6 +18,7 @@ export class VAssignEdit extends VPage<CAssign> {
 		return;
 	}
 	private onEditItemChanged = async (itemSchema: ItemSchema, value:any, prev:any):Promise<void> => {
+
 		await this.controller.saveAssignProp(itemSchema.name, value);
 		return;
 	}
@@ -25,6 +26,12 @@ export class VAssignEdit extends VPage<CAssign> {
 	private onPublishTask = async () => {
 		await this.controller.publishAssign();
 		this.closePage();
+	}
+	private intRule = (value:any): string[] | string  => {
+		let n = Number(value);
+		if (isNaN(n) === true || Number.isInteger(n) === false) {
+			return '请输入整数';
+		}
 	}
 	private schema:Schema = [
 		{name:'caption', type:'string'} as StringSchema,
@@ -35,9 +42,13 @@ export class VAssignEdit extends VPage<CAssign> {
 		items: {
 			caption: {widget: 'text', label: '任务主题', labelHide: true} as UiTextItem,
 			point: {
-				widget: 'range', label: '工时分钟数', 
+				widget: 'range', label: '工时数', 
 				min: 0, max: 10000, step: 1, 
-				Templet: (value:any) => <>{hourText(value)}</>} as UiRange,
+				Templet: (value:any) => <>{hourText(value)}</>,
+				rules: this.intRule,
+				discription: '请按分钟数输入',
+				discriptionClassName: 'text-success'
+			} as UiRange,
 			discription: {
 				widget: 'textarea', 
 				label: '任务说明', labelHide: true,

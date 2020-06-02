@@ -45,6 +45,18 @@
   text-decoration: line-through rgb(255, 127, 127);
   color: gray;
 }
+.font-1-5c {
+	font-size: 1.5rem;
+}
+.font-2c {
+	font-size: 2rem;
+}
+.font-2-5c {
+	font-size: 2.5rem;
+}
+.font-3c {
+	font-size: 2.5rem;
+}
 .w-1c {
   width: 1rem !important;
 }

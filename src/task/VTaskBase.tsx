@@ -1,8 +1,11 @@
 import React from 'react';
 import { CTask } from "./CTask";
-import { VPage, useUser, List, Page, FA, Muted, UserView, User, EasyTime, Image } from "tonva";
-import { Task, Todo } from 'models';
+import { List, Page, FA, Muted, UserView, User, EasyTime, Image } from "tonva";
+import { Todo } from 'models';
 import { observer } from 'mobx-react';
+import { EnumTaskState } from 'tapp';
+import { VTodoEdit } from './VTodoEdit';
+import { VBase } from './VBase';
 
 export interface TodoOptions {
 	radios?: 'done' | 'check';
@@ -73,21 +76,16 @@ class VTodoDoneFail extends VTodoCheck {
 	checkIcon = 'times';
 }
 
-export abstract class VTaskBase extends VPage<CTask> {
-	protected task: Task;
-
-	init(param?: any) {
-		this.task = this.controller.task;
-		useUser(this.task.assign.owner);
-	}
-
+export abstract class VTaskBase extends VBase {
 	content() {
 		let render = observer(() => {
 			let {todos} = this.task;
-			return <div className="bg-white">
+			return <div className="">
 				{this.renderTop()}
 				{this.renderTodos(todos)}
-				{this.renderCommands()}
+				<div className="border-top border-bottom bg-light">
+					{this.renderCommands()}
+				</div>
 			</div>;
 		});
 		return React.createElement(render);
@@ -113,18 +111,25 @@ export abstract class VTaskBase extends VPage<CTask> {
 				</div>
 			</div>;
 		}
+		let vDisp;
+		if (discription) {
+			let parts = discription.split('\\n');
+			vDisp = <div className="mt-2">
+				{parts.map((p, index) => <div key={index}>{p}</div>)}
+			</div>;
+		}
 		return <>
 			<UserView user={owner} render={renderUser} />
-			<div className="px-3">
-				<div className="py-2"><b>{caption}</b></div>
-				{discription && <div className="">{discription}</div>}
+			<div className="px-3 py-3 bg-white">
+				<div><b>{caption}</b></div>
+				{vDisp}
 			</div>
 		</>;
 	}
 
 	protected renderTodos(todos: Todo[]):JSX.Element {
 		if (todos.length === 0) return;
-		return <div className="my-3 border-top border-bottom">
+		return <div className="border-top border-bottom">
 			<div className="border-bottom bg-light small py-1 px-3 text-muted">事项</div>
 			<List items={todos} 
 				item={{render: this.renderTodo}} />
@@ -137,7 +142,13 @@ export abstract class VTaskBase extends VPage<CTask> {
 
 	protected renderDoneMemo(todo: Todo, vTodo:VTodo): JSX.Element {
 		if (vTodo === undefined) return;
-		let {doneMemo} = todo;
+		let {state} = this.task;
+		switch (state) {
+			case EnumTaskState.todo:
+				return;
+		}
+		let {done, doneMemo} = todo;
+		if (done === undefined) return;
 		let {doneColor: color, doneText, doneIcon} = vTodo;
 		return <div className="mt-1">
 			<span className={'small text-' + color}>
@@ -152,8 +163,13 @@ export abstract class VTaskBase extends VPage<CTask> {
 
 	protected renderCheckMemo(todo: Todo, vTodo:VTodo): JSX.Element {
 		if (vTodo === undefined) return;
-		let {done, checkMemo} = todo;
-		if (done !== 1) return;
+		let {state} = this.task;
+		switch (state) {
+			case EnumTaskState.done:
+				return;
+		}
+		let {check, checkMemo} = todo;
+		if (check === undefined) return;
 		let {checkColor, checkText, checkIcon} = vTodo;
 		return <div className="mt-1">
 			<span className={'small text-' + checkColor}>
@@ -236,5 +252,56 @@ export abstract class VTaskBase extends VPage<CTask> {
 					defaultValue={memo} maxLength={200} />
 			</div>
 		</Page>);
+	}
+
+	protected closeAction(msg: JSX.Element|string, afterClose?: ()=>void) {
+		let vMsg = (typeof msg === 'string')?
+				<div className="p-5 text-center">{msg}</div>
+				:
+				msg;
+		let onClose = () => {
+			this.popToTopPage();
+			if (afterClose) afterClose();
+		}
+		this.openPageElement(<Page header={false}>
+			<div className="d-flex justify-content-center align-items-center" style={{height: '80vh'}}>
+				<div className="border border-info rounded bg-white"
+					style={{minWidth:'20rem', maxWidth: '40rem'}}>
+					{vMsg}
+					<div className="text-center border-top border-info p-3 rounded-bottom bg-light">
+						<button className="btn btn-info" onClick={onClose}>
+							<FA className="mr-1" name="times-circle" />
+							关闭
+						</button>
+					</div>
+				</div>
+			</div>
+		</Page>);
+	}
+	
+	private onCmdEditTodos = () => {
+		this.openVPage(VTodoEdit);
+	}
+	
+	protected renderCmdEditTodos():JSX.Element {
+		if (this.task.state === EnumTaskState.todo) {
+			return <button className="btn btn-outline-info" onClick={this.onCmdEditTodos}>
+				<FA name="pencil-square-o" /> 增减事项
+			</button>;
+		}
+	}
+
+	protected gap():JSX.Element {
+		return <div className="ml-3 border-left" />;
+	}
+
+	private onCmdComment = () => {
+		// alert('评论正在实现中...');
+		this.closeAction(<div className="p-5 text-center">
+			OK OK OK 评论正在实现中...
+		</div>);
+	}
+	protected renderCmdComment():JSX.Element {
+		return <div className="cursor-pointer" onClick={this.onCmdComment}><FA name="commenting-o" /> 评论</div>
 	}
 }

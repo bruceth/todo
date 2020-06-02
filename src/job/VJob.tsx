@@ -21,14 +21,16 @@ export class VJob extends VPage<CJob> {
 
 	content() {
 		let page = observer(() => {
-			let none = <span className="p-3 text-success small">[无待办任务]</span>;
+			let none = <div className="px-3 py-2 text-muted small border-top">[无]</div>;
 			return <>
 				<div className="d-flex justify-content-around bg-white py-2">
 					{this.renderCat(this.catTasks)}
 					{this.renderCat(this.catAssigns)}
 					{this.renderCat(this.catProject)}
 				</div>
-				<List className="my-2 bg-transparent" items={this.controller.myDoingsPager}
+
+				<div className="small text-muted mt-3 px-3 py-1 border-top bg-light">待办任务</div>
+				<List className="bg-transparent" items={this.controller.myDoingsPager}
 					item={{render: this.renderDoing, onClick: this.onClickDoing, key: this.keyDoing, className:"bg-transparent"}}
 					none={none}
 					/>
@@ -86,7 +88,8 @@ export class VJob extends VPage<CJob> {
 	}
 
 	private showCatProject = () => {
-		alert('projects');
+		//		alert('projects');
+		this.controller.showTask(16);
 	}
 
 	private catProject:Cat = {

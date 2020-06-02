@@ -34,8 +34,6 @@ export class CAssign extends CUqBase {
 	}
 
 	private async showMyAssignsInternal(archived: 0|1) {
-		//this.myAssignsPager.first(undefined); //.reset();
-		//let archived: 0|1 = 0;
 		let myAssignsPager = new QueryPager(this.performance.GetMyAssigns, 10, 30, true);
 		myAssignsPager.setItemConverter((item, results):Assign => {
 			let assign:Assign = item;
@@ -84,10 +82,13 @@ export class CAssign extends CUqBase {
 	}
 
 	takeAssign = async () => {
+		this.cApp.showNewTask(this.assign);
+		/*
 		let ret = await this.performance.TakeAssign.submit({assignId: this.assign.id});
 		this.cApp.refreshJob();
 		this.cApp.pushTaskNote(ret);
 		this.closePage();
+		*/
 	}
 
 	showTask = async (taskId:number) => {

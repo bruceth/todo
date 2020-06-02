@@ -3,14 +3,14 @@ import { FA } from "tonva";
 import { Todo } from 'models';
 import { VTaskBase, VTodo } from './VTaskBase';
 
-export class VTaskDone extends VTaskBase {
+export class VDone extends VTaskBase {
 	header() {
 		return '办理';
 	}
 
 	private onDone = async () => {
 		await this.controller.doneTask();
-		this.popToPage();
+		this.closeAction('任务已办，等待查验');
 	}
 
 	private calcEnabled(todos: Todo[]):boolean {
@@ -21,28 +21,6 @@ export class VTaskDone extends VTaskBase {
 		}
 		return true;
 	}
-
-	/*
-	content() {
-		let render = observer(() => {
-			let {todos} = this.task;
-			let enabled = this.calcEnabled(todos);
-			return <div className="bg-white">
-				{this.renderTop()}
-				{this.renderTodos(todos)}
-				<div className="d-flex align-items-center px-3 py-2">
-					<button className="btn btn-success" onClick={this.onDone} disabled={!enabled}>
-						<FA className="mr-1" name="check-circle" />已办
-					</button>
-					<div className="flex-fill"></div>
-					<button className="btn btn-outline-warning">
-						<FA className="mr-1" name="times-circle" />放弃
-					</button>
-				</div>
-			</div>;
-		});
-		return React.createElement(render);
-	}*/
 
 	protected renderCommands():JSX.Element {
 		let enabled = this.calcEnabled(this.task.todos);
@@ -93,6 +71,10 @@ export class VTaskDone extends VTaskBase {
 				{doneMemo}
 			</span>
 		</div>;
+	}
+
+	protected renderCheckMemo(todo: Todo, vTodo:VTodo): JSX.Element {
+		return;
 	}
 
 	protected getEditMemoText(todo:Todo):string {return todo.doneMemo;}
