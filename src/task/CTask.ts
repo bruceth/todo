@@ -73,7 +73,7 @@ export class CTask extends CUqBase {
 			$create: new Date(),
 			$update: new Date(),
 			owner: this.user.id,
-			state: EnumTaskState.todo,
+			state: EnumTaskState.start,
 			todos: todos,
 			meTask: undefined,
 			flows: undefined,
