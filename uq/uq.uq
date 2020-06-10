@@ -5,14 +5,14 @@ BOOK me (
 	tickTodo TIMESTAMP,
 );
 
-QUERY myTickTodo(lastTick INT)
+QUERY myTickTodo ver 1.0 (lastTick INT)
 RETURNS ret (
 	tick TINYINT
 )
 {
 	INTO ret SELECT 1 as tick
 		FROM me as a
-		WHERE a.me=$user and a.tickTodo>lastTick;
+		WHERE a.me=$user and a.tickTodo>FROM_UNIXTIME(lastTick);
 };
 
 ROLE a:'系统管理权', b:'人事管理', c:'组长', e:'领导';
