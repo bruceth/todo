@@ -1,4 +1,3 @@
-//import _ from 'lodash';
 import { nav, t, setGlobalRes } from "../components";
 import { Controller } from '../vm';
 import { UQsMan, TVs } from "../uq";
@@ -6,13 +5,8 @@ import { appInFrame, loadAppUqs, UqAppData } from "../net";
 import { centerApi } from "./centerApi";
 import { VUnitSelect, VErrorsPage, VStartError, VUnsupportedUnit } from "./vMain";
 
-//type EntityType = Tuid | Action | Sheet | Query | Map;
-
 export interface IConstructor<T> {
     new (...args: any[]): T;
-
-    // Or enforce default constructor
-    // new (): T;
 }
 
 export interface AppConfig {
@@ -22,7 +16,8 @@ export interface AppConfig {
     uqNameMap?: {[uqName:string]: string};      // uqName='owner/uq' 映射到内存简单名字：uq, 可以注明映射，也可以自动。有可能重
     loginTop?: JSX.Element;
     oem?: string;               // 用户注册发送验证码的oem厂家，默认同花
-    privacy?: string;
+	privacy?: string;
+	noUnit?: boolean;			// app的运行，不跟unit绑定
 }
 
 export interface Elements {
@@ -33,7 +28,8 @@ export abstract class CAppBase extends Controller {
     protected _uqs: any;
 
     protected readonly name: string;
-    protected readonly version: string;
+	protected readonly version: string;
+	protected readonly noUnit: boolean;
 
     readonly uqsMan: UQsMan;
     appUnits:any[];
@@ -41,12 +37,13 @@ export abstract class CAppBase extends Controller {
     // appName: owner/name
     constructor(config: AppConfig) {
         super(undefined);
-        let {appName, version, tvs} = config;
+        let {appName, version, tvs, noUnit} = config;
         this.name = appName;
         if (appName === undefined) {
             throw new Error('appName like "owner/app" must be defined in MainConfig');
         }
-        this.version = version;
+		this.version = version;
+		this.noUnit = noUnit;
         this.uqsMan = new UQsMan(this.name, tvs);
     }
 
@@ -79,15 +76,14 @@ export abstract class CAppBase extends Controller {
             // if (isDevelopment === true) {
             // 这段代码原本打算只是在程序员调试方式下使用，实际上，也可以开放给普通用户，production方式下
             let {predefinedUnit} = appInFrame;
-            //let {id} = app;
-            //this.id = id;
             let {user} = nav;
             if (user !== undefined && user.id > 0) {
-                this.appUnits = await centerApi.userAppUnits(this.uqsMan.id);
+				this.appUnits = await centerApi.userAppUnits(this.uqsMan.id);
+				if (this.noUnit === true) return true;
                 switch (this.appUnits.length) {
                     case 0:
                         this.showUnsupport(predefinedUnit);
-                        return false;
+						return false;
                     case 1:
                         let appUnit = this.appUnits[0].id;
                         if (appUnit === undefined || appUnit < 0 || 
@@ -103,7 +99,6 @@ export abstract class CAppBase extends Controller {
                             appInFrame.unit = predefinedUnit;
                             break;
                         }
-                        //nav.push(<this.selectUnitPage />)
                         this.openVPage(VUnitSelect);
                         return false;
                 }
@@ -129,7 +124,12 @@ export abstract class CAppBase extends Controller {
         let {localData} = this.uqsMan;
         let uqAppData:UqAppData = localData.get();
         if (!uqAppData || uqAppData.version !== this.version) {
-            uqAppData = await loadAppUqs(appOwner, appName);
+			uqAppData = await loadAppUqs(appOwner, appName);
+			if (!uqAppData.id) {
+				return [
+					`${appOwner}/${appName}不存在。请仔细检查app全名。`
+				];
+			}
             uqAppData.version = this.version;
             localData.set(uqAppData);
             // 
@@ -143,19 +143,6 @@ export abstract class CAppBase extends Controller {
             retErrors.push(...this.uqsMan.setTuidImportsLocal());
             if (retErrors.length === 0) {
                 this._uqs = this.uqsMan.buildUQs();
-                /*
-                _.merge(this.uqs, this.uqsMan.uqsColl);
-                for (let i in this.uqs) {
-                    let p = i.indexOf('/');
-                    if (p < 0) continue;
-                    let uq = this.uqs[i];
-                    
-                    let n = i.substr(p+1);
-                    let l = n.toLowerCase();
-                    this.uqs[n] = uq;
-                    if (l !== n) this.uqs[l] = uq;
-                }
-                */
                 return;
             }
         }
