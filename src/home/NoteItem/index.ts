@@ -4,13 +4,13 @@ import { NoteText } from "./NoteText";
 import { NoteAssign } from "./NoteAssign";
 import { NoteTaskTodo } from "./NoteTaskTodo";
 import { NoteItem } from "./NoteItem";
-import { CGroup } from "../CGroup";
+import { CHome } from "../CHome";
 
 export * from "./NoteItem";
 export * from './NoteAssign';
 export * from './NoteTaskTodo';
 
-export function dataToNoteItem(cGroup: CGroup, note:Note, queryResults:{[name:string]:any[]}):NoteItem {
+export function dataToNoteItem(cGroup: CHome, note:Note, queryResults:{[name:string]:any[]}):NoteItem {
 	switch (note.type) {
 		default: 
 			debugger;
@@ -24,7 +24,7 @@ export function dataToNoteItem(cGroup: CGroup, note:Note, queryResults:{[name:st
 	}
 }
 
-export function createNoteText(cGroup: CGroup, owner:any, content:string):NoteText {
+export function createNoteText(cGroup: CHome, owner:any, content:string):NoteText {
 	let ret:NoteText = new NoteText(cGroup);
 	ret.owner = owner;
 	ret.content = content;
@@ -32,7 +32,7 @@ export function createNoteText(cGroup: CGroup, owner:any, content:string):NoteTe
 	return ret;
 }
 
-export function createNoteAssign(cGroup: CGroup, owner:any, assignId:number):NoteAssign {
+export function createNoteAssign(cGroup: CHome, owner:any, assignId:number):NoteAssign {
 	let noteAssign:NoteAssign = new NoteAssign(cGroup);
 	noteAssign.owner = owner;
 	noteAssign.$create = new Date();
@@ -40,13 +40,13 @@ export function createNoteAssign(cGroup: CGroup, owner:any, assignId:number):Not
 	return noteAssign;
 }
 
-export function createNoteTaskTodo(cGroup: CGroup):NoteTaskTodo {
+export function createNoteTaskTodo(cGroup: CHome):NoteTaskTodo {
 	let taskTodo:NoteTaskTodo = new NoteTaskTodo(cGroup);
 	return taskTodo;
 }
 
 
-function buildNoteText(cGroup: CGroup, note: Note, results:{[name:string]:any[]}):NoteItem {
+function buildNoteText(cGroup: CHome, note: Note, results:{[name:string]:any[]}):NoteItem {
 	let ret:NoteText = new NoteText(cGroup);
 	let {id, owner, content} = note;
 	ret.id = id;
@@ -56,7 +56,7 @@ function buildNoteText(cGroup: CGroup, note: Note, results:{[name:string]:any[]}
 	return ret;
 }
 
-function buildNoteAssign(cGroup: CGroup, note:Note, results:{[name:string]:any[]}):NoteItem {
+function buildNoteAssign(cGroup: CHome, note:Note, results:{[name:string]:any[]}):NoteItem {
 	let noteAssign: NoteAssign = new NoteAssign(cGroup);
 	let {id, owner, $create, obj} = note;
 	noteAssign.id = id;
@@ -74,7 +74,7 @@ function buildNoteAssign(cGroup: CGroup, note:Note, results:{[name:string]:any[]
 	return noteAssign;
 }
 
-function buildNoteTaskTodo(cGroup: CGroup, note:Note, results:{[name:string]:any[]}):NoteItem {
+function buildNoteTaskTodo(cGroup: CHome, note:Note, results:{[name:string]:any[]}):NoteItem {
 	let ret:NoteTaskTodo = new NoteTaskTodo(cGroup);
 	let {id, owner, $create, content, obj} = note;
 	ret.id = id;

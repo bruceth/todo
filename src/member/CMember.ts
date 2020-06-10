@@ -1,8 +1,9 @@
 import { VMemberDetail } from "./VMemberDetail";
-import { VMemberList } from "./VMemberList";
+import { VMain } from "./VMain";
 import { CUqBase } from "tapp";
 import { QueryPager } from "tonva";
 import { Performance } from '../tapp'
+import { VDepartmentList } from "./VDepartmentList";
 
 export interface MemberItem {
 	member: number;
@@ -21,12 +22,16 @@ export class CMember extends CUqBase {
 		this.myMembersPager = new QueryPager(this.performance.GetMyMembers, 10, 500, true);
 	}
 	
-	showDetail = async (memberId:number) => {
+	showMemberDetail = async (memberId:number) => {
 		this.openVPage(VMemberDetail);
 	}
 
 	showList = async () => {
 		await this.myMembersPager.first(undefined);
-		this.openVPage(VMemberList);
+		this.openVPage(VMain);
+	}
+
+	showDepartment = async () => {
+		this.openVPage(VDepartmentList);
 	}
 }

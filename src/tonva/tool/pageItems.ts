@@ -292,9 +292,11 @@ export abstract class PageItems<T> {
 
 	findItem(item:any):T {
 		let pid = this.getPageId(item);
-		let index = _.sortedIndexBy(this._items, pid, v => this.getPageId(v));
-		let oldItem = this._items[index];
-		let oid = this.getPageId(oldItem);
-		if (pid === oid) return oldItem;
+		let index = _.findIndex(this._items, v => this.getPageId(v) === pid);
+		if (index < 0) return;
+		return this._items[index];
+		//let oldItem = this._items[index];
+		//let oid = this.getPageId(oldItem);
+		//if (pid === oid) return oldItem;
 	}
 }

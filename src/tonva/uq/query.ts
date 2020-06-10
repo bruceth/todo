@@ -44,6 +44,7 @@ export class QueryPager<T extends any> extends PageItems<T> {
 	}
 	protected getPageId(item:T) {
 		if (item === undefined) return;
+		if (typeof item === 'number') return item;
 		let start = item[this.idFieldName];
 		if (start === null) return;
 		if (start === undefined) return;

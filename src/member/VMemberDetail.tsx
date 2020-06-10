@@ -8,7 +8,7 @@ export class VMemberDetail extends VPage<CMember> {
 	}
 	content() {
 		return <div className="p-3">
-			群中领办任务详情
+			同事详情 正在实现中...
 		</div>
 	}
 }

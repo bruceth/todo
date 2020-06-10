@@ -36,7 +36,7 @@ function tt(str:string):any {
 	return timeRes[str];
 }
 
-function renderDate(vDate:Date|number, withTime:boolean) {
+function renderDate(vDate:Date|number, withTime:boolean, always:boolean = false) {
     if (!vDate) return null;
     let date: Date;
     switch (typeof vDate) {
@@ -46,7 +46,7 @@ function renderDate(vDate:Date|number, withTime:boolean) {
     }
 
     let now = new Date();
-    let tick:number, nDate:number, _date:number, month:number, year:number, hm:string, nowYear:number;
+    let tick:number, nDate:number, _date:number, month:number, year:number, nowYear:number;
     let d = date;
     tick = now.getTime() - d.getTime();
     let hour=d.getHours(), minute=d.getMinutes();
@@ -54,16 +54,47 @@ function renderDate(vDate:Date|number, withTime:boolean) {
     _date=d.getDate();
     month=d.getMonth()+1;
     year=d.getFullYear();
-    nowYear = now.getFullYear();
-    hm = withTime === true? hour + ((minute<10?':0':':') + minute) : '';
+	nowYear = now.getFullYear();
 
+	let appendTime:boolean = false;
+	let dPart:string = (function() {
+		if (tick < -24*3600*1000) {
+			if (year === nowYear) {
+				appendTime = true;
+				return tt('md')(month, _date);
+			}
+			else {
+				appendTime = true;
+				return tt('ymd')(year, month, _date);
+			}
+		}
+		if (tick < 24*3600*1000) {
+			if (_date!==nDate) {
+				appendTime = true;
+				return tt(tick < 0? 'tomorrow' : 'yesterday');
+			}
+			if (withTime===true) {
+				appendTime = true;
+				return '';
+			}
+			return tt('today');
+		}
+		if (year === nowYear) {
+			return tt('md')(month, _date);
+		}
+		return tt('ymd')(year, month, _date);
+	})();
+
+	let hm = hour + ((minute<10?':0':':') + minute);
+
+	/*
     if (tick < -24*3600*1000) {
         if (year === nowYear)
             return tt('md')(month, _date) + ' ' + hm;
         else
             return tt('ymd')(year, month, _date) + ' ' + hm;
     }
-    if (tick < 24*3600*1000) {
+    if (always === true || tick < 24*3600*1000) {
         return _date!==nDate? 
             tt(tick < 0? 'tomorrow' : 'yesterday') + ' ' + hm 
             : withTime===true? hm : tt('today');
@@ -71,7 +102,12 @@ function renderDate(vDate:Date|number, withTime:boolean) {
     if (year === nowYear) {
         return tt('md')(month, _date);
     }
-    return tt('ymd')(year, month, _date);
+	return tt('ymd')(year, month, _date);
+	*/
+	if (appendTime === true || always === true) {
+		return dPart + ' ' + hm;
+	}
+	return dPart;
 }
 
 
@@ -81,8 +117,12 @@ export class EasyDate extends React.Component<EasyDateProps> {
     }
 }
 
-export class EasyTime extends React.Component<EasyDateProps> {
+interface EasyTimeProps extends EasyDateProps {
+	always?: boolean;
+}
+export class EasyTime extends React.Component<EasyTimeProps> {
     render() {
-        return renderDate(this.props.date, true);
+		let {date, always} = this.props;
+        return renderDate(date, true, always);
     }
 }

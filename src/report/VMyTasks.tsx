@@ -1,13 +1,12 @@
 import * as React from 'react';
 import classNames from 'classnames';
-import { List, EasyTime, Muted, tv, TabProp, Tabs, FA, LMR } from 'tonva';
+import { List, EasyTime, Muted, tv, TabProp, Tabs, FA, LMR, VPage } from 'tonva';
 import { Assign, AssignTask } from 'models';
 import { EnumTaskStep, stateText } from 'tapp';
-import { VTaskBase } from './VTaskBase';
+import { CReport } from './CReport';
 
 const cnIcon = "d-flex justify-content-center align-items-center rounded border border-info text-danger w-3c h-3c font-1-5c mr-3";
-
-export class VMyTasks extends VTaskBase {
+export class VMyTasks extends VPage<CReport> {
 	header() { return '任务'; }
 
 	private renderTaskItem = (stepText:string, myTaskItem: AssignTask, index:number) => {
@@ -17,16 +16,15 @@ export class VMyTasks extends VTaskBase {
 		return tv(assign, (values:Assign) => {
 			let {caption, discription} = values;
 			let left = <div className={cnIcon}>{caption[0].toUpperCase()}</div>;
-			let right = <div><Muted><EasyTime date={$create} /></Muted></div>;
+			let right = <div><Muted><EasyTime date={stepDate} always={true} /></Muted></div>;
 			return <LMR className="py-3 px-3" left={left} right={right}>
-				<div><b>{caption}</b> &nbsp; {discription}</div>
-				<div className="small">
+				<div className="small text-muted pb-1">
 					<FA className="text-danger mr-1" name="chevron-circle-right" />
 					<span className="text-primary">{text}</span> &nbsp;
-					<EasyTime date={stepDate} />
-					{stepText}
+					<EasyTime date={$create} always={true} />开始
 					<Muted>{stepComment}</Muted>
 				</div>
+				<div><b>{caption}</b> &nbsp; {discription}</div>
 			</LMR>;
 		});
 	}

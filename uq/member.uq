@@ -1,0 +1,31 @@
+TUID Member (
+	id _,					-- 跟User应用一样的id
+	realName CHAR(100),
+);
+
+TUID Department (
+	id,
+	name CHAR(100),
+	discription TEXT,
+);
+
+BOOK MyMember (
+	KEY me ID [$User],
+	KEY member ID [$User],
+);
+
+MAP MyDepartment (
+	KEY me ID [$User],
+	KEY department ID Department,
+);
+
+MAP DepartmentMember (
+	KEY department ID Department,
+	KEY member ID Member,
+);
+
+MAP DepartmentShare (
+	KEY department ID Department,
+	KEY share ID [$User],
+);
+

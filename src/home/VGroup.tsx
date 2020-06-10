@@ -3,12 +3,13 @@ import classNames from 'classnames';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
 import { VPage, tv, List, FA, Tuid, EasyTime, Scroller, UserView, User, Image } from 'tonva';
-import { CGroup } from './CGroup';
+import { CHome } from './CHome';
 import { NoteItem } from './NoteItem';
 import { Group } from 'models';
 
-export class VGroup extends VPage<CGroup> {
+export class VGroup extends VPage<CHome> {
 	@observable private inputed: boolean = false;
+	@observable private commandsShown: boolean = false;
 
 	init() {
 		this.scrollToBottom();
@@ -31,6 +32,10 @@ export class VGroup extends VPage<CGroup> {
 		return <div className="pt-3 text-muted small text-center"><EasyTime date={$create} /></div>
 	}
 
+	private onUserLoaded = (user:User) => {
+		this.scrollToBottom();
+	}
+
 	private renderNote = (noteItem:NoteItem, index:number):JSX.Element => {
 		let {owner} = noteItem;
 		let isMe = (Tuid.equ(owner, this.controller.user.id));
@@ -41,7 +46,7 @@ export class VGroup extends VPage<CGroup> {
 			</div>
 		}
 		else {
-			vNote = <UserView user={owner} render={(values:User)=> {
+			vNote = <UserView user={owner} onLoaded={this.onUserLoaded} render={(values:User)=> {
 				let {icon, nick, name} = values;
 				return <div className="d-flex align-items-start my-2">
 					<Image src={icon} className="w-2c h-2c mr-3" />
@@ -70,6 +75,7 @@ export class VGroup extends VPage<CGroup> {
 		this.input.value = '';
 		this.inputed = false;
 		await this.controller.addTextNote(content);
+		this.commandsShown = false;
 		this.scrollToBottom();
 	}
 
@@ -91,8 +97,8 @@ export class VGroup extends VPage<CGroup> {
 	}
 
 	private showCommands = () => {
-		this.controller.commandsShown = !this.controller.commandsShown;
-		if (this.controller.commandsShown) {
+		this.commandsShown = !this.commandsShown;
+		if (this.commandsShown) {
 			this.scrollToBottom();
 		}
 	}
@@ -105,7 +111,7 @@ export class VGroup extends VPage<CGroup> {
 	}
 
 	private onListFocus = (evt: React.FocusEvent<HTMLUListElement>) => {
-		this.controller.commandsShown = false;
+		this.commandsShown = false;
 	}
 
 	private onDetail = () => {
@@ -124,12 +130,11 @@ export class VGroup extends VPage<CGroup> {
 	}
 	footer() {
 		let Footer = observer(() => {
-			let {commandsShown} = this.controller;
 			let cnFooter = classNames('w-100 d-flex flex-column justify-content-center', {
 			});
 			let cnInputRow = classNames("d-flex px-2 align-items-center py-1 border-top", 
 				{
-					'align-items-start':  commandsShown,
+					'align-items-start':  this.commandsShown,
 				});
 			return <div className={cnFooter}>
 				<div className={cnInputRow}>
@@ -150,7 +155,7 @@ export class VGroup extends VPage<CGroup> {
 					}
 				</div>
 				{
-					commandsShown === true && <div className="d-flex flex-wrap px-3 py-4">
+					this.commandsShown === true && <div className="d-flex flex-wrap px-3 py-4">
 						<div className="cursor-pointer" onClick={this.taskTodo}>
 							<div className="p-2 bg-white" style={{borderRadius:'0.6em'}}>
 								<FA name="tasks" size="lg" fixWidth={true} />

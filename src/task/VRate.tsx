@@ -28,7 +28,7 @@ export class VRate extends VTaskBase {
 					<span className="">{text}</span>
 				</label>;
 			}
-			return <div className="">
+			return <div className={this.commandContainerClass}>
 				<div className="d-flex align-items-center px-3 py-3">
 					{vRadio(1, 'success', 'check', '及格')}
 					{vRadio(1, 'dangger', 'times', '不及格')}

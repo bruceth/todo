@@ -1,4 +1,4 @@
-TUID Group (
+TUID Group ver 1.0 (
 	id,
 	parent ID Group,
 	main name char(100), 
@@ -12,7 +12,7 @@ TUID Group (
 MAP MyGroup ver 1.5 (
 	KEY me ID [$User],
 	KEY [group] ID Group,
-	time TIMESTAMP DEFAULT 1,
+	time TIMESTAMP DEFAULT NULL,
 	unread SMALLINT DEFAULT 0,
 	index me_time(me, time),
 );
@@ -22,11 +22,6 @@ MAP GroupMember (
 	KEY member ID [$User],
 
 	index member_group (member, group) unique,
-);
-
-BOOK MyMember (
-	KEY me ID [$User],
-	KEY member ID [$User],
 );
 
 ACTION SaveGroup ver 1.0 (
@@ -84,7 +79,7 @@ PAGE (
 		LIMIT $pageSize;
 };
 
-ACTION AddGroupMember ver 1.2 (
+ACTION AddGroupMember ver 1.3 (
 	group ID,
 	member ID,
 ) {
@@ -96,7 +91,7 @@ ACTION AddGroupMember ver 1.2 (
 	}
 };
 
-ACTION RemoveGroupMember ver 1.2 (
+ACTION RemoveGroupMember ver 1.3 (
 	group ID,
 	arr members (
 		member ID,

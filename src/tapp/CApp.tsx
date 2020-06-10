@@ -5,25 +5,27 @@ import { Elements } from 'tonva';
 import { CUqApp } from ".";
 import { VMain } from './main';
 import { CMe } from "me/CMe";
+import { CTest } from "test/CTest";
 import { CHome } from "home/CHome";
-import { CGroup } from "group/CGroup";
-import { CJob } from "job/CJob";
+import { CReport } from "report/CReport";
 import { CTask } from 'task/CTask';
 import { CAssign } from 'assign/CAssign';
 import { EnumNoteType } from './uqs';
 import { CMember } from 'member/CMember';
 import { Assign } from 'models';
+import { CProject } from 'project';
 
 const gaps = [10, 3,3,3,3,3,5,5,5,5,5,5,5,5,10,10,10,10,15,15,15,30,30,60];
 
 export class CApp extends CUqApp {
-	cGroup: CGroup;
-	cJob: CJob;
-    cHome: CHome;
+	cGroup: CHome;
+	cReport: CReport;
+    cHome: CTest;
 	cMe: CMe;
 	cAssign: CAssign;
 	cTask: CTask;
 	cMember: CMember;
+	cProject: CProject;
 
     protected async internalStart() {
 		// eslint-disable-next-line 
@@ -35,15 +37,16 @@ export class CApp extends CUqApp {
 			test2.loadValues()
 		]);
  
-		this.cGroup = this.newC(CGroup);
+		this.cGroup = this.newC(CHome);
 		this.cGroup.load();
-		this.cJob = this.newC(CJob);
-		this.cJob.start();
-        this.cHome = this.newC(CHome);
+		this.cReport = this.newC(CReport);
+		this.cReport.start();
+        this.cHome = this.newC(CTest);
 		this.cMe = this.newC(CMe);
 		this.cAssign = this.newC(CAssign);
 		this.cTask = this.newC(CTask);
 		this.cMember = this.newC(CMember);
+		this.cProject = this.newC(CProject);
 		this.showMain();
 
 		setInterval(this.callTick, 1000);
@@ -74,10 +77,6 @@ export class CApp extends CUqApp {
         this.openVPage(VMain, initTabName);
 	}
 
-	refreshJob() {
-		this.cJob.refresh();
-	}
-	
 	protected afterStart():Promise<void> {
 		let elements:Elements = {
 			aId: aTest,
@@ -118,8 +117,12 @@ export class CApp extends CUqApp {
 		await this.cTask.showNew(assign);
 	}
 
-	async showMyTasks():Promise<void> {
-		await this.cTask.showMyTasks();
+	showMyTasks = async ():Promise<void> => {
+		await this.cReport.showMyTasks();
+	}
+
+	showMyTodos = async ():Promise<void> => {
+		await this.cReport.showMyTodos();
 	}
 
 	async showAssign(assignId:number):Promise<void> {
@@ -136,7 +139,7 @@ export class CApp extends CUqApp {
 	}
 
 	async showMemberDetail(memberId:number):Promise<void> {
-		this.cMember.showDetail(memberId);
+		this.cMember.showMemberDetail(memberId);
 	}
 
 	async pushTaskNote(retAfterTaskAction:any) {
@@ -159,5 +162,9 @@ export class CApp extends CUqApp {
 	resetTick() {
 		this.tick = 0;
 		this.gapIndex = 1;
+	}
+
+	showProjects = () => {
+		this.cProject.showList();
 	}
 }

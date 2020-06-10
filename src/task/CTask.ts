@@ -1,11 +1,9 @@
 import _ from 'lodash';
 import { observable } from 'mobx';
 import { CUqBase, EnumTaskState } from "../tapp";
-import { VMyTasks } from "./VMyTasks";
-import { QueryPager } from "tonva";
 import { VTask } from "./VTask";
-import { Task, Assign, AssignTask, Todo } from "../models";
-import { Performance, EnumTaskStep } from '../tapp'
+import { Task, Assign, Todo } from "../models";
+import { Performance } from '../tapp'
 import { VTakeAssign } from './VTakeAssign';
 import { VDone } from './VDone';
 import { VCheck } from './VCheck';
@@ -16,7 +14,7 @@ export class CTask extends CUqBase {
 	private performance: Performance;
 
 	publishAssignCallback:(assign:Assign)=>Promise<void>;
-	myTasksPager: QueryPager<AssignTask>;
+	//myTasksPager: QueryPager<AssignTask>;
 	@observable task: Task;
 
 	protected async internalStart() {
@@ -24,25 +22,29 @@ export class CTask extends CUqBase {
 
 	init() {
 		this.performance = this.uqs.performance;
-		this.myTasksPager = new QueryPager(this.performance.GetMyTaskArchive, 10, 30, true);
+		// this.myTasksPager = new QueryPager(this.performance.GetMyTaskArchive, 10, 30, true);
 	}
 
+	/*
 	async loadTaskArchive(step: EnumTaskStep) {
 		this.myTasksPager.reset();
 		await this.myTasksPager.first({step});
 	}
+	*/
 
+	/*
 	async showMyTasks() {
 		await this.myTasksPager.first({});
 		this.openVPage(VMyTasks);
 	}
+	*/
 
 	async showTask(taskId:number) {
 		let retTask = await this.performance.GetTask.query({taskId});
 		let task:Task = {} as any;
 		_.mergeWith(task, retTask.task[0]);
 		task.todos = retTask.todos;
-		task.flow = retTask.flow;
+		task.flows = retTask.flow;
 		task.meTask = retTask.meTask;
 		this.task = task;
 		this.startAction();
@@ -74,7 +76,7 @@ export class CTask extends CUqBase {
 			state: EnumTaskState.todo,
 			todos: todos,
 			meTask: undefined,
-			flow: undefined,
+			flows: undefined,
 		};
 		this.startAction();
 		this.openVPage(VTakeAssign);
@@ -86,7 +88,7 @@ export class CTask extends CUqBase {
 			todos:this.task.todos
 		});
 		if (ret.length === 0) return false;
-		this.cApp.refreshJob();
+		//this.cApp.refreshJob();
 		this.cApp.pushTaskNote(ret);
 		return true;
 	}
@@ -97,7 +99,7 @@ export class CTask extends CUqBase {
 	
 	async doneTask() {
 		let ret = await this.performance.TaskDone.submit({taskId: this.task.id});
-		this.cApp.refreshJob();
+		//this.cApp.refreshJob();
 		this.cApp.pushTaskNote(ret);
 	}
 
@@ -107,13 +109,13 @@ export class CTask extends CUqBase {
 
 	async passTask() {
 		let ret = await this.performance.TaskPass.submit({taskId: this.task.id});
-		this.cApp.refreshJob();
+		//this.cApp.refreshJob();
 		this.cApp.pushTaskNote(ret);
 	}
 
 	async failTask() {
 		let ret = await this.performance.TaskFail.submit({taskId: this.task.id});
-		this.cApp.refreshJob();
+		//this.cApp.refreshJob();
 		this.cApp.pushTaskNote(ret);
 	}
 
@@ -123,7 +125,7 @@ export class CTask extends CUqBase {
 
 	async rateTask() {
 		let ret = await this.performance.TaskRate.submit({taskId: this.task.id});
-		this.cApp.refreshJob();
+		//this.cApp.refreshJob();
 		this.cApp.pushTaskNote(ret);
 	}
 

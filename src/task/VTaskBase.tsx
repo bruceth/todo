@@ -1,9 +1,9 @@
 import React from 'react';
 import { CTask } from "./CTask";
 import { List, Page, FA, Muted, UserView, User, EasyTime, Image } from "tonva";
-import { Todo } from 'models';
+import { Todo, TaskFlow } from 'models';
 import { observer } from 'mobx-react';
-import { EnumTaskState } from 'tapp';
+import { EnumTaskState, stateText } from 'tapp';
 import { VTodoEdit } from './VTodoEdit';
 import { VBase } from './VBase';
 
@@ -79,18 +79,19 @@ class VTodoDoneFail extends VTodoCheck {
 export abstract class VTaskBase extends VBase {
 	content() {
 		let render = observer(() => {
-			let {todos} = this.task;
+			let {todos, flows, state} = this.task;
 			return <div className="">
 				{this.renderTop()}
 				{this.renderTodos(todos)}
-				<div className="border-top border-bottom bg-light">
-					{this.renderCommands()}
-				</div>
+				{this.renderFlows(flows)}
+				{this.renderState(state)}
+				{this.renderCommands()}
 			</div>;
 		});
 		return React.createElement(render);
 	}
 
+	protected get commandContainerClass() {return 'border-top border-bottom bg-light '}
 	protected renderCommands():JSX.Element {
 		return;
 	}
@@ -223,6 +224,36 @@ export abstract class VTaskBase extends VBase {
 		</div>
 	}
 
+	private renderFlowUser = (user:User):JSX.Element => {
+		let {name, nick} = user;
+		return <span>{nick || name}</span>;
+	}
+
+	private renderFlows(flows: TaskFlow[]):JSX.Element {
+		return <div className="pt-3">
+			{flows.map((v, index) => {
+				let {date, user, state, comment} = v;
+				let pointer = <FA className="text-success mr-1" name="check-circle-o" />;
+				// eslint-disable-next-line
+				let {text, act} = stateText(state);
+				return <div key={index} className="px-3 py-1 small">
+					{pointer} <span className="mr-3 text-success">{act}</span> 
+					<span className="mr-3"><EasyTime date={date} always={true} /></span>
+					<span className="mr-3"><UserView user={user} render={this.renderFlowUser}/></span>
+					<span>{comment}</span>
+				</div>
+			})}
+		</div>;
+	}
+
+	private renderState(state: EnumTaskState):JSX.Element {
+		let {text} = stateText(state);
+		return <div className="px-3 pt-2 pb-3 text-primary">
+			<FA className="mr-2" name="chevron-circle-right" />
+			<b>{text}</b>
+		</div>;
+	}
+
 	protected getEditMemoText(todo:Todo):string {return;}
 	protected getEditMemoHeader(vTodo:VTodo):string {return;}
 
@@ -295,6 +326,7 @@ export abstract class VTaskBase extends VBase {
 		return <div className="ml-3 border-left" />;
 	}
 
+	/*
 	private onCmdComment = () => {
 		// alert('评论正在实现中...');
 		this.closeAction(<div className="p-5 text-center">
@@ -304,4 +336,5 @@ export abstract class VTaskBase extends VBase {
 	protected renderCmdComment():JSX.Element {
 		return <div className="cursor-pointer" onClick={this.onCmdComment}><FA name="commenting-o" /> 评论</div>
 	}
+	*/
 }

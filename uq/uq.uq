@@ -1,5 +1,20 @@
 UQ BizDev/performance version='1.00' author='henry';
 
+BOOK me (
+	KEY me ID [$User],
+	tickTodo TIMESTAMP,
+);
+
+QUERY myTickTodo(lastTick INT)
+RETURNS ret (
+	tick TINYINT
+)
+{
+	INTO ret SELECT 1 as tick
+		FROM me as a
+		WHERE a.me=$user and a.tickTodo>lastTick;
+};
+
 ROLE a:'系统管理权', b:'人事管理', c:'组长', e:'领导';
 
 ACTION TestExpression (

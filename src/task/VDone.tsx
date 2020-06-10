@@ -24,7 +24,7 @@ export class VDone extends VTaskBase {
 
 	protected renderCommands():JSX.Element {
 		let enabled = this.calcEnabled(this.task.todos);
-		return <div className="d-flex align-items-center px-3 py-2">
+		return <div className={this.commandContainerClass + 'd-flex align-items-center px-3 py-2'}>
 			<button className="btn btn-success" onClick={this.onDone} disabled={!enabled}>
 				<FA className="mr-1" name="check-circle" />已办
 			</button>

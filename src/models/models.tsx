@@ -59,7 +59,7 @@ export interface Task {
 	state: EnumTaskState;
 	todos: Todo[];
 	meTask: MeTask[];
-	flow: TaskFlow[];
+	flows: TaskFlow[];
 }
 
 export interface Todo {

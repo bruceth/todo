@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Page, VPage, Form, ItemSchema, UiSchema, UiTextItem, UiButton, NumSchema, UiTextAreaItem } from 'tonva';
-import { CHome } from './CHome';
+import { CTest } from './CTest';
 
-export class VTest extends VPage<CHome> {
+export class VTestForm extends VPage<CTest> {
     async open(param?: any) {
         this.openPage(this.page);
     }

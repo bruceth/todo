@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { CGroup } from "./CGroup";
+import { CHome } from "./CHome";
 import { VPage, Page, Edit, Schema, UiSchema, StringSchema, UiTextItem, UiTextAreaItem, ItemSchema, FA, QueryPager, UserView, UserIcon, Loading, Form, ButtonSchema, UiButton, Context, userApi, useUser, Tuid, List } from "tonva";
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
 
-export class VGroupDetail extends VPage<CGroup> {
+export class VGroupDetail extends VPage<CHome> {
 	private groupMembersPager: QueryPager<any>;
 
     async open(groupMembersPager: QueryPager<any>) {
@@ -57,7 +57,7 @@ export class VGroupDetail extends VPage<CGroup> {
 			return;
 		}
 		await this.controller.groupAddMember(user);
-		this.controller.setGroup();
+		//  this.controller.setGroup();
 		useUser(user.id);
 		this.groupMembersPager.items.push({member: user.id});
 		this.closePage();
@@ -111,7 +111,7 @@ export class VGroupDetail extends VPage<CGroup> {
 			let index = items.findIndex(v => v.member === m.member);
 			if (index>=0) items.splice(index, 1);
 		}
-		this.controller.setGroup();
+		//this.controller.setGroup();
 		this.closePage();
 	}
 	private onSelectRemoveMember = (item:any, isSelected:boolean, anySelected:boolean) => {

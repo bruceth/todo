@@ -10,6 +10,7 @@ export type UserLoader = (userId:number)=>Promise<any>;
 
 export class UserCache<T> {
 	private loader: UserLoader;
+	private onLoaded: (user:User) => void;
 	private map = observable(new Map<number, T|number>());
 
 	constructor(loader: UserLoader) {
@@ -17,10 +18,11 @@ export class UserCache<T> {
 		this.loader = loader;
 	}
 
-	use(id:number|any) {
+	use(id:number|any, onLoaded?:(user:User)=>void) {		
 		if (!id) return;
 		if (typeof id === 'object') id = id.id;
 		if (!id) return;
+		this.onLoaded = onLoaded;
 		id = Number(id);
 		let ret = this.map.get(id);
 		if (ret === undefined) {
@@ -47,6 +49,7 @@ export class UserCache<T> {
 			this.loader(id).then(v => {
 				if (!v) v = null;
 				this.map.set(id, v);
+				if (this.onLoaded) this.onLoaded(v);
 			}).catch(reason => {
 				console.error(reason);
 			});
@@ -95,11 +98,12 @@ export const UserIcon = observer((props: UserIconProps):JSX.Element => {
 export interface UserViewProps {
 	id?: number;
 	user?: number|User;
-    render: (user:User) => JSX.Element;
+	render: (user:User) => JSX.Element;
+	onLoaded?: (user:User) => void
 }
 
 export const UserView = observer((props: UserViewProps):JSX.Element => {
-	let {id:idProp, user, render} = props;
+	let {id:idProp, user, render, onLoaded} = props;
 	if (user === null) return <>null</>;
 	switch (typeof user) {
 		case 'undefined': 
@@ -108,16 +112,16 @@ export const UserView = observer((props: UserViewProps):JSX.Element => {
 		case 'object': 
 			let {/*obj, */id} = user as any;
 			//if (typeof obj !== 'object') {
-				useUser(id);
+				useUser(id, onLoaded);
 				user = userCache.getValue(id);
 			//}
 			break;
 		case 'number':
-			useUser(user as number);
+			useUser(user as number, onLoaded);
 			user = userCache.getValue(user as number);
 			break;
 		case 'string':
-			useUser(Number(user));
+			useUser(Number(user), onLoaded);
 			user = userCache.getValue(Number(user));
 			break;
 		default:
@@ -132,10 +136,10 @@ export const UserView = observer((props: UserViewProps):JSX.Element => {
     return render(user);
 });
 
-export function useUser(id: number|object) {
+export function useUser(id: number|object, onLoaded?: (user:User)=>void) {
 	if (!id) return;
 	if (typeof(id) === 'object') {
 		id = (id as any).id;
 	}
-	userCache.use(id);
+	userCache.use(id, onLoaded);
 }

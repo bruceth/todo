@@ -20,8 +20,8 @@ const stateTexts:{[key in EnumTaskState]?:{text:string;act:string;pending:boolea
 	[EnumTaskState.pass]: {text:'待评价', act:'验收', pending:false}, 	// pass=40, 
 	[EnumTaskState.fail]: {text:'待办', act:'拒签', pending:false},		// fail=41,
 	[EnumTaskState.rated]: {text:'已评价', act:'评价', pending:false}, 	// rated=60, 
-	[EnumTaskState.archive]: {text:'已评价', act:'评价', pending:false},		// archive=-20,
-	[EnumTaskState.cancel]: {text:'已归档', act:'归档', pending:false},		// cancel=-40
+	[EnumTaskState.archive]: {text:'已归档', act:'评价', pending:false},		// archive=-20,
+	[EnumTaskState.cancel]: {text:'已取消', act:'归档', pending:false},		// cancel=-40
 }
 
 export function stateText(state:EnumTaskState):{text:string; act:string; pending:boolean} {
@@ -78,6 +78,7 @@ export interface Performance {
 	TestText: Action;
 
 	$Poked: Query;
+	MyTickTodo: Query;
 	GetMyAssigns: Query;
 	GetAssign: Query;
 	GetTodo: Query;

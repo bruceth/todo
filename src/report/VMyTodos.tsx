@@ -1,45 +1,24 @@
 import * as React from 'react';
-import { observer } from 'mobx-react';
-import { VPage, List, FA, tv, UserView, User, Image, EasyTime, Muted } from "tonva";
-import { CJob, Doing } from './CJob';
+import { List, EasyTime, Muted, tv, FA, VPage, User, Image, UserView } from 'tonva';
 import { Assign } from 'models';
 import { stateText } from 'tapp';
+import { CReport, Doing } from './CReport';
+import { observer } from 'mobx-react';
 
-interface Cat {
-	icon: string;
-	bgIcon: string;
-	content: any;
-	action: () => void;
-}
+// const cnIcon = "d-flex justify-content-center align-items-center rounded border border-info text-danger w-3c h-3c font-1-5c mr-3";
 
-export class VJob extends VPage<CJob> {
-    async open() {
-		//this.openPage(this.page);
-	}
-
-	header() {return '工作'}
+export class VMyTodos extends VPage<CReport> {
+	header() { return '待办工作'; }
 
 	content() {
 		let page = observer(() => {
 			let none = <div className="px-3 py-2 text-muted small border-top">[无]</div>;
-			return <>
-				<div className="d-flex justify-content-around bg-white py-2">
-					{this.renderCat(this.catTasks)}
-					{this.renderCat(this.catAssigns)}
-					{this.renderCat(this.catProject)}
-				</div>
-
-				<div className="small text-muted mt-3 px-3 py-1 border-top bg-light">待办任务</div>
-				<List className="bg-transparent" items={this.controller.myDoingsPager}
+			return <List className="bg-transparent" items={this.controller.myDoingsPager}
 					item={{render: this.renderDoing, onClick: this.onClickDoing, key: this.keyDoing, className:"bg-transparent"}}
 					none={none}
 					/>
-			</>
 		});
 		return React.createElement(page);
-		/*<div className="px-3 pb-3">
-			<button className="btn btn-primary" onClick={this.onTest}>test</button>		
-		</div>*/
 	}
 
 	private keyDoing = (doing: Doing) => {
@@ -87,40 +66,4 @@ export class VJob extends VPage<CJob> {
 		});
 	}
 
-	private showCatProject = () => {
-		//		alert('projects');
-		this.controller.showTask(16);
-	}
-
-	private catProject:Cat = {
-		icon: 'sitemap',
-		bgIcon: 'bg-primary',
-		content: '项目', 
-		action: this.showCatProject,
-	};
-	private catAssigns:Cat = {
-		icon: 'list-ol',
-		bgIcon: 'bg-success',
-		content: '作业', 
-		action: this.controller.showMyAssigns,
-	}
-	private catTasks:Cat = {
-		icon: 'list-ol',
-		bgIcon: 'bg-info',
-		content: '任务', 
-		action: this.controller.showMyTasks,
-	}
-	private renderCat = (cat:Cat) => {
-		let {icon, bgIcon, content, action} =cat;
-		return <div className="py-2 px-3 d-flex bg-white align-items-center cursor-pointer" 
-			onClick={action}>
-			<div className={'d-flex w-2-5c h-2-5c text-center mx-3 rounded text-white align-items-center justify-content-center ' + bgIcon}>
-				<FA name={icon} fixWidth={true} size="lg" />
-			</div>
-			<div>{content}</div>
-		</div>;
-	}
-	private onTest = () => {
-		this.controller.testText();
-	}
 }

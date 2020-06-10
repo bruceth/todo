@@ -29,7 +29,7 @@ export class VTakeAssign extends VTaskBase {
 			//this.renderCmdRate(),
 		];
 		let first = true;
-		return <div className="px-3 py-2 d-flex align-items-end">
+		return <div className={this.commandContainerClass + 'px-3 py-2 d-flex align-items-end'}>
 			{divCmds.map((v, index) => {
 				if (!v) return null;
 				let gap:any;
@@ -43,8 +43,8 @@ export class VTakeAssign extends VTaskBase {
 					{gap}{v}
 				</React.Fragment>;
 			})}
-			<div className="flex-fill"></div>
-			{this.renderCmdComment()}
+			<div className="flex-grow-1"></div>
+			{/*this.renderCmdComment()*/}
 		</div>;
 	};
 }

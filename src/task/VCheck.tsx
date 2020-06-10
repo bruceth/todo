@@ -25,7 +25,7 @@ export class VCheck extends VTaskBase {
 
 	protected renderCommands():JSX.Element {
 		if (this.commandsVisible(this.task.todos) === true) {
-			return <div className="d-flex align-items-center px-3 py-2">
+			return <div className={this.commandContainerClass + 'd-flex align-items-center px-3 py-2 '}>
 				<button className="btn btn-success" onClick={this.onPass}>
 					<FA className="mr-1" name="check-circle" /> 验收任务
 				</button>
@@ -36,7 +36,7 @@ export class VCheck extends VTaskBase {
 			</div>;
 		}
 		else {
-			return <div className="px-3 py-2 text-info">
+			return <div className={this.commandContainerClass + 'px-3 py-2 text-info'}>
 				<FA className="mr-3" name="hand-o-right" /> 请先验收各个事项，然后验收任务
 			</div>;
 		}
@@ -132,7 +132,7 @@ class VCheckSubmit extends VCheck {
 
 	protected renderCommands():JSX.Element {
 		let {color, text, icon} = (this.checkResult === 'pass')? btnSuccess:btnFail;
-		return <div className="py-3">
+		return <div className={this.commandContainerClass + 'py-3'}>
 			<div className="px-3">
 				<textarea className={'w-100 form-control border-' + color} placeholder={text + '说明'} />
 			</div>

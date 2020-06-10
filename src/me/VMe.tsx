@@ -18,7 +18,12 @@ export class VMe extends VPage<CMe> {
 			return <>{user.name}</>;
 		}
 		return <div className="p-3">
-			<UserView user={10} render={renderUser} />
+			<div className="mb-3">
+				<UserView user={10} render={renderUser} />
+			</div>
+			<div className="small text-muted">
+				正在建设中...
+			</div>
 		</div>;
 	}
 }

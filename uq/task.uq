@@ -95,6 +95,7 @@ RETURNS ret (
 		SET step = EnumTaskStep.todo;
 		SET state = EnumTaskState.todo;
 		BOOK MyTask at($user, taskId);
+		BOOK Me at($user) SET tickTodo=$date;
 		BOOK MyTaskArchive at($user, step, taskId);
 		BOOK TaskState at(taskId) Set state=state;
 		BOOK TaskFlow at(taskId, 1) SET user=$user, step=step, state=state;
@@ -119,9 +120,11 @@ RETURNS ret (
 		FROM Task as a JOIN Assign as b ON a.assign=b.id 
 		WHERE a.id=taskId;
 	DELETE FROM MyTask WHERE me=worker AND task=taskId;
+	BOOK Me at(worker) SET tickTodo=$date;
 	SET step = EnumTaskStep.done;
 	SET state = EnumTaskState.done;
 	BOOK MyTask at(checker, taskId);
+	BOOK Me at(checker) SET tickTodo=$date;
 	BOOK MyTaskArchive at($user, step, taskId);
 	BOOK TaskState at(taskId) Set state=state, pointDone=pointDone;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
@@ -145,9 +148,11 @@ RETURNS ret (
 		FROM Task as a JOIN Assign as b ON a.assign=b.id
 		WHERE a.id=taskId;
 	DELETE FROM MyTask WHERE me=checker AND task=taskId;
+	BOOK Me at(checker) SET tickTodo=$date;
 	SET step = EnumTaskStep.check;
 	SET state = EnumTaskState.pass;
 	BOOK MyTask at(owner, taskId);
+	BOOK Me at(owner) SET tickTodo=$date;
 	BOOK MyTaskArchive at($user, step, taskId);
 	BOOK TaskState at(taskId) Set state=state;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
@@ -171,10 +176,13 @@ RETURNS ret (
 		FROM Task as a JOIN Assign as b ON a.assign=b.id
 		WHERE a.id=taskId;
 	DELETE FROM MyTask WHERE me=checker AND task=taskId;
+	BOOK Me at(checker) SET tickTodo=$date;
 	SET step = EnumTaskStep.check;
 	SET state = EnumTaskState.fail;
 	BOOK MyTask at(worker, taskId);
+	BOOK Me at(worker) SET tickTodo=$date;
 	BOOK MyTask at(owner, taskId);
+	BOOK Me at(owner) SET tickTodo=$date;
 	BOOK MyTaskArchive at($user, step, taskId);
 	BOOK TaskState at(taskId) Set state=state;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
@@ -199,6 +207,7 @@ RETURNS ret (
 		FROM Task as a JOIN Assign as b ON a.assign=b.id
 		WHERE a.id=taskId;
 	DELETE FROM MyTask WHERE me=owner AND task=taskId;
+	BOOK Me at(owner) SET tickTodo=$date;
 
 	SET step=EnumTaskStep.rate;
 	-- open=1，自动归档，否则，手动归档
