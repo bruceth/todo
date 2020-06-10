@@ -230,6 +230,7 @@ export abstract class VTaskBase extends VBase {
 	}
 
 	private renderFlows(flows: TaskFlow[]):JSX.Element {
+		if (!flows) return;
 		return <div className="pt-3">
 			{flows.map((v, index) => {
 				let {date, user, state, comment} = v;
@@ -248,6 +249,7 @@ export abstract class VTaskBase extends VBase {
 
 	private renderState(state: EnumTaskState):JSX.Element {
 		let {text} = stateText(state);
+		if (!text) return;
 		return <div className="px-3 pt-2 pb-3 text-primary">
 			<FA className="mr-2" name="chevron-circle-right" />
 			<b>{text}</b>
