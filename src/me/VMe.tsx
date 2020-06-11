@@ -19,7 +19,7 @@ export class VMe extends VPage<CMe> {
 		}
 		return <div className="p-3">
 			<div className="mb-3">
-				<UserView user={10} render={renderUser} />
+				<UserView user={this.controller.user.id} render={renderUser} />
 			</div>
 			<div className="small text-muted">
 				正在建设中...
