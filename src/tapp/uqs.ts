@@ -89,6 +89,10 @@ export interface Performance {
 	GetMyTaskArchive: Query;
 	GetMyMembers: Query;
 
+	Project: Tuid;
+	SaveProject: Action;
+	GetMyProjects: Query;
+
 	TestExpression: Action;
 	test1: Tag;
 	test2: Tag;

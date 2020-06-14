@@ -9,3 +9,36 @@ TUID Project (
 	index parent_id (parent, id) unique,
 );
 
+ACTION SaveProject ver 1.4 (
+	parent ID Project,
+	name char(100),
+	content TEXT,
+)
+RETURNS ret (
+	[projectId] ID
+) {
+	VAR [projectId] ID;
+	if NOT exists(select a.id from [Project] as a where a.owner=$user and a.name=name) {
+		TUID Project INTO [projectId] SET parent=parent, owner=$user, name=name, content=content;
+		INTO ret SELECT [projectId];
+	}
+	else {
+		SET [projectId] = -1;
+		INTO ret SELECT [projectId];
+	}
+};
+
+QUERY GetMyProjects ver 1.1 (
+	parentId ID
+)
+PAGE (
+	[project] ID Project desc,
+	name CHAR(100),
+	content TEXT,
+) {
+	PAGE SELECT a.id as project, a.name, a.content
+		FROM Project as a
+		WHERE a.owner=$user and a.parent = parentId and a.id < $pageStart
+		ORDER BY a.id desc
+		LIMIT $pageSize;
+};
