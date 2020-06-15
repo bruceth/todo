@@ -15,12 +15,9 @@ export interface ProjectItem {
 export class CProject extends CUqBase {
 	private performance: Performance;
 	projectsPager: ProjectPager;
-	parentId: number;
-	@observable parentList: ProjectItem[];
 
 	constructor(cApp: any) {
 		super(cApp);
-		this.parentId = 0;
 	}
 
   protected async internalStart() {
@@ -32,7 +29,7 @@ export class CProject extends CUqBase {
 	}
 
 	async load() {
-		await this.projectsPager.first({parentId: this.parentId});
+		await this.projectsPager.first(undefined);
 	}
 
 
@@ -42,7 +39,7 @@ export class CProject extends CUqBase {
 	}
 
 	async saveProject(name:string, content:string) {
-		let data = { parent:this.parentId, name, content};
+		let data = { name, content};
 		let ret = await this.performance.SaveProject.submit(data);
 		let retProjectId = ret?.projectId as number;
 		if (retProjectId > 0) {
@@ -61,42 +58,6 @@ export class CProject extends CUqBase {
 	}
 
 	async onSelectItem(item:ProjectItem) {
-		this.projectsPager.items.clear();
-		this.parentId = item.project.id;
-		if (this.parentList === undefined) {
-			this.parentList = [];
-		}
-		let litem = { 
-			id: this.parentList.length, 
-			project: item.project,
-			name: item.name, 
-			content:item.content
-		}
-		this.parentList.push(litem);
-		await this.load();
-	}
-
-	async onSelectParentId(id:number) {
-		if (id === this.parentId)
-			return;
-		if (id === 0) {
-			this.parentId = id;
-			this.parentList = undefined;
-			await this.load();
-			return;
-		}
-		if (this.parentList === undefined) {
-			return;
-		}
-		for (let i = 0; i < this.parentList.length; ++i) {
-			let item = this.parentList[i];
-			if (item.project.id === id) {
-				this.parentId = id;
-				this.parentList.splice(i+1, this.parentList.length - i);
-				await this.load();
-				break;
-			}
-		}
 	}
 }
 

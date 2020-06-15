@@ -1,16 +1,13 @@
 
 -- Project can have sub-project
-TUID Project (
+TUID Project ver 1.1 (
 	id,
-	parent ID Project,
 	name CHAR(100),
 	content TEXT,
 	owner ID [$user],
-	index parent_id (parent, id) unique,
 );
 
-ACTION SaveProject ver 1.4 (
-	parent ID Project,
+ACTION SaveProject ver 1.5 (
 	name char(100),
 	content TEXT,
 )
@@ -19,7 +16,7 @@ RETURNS ret (
 ) {
 	VAR [projectId] ID;
 	if NOT exists(select a.id from [Project] as a where a.owner=$user and a.name=name) {
-		TUID Project INTO [projectId] SET parent=parent, owner=$user, name=name, content=content;
+		TUID Project INTO [projectId] SET owner=$user, name=name, content=content;
 		INTO ret SELECT [projectId];
 	}
 	else {
@@ -28,8 +25,7 @@ RETURNS ret (
 	}
 };
 
-QUERY GetMyProjects ver 1.1 (
-	parentId ID
+QUERY GetMyProjects ver 1.2 (
 )
 PAGE (
 	[project] ID Project desc,
@@ -38,7 +34,7 @@ PAGE (
 ) {
 	PAGE SELECT a.id as project, a.name, a.content
 		FROM Project as a
-		WHERE a.owner=$user and a.parent = parentId and a.id < $pageStart
+		WHERE a.owner=$user and a.id < $pageStart
 		ORDER BY a.id desc
 		LIMIT $pageSize;
 };

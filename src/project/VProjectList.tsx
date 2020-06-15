@@ -13,30 +13,14 @@ export class VProjectList extends VPage<CProject> {
 
 	content() {
 		return <>
-			{React.createElement(this.projectTitleContent)}
 			{React.createElement(this.projectListContent)}
 		</>;
 	}
 
-	private projectTitleContent = observer(() => {
-		let {parentList} = this.controller;
-		if (parentList === undefined) {
-			return <>
-				<div className="d-flex flex-wrap "><div className="mx-2 border border-muted rounded px-3 bg-light" >所有项目</div></div>
-				</>;
-		}
-		return <>
-				<div className="d-flex flex-wrap "><div className="mx-2 border border-muted rounded px-3 bg-light" onClick={()=>this.onClickParentId((0))}>所有项目</div></div>
-				{parentList.map((item,index) =>{
-					return <div className="mx-2 border border-muted rounded px-3 bg-light" onClick={()=>this.onClickParentId(item.project.id)}>{item.name}</div>
-				})}
-		</>;
-	})
-
 	private projectListContent = observer(() => {
 		let { projectsPager } = this.controller;
 		return <>
-			<List className="px-3 flex-fill bg-transparent" 
+			<List className="flex-fill bg-transparent" 
 				items={projectsPager.items} 
 				item={{render: this.renderProject}}
 			/>
@@ -44,19 +28,14 @@ export class VProjectList extends VPage<CProject> {
 	})
 
 	private renderProject = (projectItem:ProjectItem, index:number):JSX.Element => {
-		return <div className="d-block" onClick={()=>this.onClickProjectItem(projectItem)}>
-			{projectItem.name}
-		</div>;
+		return <LMR className="py-3 px-3 mb-1 bg-white" >
+			<div><b>{projectItem.name}</b> &nbsp; {projectItem.content}</div>
+			</LMR>
 	}
 
 	private onClickProjectItem(item:ProjectItem) {
 		this.controller.onSelectItem(item);
 	}
-
-	private onClickParentId(id:number) {
-		this.controller.onSelectParentId(id);
-	}
-
 
 	private onClickSend = () => {
 		this.form.buttonClick('send');
