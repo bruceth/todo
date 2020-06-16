@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { VPage, ItemSchema, StringSchema, UiSchema, UiTextItem, UiRange, UiTextAreaItem, Edit, Schema, Context, NumSchema } from "tonva";
+import { VPage, ItemSchema, StringSchema, UiSchema, UiTextItem, UiRange, UiTextAreaItem, Edit, Schema, Context, NumSchema, IdSchema, UiIdItem, Page } from "tonva";
 import { CAssign } from "./CAssign";
 import { observer } from 'mobx-react';
 import { VAssignItems } from './VAssignItems';
@@ -33,9 +33,24 @@ export class VAssignEdit extends VPage<CAssign> {
 			return '请输入整数';
 		}
 	}
+	private pickProject = async (context:Context, name:string, value:number):Promise<any> => {
+		return new Promise<number>((resolve,reject) => {
+			let onSelected = () => {
+				let projectId = 1;
+				resolve(projectId);
+			}
+			let afterBack = () => {
+				resolve(0);
+			}
+			this.openPageElement(<Page header="test" afterBack={afterBack}>
+				<button onClick={onSelected}>选中Project</button>
+			</Page>);
+		})
+	}
 	private schema:Schema = [
 		{name:'caption', type:'string'} as StringSchema,
 		{name:'point', type:'number'} as NumSchema,
+		{name: 'project', type: 'id'} as IdSchema,
 		{name:'discription', type:'string'} as StringSchema,
 	];
 	private uiSchema:UiSchema = {
@@ -49,6 +64,10 @@ export class VAssignEdit extends VPage<CAssign> {
 				discription: '请按分钟数输入',
 				discriptionClassName: 'text-success'
 			} as UiRange,
+			project: {
+				widget: 'id',
+				pickId: this.pickProject,
+			} as UiIdItem,
 			discription: {
 				widget: 'textarea', 
 				label: '任务说明', labelHide: true,
