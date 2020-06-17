@@ -28,6 +28,11 @@ BOOK AssignToGroup (
 	group ID Group,
 );
 
+MAP AssignProject (
+	KEY assign ID Assign,
+	project ID Project,
+);
+
 ACTION NewAssign (
 	caption CHAR(100),
 	point SMALLINT,
@@ -55,6 +60,17 @@ RETURNS ret (
 		TUID [$User] ID (member) SET poke=1;
 	}
 	INTO ret SELECT [note];
+};
+
+ACTION SaveAssignProject (
+	assignId ID Assign,
+	projectId ID Project,
+)
+RETURNS ret (
+	assign ID
+){
+	BOOK AssignProject at(assignId) SET project=projectId;
+	INTO ret SELECT assignId as assign;
 };
 
 QUERY GetAssign (

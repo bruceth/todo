@@ -1,9 +1,11 @@
 import * as React from 'react';
-import { VPage, ItemSchema, StringSchema, UiSchema, UiTextItem, UiRange, UiTextAreaItem, Edit, Schema, Context, NumSchema, IdSchema, UiIdItem, Page } from "tonva";
+import { hourText } from 'tools';
+import { VPage, ItemSchema, StringSchema, UiSchema, UiTextItem, UiRange, UiTextAreaItem, Edit, Schema, Context, NumSchema, IdSchema, UiIdItem, Page, tv } from "tonva";
 import { CAssign } from "./CAssign";
 import { observer } from 'mobx-react';
 import { VAssignItems } from './VAssignItems';
-import { hourText } from 'tools';
+import { ProjectItem } from '../project';
+import { debug } from 'console';
 
 export class VAssignEdit extends VPage<CAssign> {
 	private vAssignItems: VAssignItems;
@@ -14,12 +16,21 @@ export class VAssignEdit extends VPage<CAssign> {
 		this.vAssignItems.init(this.controller.assign.items);
 	}
 
-	private onDiscriptionChanged = (context:Context, value:any, prev:any):Promise<void> => {
+	private onDiscriptionChanged = async (context:Context, value:any, prev:any):Promise<void> => {
 		return;
 	}
-	private onEditItemChanged = async (itemSchema: ItemSchema, value:any, prev:any):Promise<void> => {
 
-		await this.controller.saveAssignProp(itemSchema.name, value);
+	private onEditItemChanged = async (itemSchema: ItemSchema, value:any, prev:any):Promise<void> => {
+		if (itemSchema.name === 'project') {
+			await this.controller.saveAssignProject(value);
+		}
+		else {
+			await this.controller.saveAssignProp(itemSchema.name, value);
+		}
+		return;
+	}
+
+	private onProjectChanged = async (context:Context, value:any, prev:any):Promise<void> => {
 		return;
 	}
 
@@ -34,18 +45,23 @@ export class VAssignEdit extends VPage<CAssign> {
 		}
 	}
 	private pickProject = async (context:Context, name:string, value:number):Promise<any> => {
-		return new Promise<number>((resolve,reject) => {
-			let onSelected = () => {
-				let projectId = 1;
-				resolve(projectId);
-			}
-			let afterBack = () => {
-				resolve(0);
-			}
-			this.openPageElement(<Page header="test" afterBack={afterBack}>
-				<button onClick={onSelected}>选中Project</button>
-			</Page>);
-		})
+		// return new Promise<number>((resolve,reject) => {
+		// 	let onSelected = () => {
+		// 		let projectId = 1;
+		// 		resolve(projectId);
+		// 	}
+		// 	let afterBack = () => {
+		// 		resolve(0);
+		// 	}
+		// 	this.openPageElement(<Page header="test" afterBack={afterBack}>
+		// 		<button onClick={onSelected}>选中Project</button>
+		// 	</Page>);
+		// })
+		let ret = await this.controller.cApp.showSelectProject();
+		if (( ret === undefined) && value !== undefined) {
+			return value;
+		}
+		return ret;
 	}
 	private schema:Schema = [
 		{name:'caption', type:'string'} as StringSchema,
@@ -66,7 +82,14 @@ export class VAssignEdit extends VPage<CAssign> {
 			} as UiRange,
 			project: {
 				widget: 'id',
+				label: '项目',
 				pickId: this.pickProject,
+				Templet: (value:any) => {
+					return tv(value, (v:ProjectItem) => {
+						return <>{v.name}</>
+					})
+				},
+				onChanged: this.onProjectChanged
 			} as UiIdItem,
 			discription: {
 				widget: 'textarea', 
