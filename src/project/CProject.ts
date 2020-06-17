@@ -3,6 +3,7 @@ import { observable } from "mobx";
 import { QueryPager, useUser, Tuid, BoxId } from "tonva";
 import { VProjectList } from "./VProjectList";
 import { Performance } from '../tapp'
+import { VSelectProject } from "./VSelectProject";
 
 export interface ProjectItem {
 	id: number;
@@ -71,3 +72,34 @@ class ProjectPager extends QueryPager<ProjectItem> {
 		return pageId;
 	}
 }
+
+export class CSelectProject extends CUqBase {
+	private performance: Performance;
+	projectsPager: ProjectPager;
+
+	constructor(cApp: any) {
+		super(cApp);
+	}
+
+  protected async internalStart() {
+	}
+
+	init() {
+		this.performance = this.uqs.performance;
+		this.projectsPager = new ProjectPager(this.performance.GetMyProjects, 10, 500, true);
+	}
+
+	async load() {
+		await this.projectsPager.first(undefined);
+	}
+
+	async showDialog(): Promise<BoxId> {
+		await this.load();
+		return await this.vCall(VSelectProject);
+	}
+
+	async onSelectItem(item:ProjectItem) {
+		this.returnCall(item?.project);
+	}
+}
+

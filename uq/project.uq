@@ -1,9 +1,9 @@
 
 -- Project can have sub-project
-TUID Project ver 1.1 (
+TUID Project ver 1.2 (
 	id,
-	name CHAR(100),
-	content TEXT,
+	main name CHAR(100),
+	main content TEXT,
 	owner ID [$user],
 );
 

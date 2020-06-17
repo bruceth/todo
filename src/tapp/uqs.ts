@@ -75,6 +75,7 @@ export interface Performance {
 	TaskAct: Action;
 	RemoveTask: Action;
 	PublishAssign: Action;
+	SaveAssignProject: Action;
 	TestText: Action;
 
 	$Poked: Query;
