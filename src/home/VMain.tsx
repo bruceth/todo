@@ -2,6 +2,7 @@ import * as React from 'react';
 import { VPage, FA, LMR, Page, Form, ItemSchema, Context, List, tv, EasyTime, UiSchema, UiTextItem } from 'tonva';
 import { CHome } from './CHome';
 import { observer } from 'mobx-react';
+import { VTodos } from './VTodos';
 
 export class VMain extends VPage<CHome> {
     async open(param?: any) {
@@ -92,6 +93,7 @@ export class VMain extends VPage<CHome> {
 				<FA name="plus" />
 			</button>;
 			return <Page header="首页" headerClassName="bg-info" right={right}>
+				{this.renderVm(VTodos)}
 				<div className="py-2 d-flex bg-white align-items-center cursor-pointer mb-2" 
 					onClick={this.controller.showMyTodos}>
 					<div className={'red-dot mx-3 d-flex w-2-5c h-2-5c text-center rounded text-white align-items-center justify-content-center bg-info'}>

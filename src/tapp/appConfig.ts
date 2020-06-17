@@ -1,7 +1,7 @@
 import { AppConfig } from "tonva";
 
 export const appConfig: AppConfig = {
-    appName: 'Bruce/todo',
+    appName: 'BizDev/performance',
 	version: '1.0.0',
 	noUnit: true,
     tvs: {},

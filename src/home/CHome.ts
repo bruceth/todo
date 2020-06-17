@@ -1,4 +1,4 @@
-import { CUqBase } from "../tapp";
+import { CUqBase, EnumTaskState } from "../tapp";
 import { VMain } from "./VMain";
 import { QueryPager, useUser, Tuid, BoxId } from "tonva";
 import { VGroup } from "./VGroup";
@@ -19,6 +19,15 @@ export interface GroupItem {
 	count: number;
 }
 
+export interface Doing {
+	task: number; // ID ASC,
+	assign: any; // ID Assign,
+	worker: number; // ID,
+	$create: Date; // TIMESTAMP, 
+	state: EnumTaskState; 
+	date: Date;		// task act time
+}
+
 export class CHome extends CUqBase {
 	private performance: Performance;
 
@@ -30,6 +39,7 @@ export class CHome extends CUqBase {
 
 	groupsPager: GroupsPager;
 	groupNotesPager: QueryPager<NoteItem>;
+	myDoingsPager: QueryPager<Doing>;
 
     protected async internalStart() {
 	}
@@ -40,12 +50,18 @@ export class CHome extends CUqBase {
 		this.groupNotesPager = new QueryPager<NoteItem>(this.performance.GetGroupNotes, 10, 30, true);
 		this.groupNotesPager.setItemConverter(this.noteItemConverter);
 		this.groupNotesPager.setReverse();
+		this.myDoingsPager = new QueryPager<Doing>(this.performance.GetMyTasks, 10, 100);
 	}
 	
 	tab = () => this.renderView(VMain);
 	
 	async load() {
-		await this.groupsPager.first(undefined);
+		let arr = [
+			this.myDoingsPager.first(undefined),
+			this.groupsPager.first(undefined)
+		];
+		await Promise.all(arr);
+		//await this.groupsPager.first(undefined);
 	}
 
 	async saveGroup(parent:number, name:string, discription:string) {
@@ -196,7 +212,7 @@ export class CHome extends CUqBase {
 
 	async showGroupDetail() {
 		let groupMembersPager = new QueryPager(this.performance.GetGroupMembers, 10, 30);
-		groupMembersPager.setEachPageItem(item => {
+		groupMembersPager.setEachPageItem((item:any) => {
 			useUser(item.member);
 		});
 		groupMembersPager.first({group: this.currentGroup});
