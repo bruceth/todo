@@ -1,4 +1,4 @@
-UQ Bruce/performance version='1.00' author='henry';
+UQ bruce/performance version='1.00' author='henry';
 
 BOOK me (
 	KEY me ID [$User],

@@ -125,4 +125,8 @@ export class CAssign extends CUqBase {
 	saveAssignProp = async (prop:string, value:any) => {
 		await this.performance.Assign.saveProp(this.assign.id, prop, value);
 	}
+
+	saveAssignProject = async (project:any) => {
+		await this.performance.SaveAssignProject.submit({assignId:this.assign.id, projectId:project});
+	}
 }

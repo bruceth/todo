@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.css';
-import { Elements } from 'tonva';
+import { Elements, BoxId } from 'tonva';
 import { CUqApp } from ".";
 import { VMain } from './main';
 import { CMe } from "me/CMe";
@@ -13,7 +13,7 @@ import { CAssign } from 'assign/CAssign';
 import { EnumNoteType } from './uqs';
 import { CMember } from 'member/CMember';
 import { Assign } from 'models';
-import { CProject } from 'project';
+import { CProject, CSelectProject } from 'project';
 
 const gaps = [10, 3,3,3,3,3,5,5,5,5,5,5,5,5,10,10,10,10,15,15,15,30,30,60];
 
@@ -26,6 +26,7 @@ export class CApp extends CUqApp {
 	cTask: CTask;
 	cMember: CMember;
 	cProject: CProject;
+	cSelectProject: CSelectProject;
 
     protected async internalStart() {
 		// eslint-disable-next-line 
@@ -47,6 +48,7 @@ export class CApp extends CUqApp {
 		this.cTask = this.newC(CTask);
 		this.cMember = this.newC(CMember);
 		this.cProject = this.newC(CProject);
+		this.cSelectProject = this.newC(CSelectProject);
 		this.showMain();
 
 		setInterval(this.callTick, 1000);
@@ -166,5 +168,9 @@ export class CApp extends CUqApp {
 
 	showProjects = () => {
 		this.cProject.showList();
+	}
+
+	async showSelectProject():Promise<BoxId> {
+		return await this.cSelectProject.showDialog();
 	}
 }
