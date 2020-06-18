@@ -30,7 +30,7 @@ export class VList extends VBase {
 	}
 
 	@observable private isFocused: boolean = false;
-	private inputContent: string;
+	@observable private inputContent: string;
 	footer() {
 		let Footer = observer(() => this.isFocused === true?
 			<div className="d-flex p-3 align-items-center border-top">
@@ -38,7 +38,7 @@ export class VList extends VBase {
 					type="text" ref={this.inputRef}
 					onBlur={this.onBlur}
 					onKeyDown={this.onKeyDown} onChange={this.onInputChange} />
-				<button onClick={this.onAddAssign}
+				<button onClick={this.onAddAssign} disabled={!this.inputContent}
 					className="btn btn-success">
 						<FA name="plus" />
 				</button>
@@ -60,14 +60,13 @@ export class VList extends VBase {
 		}
 	}
 	private onBlur = (evt:React.FocusEvent<HTMLInputElement>) => {
-		this.inputContent = this.input.value.trim();
 		this.lostFocusTimeoutHandler = setTimeout(() => {
 			this.lostFocusTimeoutHandler = undefined;
 			this.isFocused = false;
 		}, 200);
 	}
 	private onInputChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-		//this.inputed = evt.target.value.trim().length > 0;
+		this.inputContent = this.input.value.trim();
 	}
 	private inputRef = (input:any) => {
 		if (!input) return;
@@ -80,11 +79,13 @@ export class VList extends VBase {
 	private onAddAssign = async () => {
 		clearTimeout(this.lostFocusTimeoutHandler);
 		if (!this.input) return;
-		let caption:string = this.input.value;
-		this.input.value = '';
+		if (!this.inputContent) return;
 		this.input.disabled = true;
+		clearTimeout(this.lostFocusTimeoutHandler);
 		//this.inputed = false;
-		await this.controller.newAssign(caption);
+		await this.controller.newAssign(this.inputContent);
+		this.input.value = '';
+		this.inputContent = undefined;
 		this.input.disabled = false;
 		this.input.focus();
 		this.scrollToTop();
@@ -115,7 +116,7 @@ export class VList extends VBase {
 				</div>
 				<div className="py-2">
 					<div>{caption}</div>
-					{caption.length>7 && <div>xxx dddd dassd ddd</div>}
+					{caption?.length>7 && <div>xxx dddd dassd ddd</div>}
 				</div>
 			</div>;
 		});
