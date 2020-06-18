@@ -1,12 +1,14 @@
 TUID Assign ver 1.1 (
 	id,
-	main caption CHAR(100),
-	main discription TEXT,
+	main caption CHAR(200),
 	main owner ID [$User],
 	main point INT,						-- 分数，通常是工作分钟数
+	discription TEXT,
+
 	open TINYINT DEFAULT 1, 			-- 0: 指定人，1：一个人，2：任何人
 	checker ID [$User],					-- null 就是owner
 	rater ID [$User],					-- null 就是owner
+
 	stamp (create, update),
 	INDEX owner_id (owner, id) UNIQUE,
 );
@@ -18,8 +20,37 @@ TUID AssignItem (
 	INDEX assign_id(assign, id) UNIQUE,
 );
 
+-- 作业的检查，评分，等环节相关的人
+MAP AssignOperator (
+	KEY assign ID Assign,
+	KEY type TINYINT,			-- 1:checker, 2: rater. 暂时就这些
+);
+
+-- 布置对象
+MAP AssignTo (
+	KEY assign ID Assign,
+	KEY to ID [$user],
+);
+
+-- 我正在处理中的Assign
 BOOK MyAssign (
 	KEY me ID [$User],
+	KEY assign ID Assign,
+);
+
+-- 我处理过的已经归档作业
+BOOK MyAssignArchive (
+	KEY me ID [$User],
+	KEY assign ID Assign,
+);
+
+BOOK GroupAssign (
+	KEY group ID [Group],
+	KEY assign ID Assign,
+);
+
+BOOK GroupAssignArchive (
+	KEY group ID [Group],
 	KEY assign ID Assign,
 );
 

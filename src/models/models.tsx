@@ -1,4 +1,24 @@
 import { EnumNoteType, EnumTaskState } from '../tapp';
+import { BoxId } from 'tonva';
+
+export interface GroupItem {
+	id: number;
+	//name: string;
+	group: BoxId;
+	time: Date;
+	owner: number;
+	unread: number;
+	count: number;
+}
+
+export interface Doing {
+	task: number; // ID ASC,
+	assign: any; // ID Assign,
+	worker: number; // ID,
+	$create: Date; // TIMESTAMP, 
+	state: EnumTaskState; 
+	date: Date;		// task act time
+}
 
 export interface Group {
 	id: number;
@@ -22,14 +42,15 @@ export interface Note {
 export interface Assign {
 	id: number;
 	caption: string;
-	discription: string;
 	owner: number;
-	open: number; 		// 0:开放 1: 一个人执行 2:指定人
 	point: number;
 	$create: Date;
 	$update: Date;
 	items: AssignItem[];
 	tasks?: AssignTask[];
+
+	open: number; 		// 0:开放 1: 一个人执行 2:指定人
+	discription: string;
 }
 
 export interface AssignItem {

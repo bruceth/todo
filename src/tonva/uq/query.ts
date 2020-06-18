@@ -45,7 +45,7 @@ export class QueryPager<T extends any> extends PageItems<T> {
 	protected getPageId(item:T) {
 		if (item === undefined) return;
 		if (typeof item === 'number') return item;
-		let start = item[this.idFieldName];
+		let start = (item as any)[this.idFieldName];
 		if (start === null) return;
 		if (start === undefined) return;
 		if (typeof start === 'object') {
@@ -82,7 +82,7 @@ export class QueryPager<T extends any> extends PageItems<T> {
 			if (newId === undefined || newId === null) continue;
 			if (typeof newId === 'object') newId = newId.id;
 			let oldItem = this._items.find(v => {
-				let oldId = v[this.idFieldName];
+				let oldId = (v as any)[this.idFieldName];
 				if (oldId === undefined || oldId === null) return false;
 				if (typeof oldId === 'object') oldId = oldId.id;
 				return oldId = newId;

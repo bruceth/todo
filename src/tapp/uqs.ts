@@ -26,26 +26,6 @@ const stateTexts:{[key in EnumTaskState]?:{text:string;act:string;pending:boolea
 
 export function stateText(state:EnumTaskState):{text:string; act:string; pending:boolean} {
 	return stateTexts[state];
-	/*
-	let text:string, act:string;
-	switch (state) {
-		default:
-			text = '未知'; act = '未知'; break;
-		case EnumTaskState.todo:
-			text = '待办'; act = '领办'; break;
-		case EnumTaskState.done:
-			text = '待查验'; act = '完成'; break;
-		case EnumTaskState.pass:
-			text = '待评价'; act = '验收'; break;
-		case EnumTaskState.fail:
-			text = '待办'; act = '拒签'; break;
-		case EnumTaskState.rated:
-			text = '已评价'; act = '评价'; break;
-		case EnumTaskState.archive:
-			text = '已归档'; act = '归档'; break;
-		}
-	return {text, act};
-	*/
 }
 
 export interface Performance {
@@ -63,6 +43,7 @@ export interface Performance {
 	Assign: Tuid;
 	AssignItem: Tuid;
 	
+	CreateAssign: Action;
 	NewAssign: Action;
 	TakeAssign: Action;
 	TaskDone: Action;
@@ -79,6 +60,7 @@ export interface Performance {
 	TestText: Action;
 
 	$Poked: Query;
+	GetAssigns: Query;
 	MyTickTodo: Query;
 	GetMyAssigns: Query;
 	GetAssign: Query;

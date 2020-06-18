@@ -1,23 +1,14 @@
-import { CUqBase } from "../tapp";
+import { CUqBase, EnumTaskState } from "../tapp";
 import { VMain } from "./VMain";
 import { QueryPager, useUser, Tuid, BoxId } from "tonva";
 import { VGroup } from "./VGroup";
 import { observable } from "mobx";
 import { stateDefs } from "tools";
-import { Task, Assign, Group } from "../models";
+import { Task, Assign, Group, GroupItem, Doing } from "../models";
 import { VGroupDetail } from "./VGroupDetail";
 import { Performance } from '../tapp'
 import { NoteItem, NoteAssign, dataToNoteItem, createNoteAssign, createNoteText } from "./NoteItem";
-
-export interface GroupItem {
-	id: number;
-	//name: string;
-	group: BoxId;
-	time: Date;
-	owner: number;
-	unread: number;
-	count: number;
-}
+import { CAssignsMy, CAssignsGroup } from "assigns";
 
 export class CHome extends CUqBase {
 	private performance: Performance;
@@ -30,6 +21,7 @@ export class CHome extends CUqBase {
 
 	groupsPager: GroupsPager;
 	groupNotesPager: QueryPager<NoteItem>;
+	myDoingsPager: QueryPager<Doing>;
 
     protected async internalStart() {
 	}
@@ -40,12 +32,18 @@ export class CHome extends CUqBase {
 		this.groupNotesPager = new QueryPager<NoteItem>(this.performance.GetGroupNotes, 10, 30, true);
 		this.groupNotesPager.setItemConverter(this.noteItemConverter);
 		this.groupNotesPager.setReverse();
+		this.myDoingsPager = new QueryPager<Doing>(this.performance.GetMyTasks, 10, 100);
 	}
 	
 	tab = () => this.renderView(VMain);
 	
 	async load() {
-		await this.groupsPager.first(undefined);
+		let arr = [
+			this.myDoingsPager.first(undefined),
+			this.groupsPager.first(undefined)
+		];
+		await Promise.all(arr);
+		//await this.groupsPager.first(undefined);
 	}
 
 	async saveGroup(parent:number, name:string, discription:string) {
@@ -93,6 +91,18 @@ export class CHome extends CUqBase {
 		});
 		this.setCurrentGroupItem(item);
 		this.cApp.resetTick();
+	}
+
+	showMyAssigns = async () => {
+		this.todosChanged = false;
+		let cAssignsMy = this.newC(CAssignsMy);
+		await cAssignsMy.showList();
+	}
+
+	showGroupAssigns = async (item: any) => {
+		this.todosChanged = false;
+		let cAssignsGroup = this.newC(CAssignsGroup, item.group);
+		await cAssignsGroup.showList();
 	}
 
 	showMyTodos = async () => {
@@ -196,7 +206,7 @@ export class CHome extends CUqBase {
 
 	async showGroupDetail() {
 		let groupMembersPager = new QueryPager(this.performance.GetGroupMembers, 10, 30);
-		groupMembersPager.setEachPageItem(item => {
+		groupMembersPager.setEachPageItem((item:any) => {
 			useUser(item.member);
 		});
 		groupMembersPager.first({group: this.currentGroup});
