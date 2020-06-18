@@ -1,0 +1,30 @@
+QUERY GetAssigns(
+	group ID,			-- if group=0, then my
+)
+RETURNS ret (
+	assign ID Assign
+) {
+	IF group IS NULL OR group=0 {
+		INTO ret SELECT assign FROM MyAssign WHERE me=$user ORDER BY assign DESC;
+	}
+	else {
+		INTO ret SELECT assign FROM MyAssign WHERE me=$user ORDER BY assign DESC;
+	}
+};
+
+ACTION CreateAssign (
+	group ID,
+	caption CHAR(200),
+) RETURNS ret (
+	id ID,
+) {
+	var assignId ID;
+	TUID Assign INTO assignId SET caption=caption, owner=$user;
+	IF group IS NULL or group=0 {
+		BOOK MyAssign at($user, assignId);
+	}
+	else {
+		BOOK GroupAssign at(group, assignId);
+	}
+	INTO ret SELECT assignId as id;
+};

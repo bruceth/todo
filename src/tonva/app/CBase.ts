@@ -20,8 +20,10 @@ export abstract class CBase extends Controller {
 		return this._cApp.internalT(str);
 	}
 
-    protected newC<T extends CBase>(type: IConstructor<T>):T {
-        return new type(this.cApp);
+    protected newC<T extends CBase>(type: IConstructor<T>, param?:any):T {
+		let c = new type(this.cApp);
+		c.init(param);
+		return c;
     }
 
     protected newSub<T extends CSub>(type: IConstructor<T>):T {

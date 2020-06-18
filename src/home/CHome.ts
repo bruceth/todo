@@ -4,29 +4,11 @@ import { QueryPager, useUser, Tuid, BoxId } from "tonva";
 import { VGroup } from "./VGroup";
 import { observable } from "mobx";
 import { stateDefs } from "tools";
-import { Task, Assign, Group } from "../models";
+import { Task, Assign, Group, GroupItem, Doing } from "../models";
 import { VGroupDetail } from "./VGroupDetail";
 import { Performance } from '../tapp'
 import { NoteItem, NoteAssign, dataToNoteItem, createNoteAssign, createNoteText } from "./NoteItem";
-
-export interface GroupItem {
-	id: number;
-	//name: string;
-	group: BoxId;
-	time: Date;
-	owner: number;
-	unread: number;
-	count: number;
-}
-
-export interface Doing {
-	task: number; // ID ASC,
-	assign: any; // ID Assign,
-	worker: number; // ID,
-	$create: Date; // TIMESTAMP, 
-	state: EnumTaskState; 
-	date: Date;		// task act time
-}
+import { CAssignsMy, CAssignsGroup } from "assigns";
 
 export class CHome extends CUqBase {
 	private performance: Performance;
@@ -109,6 +91,18 @@ export class CHome extends CUqBase {
 		});
 		this.setCurrentGroupItem(item);
 		this.cApp.resetTick();
+	}
+
+	showMyAssigns = async () => {
+		this.todosChanged = false;
+		let cAssignsMy = this.newC(CAssignsMy);
+		await cAssignsMy.showList();
+	}
+
+	showGroupAssigns = async (item: any) => {
+		this.todosChanged = false;
+		let cAssignsGroup = this.newC(CAssignsGroup, item.group);
+		await cAssignsGroup.showList();
 	}
 
 	showMyTodos = async () => {

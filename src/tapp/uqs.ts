@@ -43,6 +43,7 @@ export interface Performance {
 	Assign: Tuid;
 	AssignItem: Tuid;
 	
+	CreateAssign: Action;
 	NewAssign: Action;
 	TakeAssign: Action;
 	TaskDone: Action;
@@ -59,6 +60,7 @@ export interface Performance {
 	TestText: Action;
 
 	$Poked: Query;
+	GetAssigns: Query;
 	MyTickTodo: Query;
 	GetMyAssigns: Query;
 	GetAssign: Query;

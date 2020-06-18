@@ -1,8 +1,8 @@
-import { CHome, Doing } from "./CHome";
+import { CHome } from "./CHome";
 import { View } from "tonva";
 import React from 'react';
 import { List, EasyTime, Muted, tv, FA, VPage, User, Image, UserView } from 'tonva';
-import { Assign } from 'models';
+import { Assign, Doing } from 'models';
 import { stateText } from 'tapp';
 //import { CReport, Doing } from './CReport';
 import { observer } from 'mobx-react';
