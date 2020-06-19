@@ -1,2 +1,2 @@
-export {CAssignsMy} from './my/CAssignMy';
-export {CAssignsGroup} from './group/CAssignGroup';
+export {CAssignsMy} from './my/CAssignsMy';
+export {CAssignsGroup} from './group/CAssignsGroup';

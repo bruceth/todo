@@ -197,7 +197,7 @@ export class TuidInner extends Tuid {
     }
 
     async save(id:number, props:any):Promise<TuidSaveResult> {
-        let ret = new SaveCaller(this, {id:id, props:props}).request();
+        let ret = await new SaveCaller(this, {id:id, props:props}).request();
         if (id !== undefined) {
             this.idCache.remove(id);
             this.localArr.removeItem(id);
@@ -205,8 +205,9 @@ export class TuidInner extends Tuid {
         return ret;
 	}
 	async saveProp(id:number, prop:string, value:any):Promise<void> {
-		new SavePropCaller(this, {id, prop, value}).request();
+		await new SavePropCaller(this, {id, prop, value}).request();
 		this.idCache.remove(id);
+		await this.idCache.assureObj(id);
 	}
     async all():Promise<any[]> {
         let ret: any[] = await new AllCaller(this, {}).request();

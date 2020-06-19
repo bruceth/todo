@@ -7,9 +7,7 @@ import { Doing, Assign } from 'models';
 import { stateText } from 'tapp';
 import { observable } from 'mobx';
 
-export class VList extends VBase {
-    //async open(param?: any) {
-	//}
+export abstract class VList<T extends CAssigns> extends VBase<T> {
 	header() {
 		return this.controller.caption;
 	}

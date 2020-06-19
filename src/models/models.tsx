@@ -48,6 +48,7 @@ export interface Assign {
 	$update: Date;
 	items: AssignItem[];
 	tasks?: AssignTask[];
+	toList: AssignToItem[];
 
 	open: number; 		// 0:开放 1: 一个人执行 2:指定人
 	discription: string;
@@ -67,6 +68,10 @@ export interface AssignTask {
 	date: Date;
 	stepDate: Date;
 	stepComment: string;
+}
+
+export interface AssignToItem {
+	to: number;
 }
 
 export interface Task {

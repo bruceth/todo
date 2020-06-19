@@ -7,7 +7,7 @@ export interface BoxId {
     obj: any;
     boxName:string;
     isUndefined: boolean;
-    assure(): Promise<BoxId>;
+    assure(): Promise<any>;
     equ(id:BoxId|number): boolean;
 }
 

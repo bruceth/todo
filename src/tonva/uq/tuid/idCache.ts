@@ -155,9 +155,8 @@ export class IdCache {
             case 'object': return val;
             case 'number': this.cache.set(id, id); break;
         }
-        //let ret = await this.tuidInner.loadTuidIds(this.divName, [id]);
         let ret = await this.loadTuidIdsOrLocal([id]);
-        await this.cacheIdValues(ret);
+        this.cacheIdValues(ret);
     }
 
     private async loadTuidIdsOrLocal(ids:number[]):Promise<string[]> {

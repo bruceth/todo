@@ -107,6 +107,7 @@ export class CAssign extends CUqBase {
 			$create: new Date(),
 			$update: new Date(),
 			items: [],
+			toList: [],
 		};
 	}
 
