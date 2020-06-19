@@ -1,11 +1,12 @@
 import { CAssigns } from "../CAssigns";
-import { QueryPager } from "tonva";
-import { Task } from "models";
+import { VListForMy } from "./VListForMy";
+import { VAssignForMy } from "./VAssignForMy";
 
 export class CAssignsMy extends CAssigns {
 	get caption():string {return '待办作业';}
 	get groupId(): number {return 0;}
-
+	protected openVList():void {this.openVPage(VListForMy);}
+	protected openVAssign(): void {this.openVPage(VAssignForMy);}
 	/*
 	protected createTasksPager():QueryPager<Task> {
 		return new QueryPager(this.performance.GetMyTasks, 10, 100);
@@ -13,3 +14,4 @@ export class CAssignsMy extends CAssigns {
 	protected get tasksPagerParam():any {return;}
 	*/
 }
+

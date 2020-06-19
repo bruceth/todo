@@ -38,7 +38,7 @@ export class StringItemEdit extends ItemEdit {
 			}
 		}
         let right = <button
-            className="btn btn-sm btn-success align-self-center"
+            className="btn btn-sm btn-success align-self-center mr-2"
             disabled={!this.isChanged}
             onClick={onSave}>保存</button>;
 		let onKeyDown = (evt: React.KeyboardEvent<HTMLInputElement>) => {
