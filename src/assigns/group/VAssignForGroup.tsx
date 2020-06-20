@@ -5,7 +5,8 @@ import { FA } from "tonva";
 
 export class VAssignForGroup extends VAssign<CAssignsGroup> {
 	protected renderToList() {
-		return <div className="px-3 py-2 border-top bg-white cursor-pointer">
+		return <div className="px-3 py-2 border-top bg-white cursor-pointer"
+			onClick={this.controller.showAssignTo}>
 			<FA className="mr-3 text-info" name="user-plus" fixWidth={true} /> 分配给
 		</div>
 	}
@@ -21,4 +22,8 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 			<FA className="mr-3 text-success" name="user" fixWidth={true} /> 指定评分人
 		</div>;
 	}
+}
+
+export class VAssignForG0 extends VAssign<CAssignsGroup> {
+	protected get selfDoneCaption():string {return '完成';}
 }
