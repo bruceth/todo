@@ -5,12 +5,14 @@ TUID Assign ver 1.1 (
 	main point INT,						-- 分数，通常是工作分钟数
 	discription TEXT,
 
-	open TINYINT DEFAULT 1, 			-- 0: 指定人，1：一个人，2：任何人
 	checker ID [$User],					-- null 就是owner
 	rater ID [$User],					-- null 就是owner
 
 	stamp (create, update),
 	INDEX owner_id (owner, id) UNIQUE,
+
+	-- may be removed
+	open TINYINT DEFAULT 1, 			-- 0: 指定人，1：一个人，2：任何人
 );
 
 TUID AssignItem (
@@ -36,10 +38,11 @@ MAP AssignTo (
 BOOK MyAssign (
 	KEY me ID [$User],
 	KEY assign ID Assign,
+	end TINYINT DEFAULT 0,		-- 1: end
 );
 
 -- 我处理过的已经归档作业
-BOOK MyAssignArchive (
+BOOK ArchiveMyAssign (
 	KEY me ID [$User],
 	KEY assign ID Assign,
 );
@@ -47,9 +50,11 @@ BOOK MyAssignArchive (
 BOOK GroupAssign (
 	KEY group ID [Group],
 	KEY assign ID Assign,
+	end TINYINT DEFAULT 0,		-- 1: end
+	INDEX assign_group(assign, group) UNIQUE,
 );
 
-BOOK GroupAssignArchive (
+BOOK ArchiveGroupAssign (
 	KEY group ID [Group],
 	KEY assign ID Assign,
 );
@@ -114,6 +119,8 @@ RETURNS assign (
 	owner ID [$User],
 	open TINYINT,
 	point SMALLINT,
+	groupId ID,
+	groupMemberCount SMALLINT,
 	[$create] TIMESTAMP, 
 	[$update] TIMESTAMP
 )
@@ -146,10 +153,12 @@ RETURNS toList (
 	to ID,							-- $user 
 )
 {
-	INTO assign SELECT a.id, a.caption, a.discription, a.owner, a.open, a.point,
-		a.[$create], 
-		a.[$update]
-		FROM Assign as a 
+	INTO assign SELECT a.id, a.caption, a.discription, a.owner, a.open, a.point
+		, b.[group] as groupId
+		, (SELECT count(*) FROM GroupMember WHERE [group]=b.[group]) as groupMemberCount
+		, a.[$create]
+		, a.[$update]
+		FROM Assign as a JOIN GroupAssign as b on a.id=b.assign
 		WHERE a.id=assignId;
 	INTO items SELECT a.id, a.discription
 		FROM AssignItem as a

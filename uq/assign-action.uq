@@ -1,18 +1,21 @@
 QUERY GetAssigns(
 	group ID,			-- if group=0, then my
+	end TINYINT,
 )
 RETURNS ret (
-	assign ID Assign
+	assign ID Assign,
+	end TINYINT,
 ) {
 	IF group IS NULL OR group=0 {
-		INTO ret SELECT assign FROM MyAssign WHERE me=$user ORDER BY assign DESC;
+		SET group=a.group FROM Me as a WHERE a.me=$user;
 	}
-	else {
-		INTO ret SELECT assign FROM MyAssign WHERE me=$user ORDER BY assign DESC;
-	}
+	INTO ret SELECT  a.assign, a.end
+		FROM GroupAssign as a
+		WHERE a.group=group AND (a.end=end OR end IS NULL)
+		ORDER BY a.assign DESC;
 };
 
-ACTION CreateAssign (
+ACTION CreateAssign ver 1.0 (
 	group ID,
 	caption CHAR(200),
 ) RETURNS ret (
@@ -21,10 +24,67 @@ ACTION CreateAssign (
 	var assignId ID;
 	TUID Assign INTO assignId SET caption=caption, owner=$user;
 	IF group IS NULL or group=0 {
-		BOOK MyAssign at($user, assignId);
+		SET group=a.group FROM Me as a WHERE a.me=$user;
+		IF group IS NULL {
+			TUID Group into group SET name='$', owner=$user, parent=0;
+			BOOK MyGroup AT($user, group) SET time=$date;
+			BOOK Me AT($user) SET group=group;
+		}
 	}
-	else {
-		BOOK GroupAssign at(group, assignId);
-	}
+	BOOK GroupAssign at(group, assignId);
 	INTO ret SELECT assignId as id;
+};
+
+ACTION DoneAssign ver 1.1 (
+	assign ID,	
+	pointDone SMALLINT,
+)
+RETURNS ret (
+	end TINYINT,
+) {
+	var ownerId ID, checkerId ID, raterId ID, taskId ID, groupId ID
+		, seq TINYINT, step TINYINT, state TINYINT
+		, taskEnd TINYINT, assignEnd TINYINT;
+	SET ownerId=a.owner, checkerId=a.checker, raterId=a.rater
+		FROM Assign as a WHERE a.id=assign;
+	SET groupId=a.group FROM GroupAssign as a WHERE a.assign=assign;
+	SET taskId=a.id
+		FROM Task as a WHERE a.assign=assign AND a.worker=$user;
+	IF taskId IS NULL AND $user=ownerId {
+		TUID Task into taskId SET assign=assign, worker=$user;
+	}
+	ELSE {
+		SET assign = 0;
+	}
+
+	IF assign > 0 {
+		-- 界面提醒变化
+		SET taskEnd=1;
+		BOOK Me at($user) SET tickTodo=$date;
+		IF NOT checkerId IS NULL {
+			BOOK Me at(checkerId) SET tickTodo=$date;
+			SET taskEnd=0;
+		}
+		ELSEIF NOT raterId IS NULL {
+			BOOK Me at(raterId) SET tickTodo=$date;
+			SET taskEnd=0;
+		}
+
+		SET step = EnumTaskStep.done;
+		SET state = EnumTaskState.done;
+
+		BOOK TaskState at(taskId) Set state=state, pointDone=pointDone, end=taskEnd;
+		SET seq = IFNULL((SELECT max(seq) FROM TaskFlow WHERE task=taskId), 0) + 1;
+		BOOK TaskFlow at(taskId, seq) SET user=$user, step=step, state=state;
+
+		-- 设置assign end标志
+		IF EXISTS(SELECT a.id FROM Task as a JOIN TaskState as b ON a.id=b.task WHERE a.assign=assign AND b.end=0) {
+			SET assignEnd=0;
+		}
+		else {
+			SET assignEnd=1;
+		}
+		BOOK GroupAssign at(groupId, assign) SET end=assignEnd;
+	}
+	INTO ret SELECT assignEnd as end;
 };

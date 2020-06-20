@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { CUqBase } from "tapp";
 import { Performance } from '../tapp'
 import { Task, Assign } from "models";
-import { QueryPager, BoxId } from "tonva";
+import { QueryPager, BoxId, Tuid } from "tonva";
 import { observable } from "mobx";
 import { VDone } from './VDone';
 
@@ -13,8 +13,8 @@ export interface AssignItem {
 export abstract class CAssigns extends CUqBase {
 	protected performance: Performance;
 	@observable assign: Assign;
-	tasksPager: QueryPager<Task>;
 	@observable assignItems: AssignItem[];
+	@observable endItems: AssignItem[];
 
 	protected async internalStart() {
 	}
@@ -29,10 +29,16 @@ export abstract class CAssigns extends CUqBase {
 	}
 
 	showList = async () => {
-		let params = {group: this.groupId};
+		let params = {group: this.groupId, end: 0};
 		let result = await this.performance.GetAssigns.query(params, true);
 		this.assignItems = result.ret;
 		this.openVList();
+	}
+
+	async loadEndItems() {
+		let params = {group: this.groupId, end: 1};
+		let result = await this.performance.GetAssigns.query(params, true);
+		this.endItems = result.ret;
 	}
 
 	showAssign = async (assignId: BoxId) => {
@@ -80,6 +86,18 @@ export abstract class CAssigns extends CUqBase {
 		this.openVPage(VDone);
 	}
 
-	doneAssign = async () => {		
+	doneAssign = async (point?: number) => {
+		let ret = await this.performance.DoneAssign.submit({assign: this.assign.id, pointDone:point});
+		if (ret.end === 1) {
+			let assignId = this.assign.id;
+			let index = this.assignItems.findIndex(v => Tuid.equ(v.assign, assignId));
+			if (index >= 0) {
+				this.assignItems.splice(index, 1);
+				if (this.endItems) {
+					this.endItems.unshift(this.assignItems[index]);
+				}
+				this.cApp.addGroupAssignCount(this.groupId, -1);
+			}			
+		}
 	}
 }

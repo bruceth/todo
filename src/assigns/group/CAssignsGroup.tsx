@@ -7,7 +7,8 @@ import { VList } from "../VList";
 import { CAssignsMy } from "assigns/my/CAssignsMy";
 import { VGroupDetail } from "./VGroupDetail";
 import { observable } from "mobx";
-import { VAssignForGroup } from "./VAssignForGroup";
+import { VAssignForGroup, VAssignForG0 } from "./VAssignForGroup";
+import { CSend } from "./send";
 
 export class CAssignsGroup extends CAssigns {
 	groupBoxId:BoxId;
@@ -21,13 +22,9 @@ export class CAssignsGroup extends CAssigns {
 	get caption():any {return tv(this.groupBoxId, (values)=><>{values.name}</>)}
 	get groupId(): number {return this.groupBoxId.id;}
 	protected openVList():void {this.openVPage(VListForGroup);}
-	protected openVAssign(): void {this.openVPage(VAssignForGroup);}
-	/*
-	protected createTasksPager():QueryPager<Task> {
-		return new QueryPager(this.performance.GetMyTasks, 10, 100);
+	protected openVAssign(): void {
+		this.openVPage(this.assign.groupMemberCount>1? VAssignForGroup : VAssignForG0);
 	}
-	protected get tasksPagerParam():any {return;}
-	*/
 
 	showGroupDetail = async () => {
 		await this.groupBoxId.assure();
@@ -56,5 +53,10 @@ export class CAssignsGroup extends CAssigns {
 			members: members
 		});
 		if (this.group) this.group.count--;
+	}
+
+	showAssignTo = async () => {
+		let cSend = this.newSub(CSend);
+		cSend.start();
 	}
 }

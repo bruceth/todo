@@ -27,7 +27,7 @@ export class CReport extends CUqBase {
 	init() {
 		this.performance = this.uqs.performance;
 		this.myDoingsPager = new QueryPager(this.uqs.performance.GetMyTasks, 10, 100);
-		this.myTasksPager = new QueryPager(this.performance.GetMyTaskArchive, 10, 30, true);
+		//this.myTasksPager = new QueryPager(this.performance.GetMyTaskArchive, 10, 30, true);
 		//this.loaded = false;
 	}
 

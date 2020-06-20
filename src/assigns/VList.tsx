@@ -8,23 +8,60 @@ import { stateText } from 'tapp';
 import { observable } from 'mobx';
 
 export abstract class VList<T extends CAssigns> extends VBase<T> {
+	@observable private endItemsVisible: boolean = false;
 	header() {
 		return this.controller.caption;
 	}
 
 	content() {
 		let page = observer(() => {
+			let {assignItems} = this.controller;
 			let none = <div className="px-3 py-2 text-muted small border-top">[无]</div>;
 			return <>
 				{this.renderDivTop()}
-				<List className="bg-transparent" items={this.controller.assignItems}
-					item={{render: this.renderAssignItem, onClick: this.onClickAssign, key: this.keyAssign, className:"bg-transparent"}}
-					none={none}
-					/>
+				{this.renderList('待办', this.renderAssignItem, assignItems)}
+				{this.renderEndItems()}
 				{this.renderDivBottom()}
 			</>;
 		});
 		return React.createElement(page);
+	}
+
+	private renderList(caption:string, renderItem: (item:any, index:number)=>JSX.Element, assignItems: AssignItem[]) {
+	let none = <div className="px-3 py-3 text-muted small border-top border-bottom d-flex align-items-center">
+			<FA className="text-warning mr-3" name="circle-thin" />
+			无{caption}任务
+		</div>;
+		return <List className="bg-transparent mb-3" items={assignItems}
+			item={{render: renderItem, onClick: this.onClickAssign, key: this.keyAssign, className:"bg-transparent"}}
+			none={none}
+		/>;
+	}
+
+	private onToggleEndItems = async () => {
+		if (this.endItemsVisible === true) {
+			this.endItemsVisible = false;
+			this.controller.endItems = undefined;
+		}
+		else {
+			this.endItemsVisible = true;
+			await this.controller.loadEndItems();
+		}
+	}
+	private renderEndItems() {
+		if (this.endItemsVisible === false) {
+			return <button className="btn btn-info mx-3 my-2"
+				onClick={this.onToggleEndItems}>
+				<FA className="mr-2" name="chevron-right" /> 已完成
+			</button>;
+		}
+		return <>
+			<button className="btn btn-info mx-3 my-2"
+					onClick={this.onToggleEndItems}>
+					<FA className="mr-2" name="chevron-down" /> 已完成
+			</button>
+			{this.renderList('完成', this.renderEndItem, this.controller.endItems)}
+		</>;
 	}
 
 	@observable private isFocused: boolean = false;
@@ -90,7 +127,7 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 	}
 
 	private keyAssign = (doing: Doing) => {
-		return doing.task;
+		return doing?.task;
 	}
 
 	private onClickAssign = (item: AssignItem) => {
@@ -105,16 +142,33 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 	}
 
 	private renderAssignItem = (item:AssignItem, index: number) => {
+		return this.renderAssignItemBase(item, false);
+	}
+
+	private renderEndItem = (item:AssignItem, index: number) => {
+		return this.renderAssignItemBase(item, true);
+	}
+
+	private renderAssignItemBase(item:AssignItem, end:boolean) {
 		let {assign} = item;
+		let icon:string, color:string, textColor:string;
+		if (end === true) {
+			icon = 'check-circle-o';
+			color = 'text-warning';
+			textColor = 'text-muted';
+		}
+		else {
+			icon = 'circle-o';
+			color = 'text-info';
+		}
 		return tv(assign, (values: Assign) => {
 			let {caption} = values;
 			return <div className="px-3 bg-white align-items-center">
 				<div className="py-3">
-					<FA className="text-info mr-3" name="circle-o" size="lg" fixWidth={true} /> 
+					<FA className={'mr-3 ' + color} name={icon} size="lg" fixWidth={true} /> 
 				</div>
-				<div className="py-2">
+				<div className={'py-2 ' + textColor}>
 					<div>{caption}</div>
-					{caption?.length>7 && <div>xxx dddd dassd ddd</div>}
 				</div>
 			</div>;
 		});

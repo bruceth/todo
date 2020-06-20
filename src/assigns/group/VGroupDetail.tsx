@@ -3,8 +3,9 @@ import { CAssignsGroup } from "./CAssignsGroup";
 import { VPage, Page, Edit, Schema, UiSchema, StringSchema, UiTextItem, UiTextAreaItem, ItemSchema, FA, QueryPager, UserView, UserIcon, Loading, Form, ButtonSchema, UiButton, Context, userApi, useUser, Tuid, List } from "tonva";
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
+import { VBase } from '../VBase';
 
-export class VGroupDetail extends VPage<CAssignsGroup> {
+export class VGroupDetail extends VBase<CAssignsGroup> {
 	private groupMembersPager: QueryPager<any>;
 
     async open(groupMembersPager: QueryPager<any>) {

@@ -20,8 +20,10 @@ export class VDone extends VAssign<CAssigns> {
 	}
 
 	private done = async () => {
-		await this.controller.doneAssign();
+		// 暂时界面上不输入分数
+		let point = 0;
+		await this.controller.doneAssign(point);
 		this.closePage(2);
-		alert('设计中...暂时并没有实际修改数据库');
 	}
 }
+

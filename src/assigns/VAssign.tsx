@@ -100,7 +100,7 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 
 	protected renderToList() {return;}
 
-	protected get selfDoneCaption():string {return '自己完成'}
+	protected get selfDoneCaption():string {return '自己完成';}
 	protected renderSelfDone() {
 		return <div className="px-3 py-2 border-top bg-white cursor-pointer"
 			onClick={this.controller.showDone}>
@@ -108,9 +108,9 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 		</div>;
 	}
 
-	protected renderChecker() {return;}
+	//protected renderChecker() {return;}
 
-	protected renderRater() {return;}
+	//protected renderRater() {return;}
 
 	content():JSX.Element {
 		let {caption, discription, owner, $create, $update, point, toList} = this.assign;
@@ -134,9 +134,9 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 		if (isMe === true) {
 			toListSelfDone = <>
 				{this.renderToList()}
-				{toList.length === 0 && this.renderSelfDone()}
-				{this.renderChecker()}
-				{this.renderRater()}
+				{(toList.length === 0) && this.renderSelfDone()}
+				{/*this.renderChecker()*/}
+				{/*this.renderRater()**/}
 			</>;
 		}
 		return <>
