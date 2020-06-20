@@ -108,9 +108,9 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 		</div>;
 	}
 
-	protected renderChecker() {return;}
+	//protected renderChecker() {return;}
 
-	protected renderRater() {return;}
+	//protected renderRater() {return;}
 
 	content():JSX.Element {
 		let {caption, discription, owner, $create, $update, point, toList} = this.assign;
@@ -135,8 +135,8 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 			toListSelfDone = <>
 				{this.renderToList()}
 				{(toList.length === 0) && this.renderSelfDone()}
-				{this.renderChecker()}
-				{this.renderRater()}
+				{/*this.renderChecker()*/}
+				{/*this.renderRater()**/}
 			</>;
 		}
 		return <>

@@ -11,6 +11,7 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 		</div>
 	}
 
+	/*
 	protected renderChecker() {
 		return <div className="px-3 py-2 border-top bg-white cursor-pointer mt-3">
 			<FA className="mr-3 text-warning" name="user-o" fixWidth={true} /> 指定检查人
@@ -22,6 +23,7 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 			<FA className="mr-3 text-success" name="user" fixWidth={true} /> 指定评分人
 		</div>;
 	}
+	*/
 }
 
 export class VAssignForG0 extends VAssign<CAssignsGroup> {
