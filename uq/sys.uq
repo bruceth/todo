@@ -1,6 +1,7 @@
 BOOK me (
 	KEY me ID [$User],
 	tickTodo TIMESTAMP,
+	group ID Group,
 );
 
 QUERY myTickTodo ver 1.0 (lastTick INT)

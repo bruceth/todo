@@ -3,7 +3,7 @@ import { VListForMy } from "./VListForMy";
 import { VAssignForMy } from "./VAssignForMy";
 
 export class CAssignsMy extends CAssigns {
-	get caption():string {return '待办作业';}
+	get caption():string {return '我的待办';}
 	get groupId(): number {return 0;}
 	protected openVList():void {this.openVPage(VListForMy);}
 	protected openVAssign(): void {this.openVPage(VAssignForMy);}

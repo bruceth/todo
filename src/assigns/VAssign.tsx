@@ -100,7 +100,9 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 
 	protected renderToList() {return;}
 
-	protected get selfDoneCaption():string {return '自己完成'}
+	protected get selfDoneCaption():string {
+		return this.assign.groupMemberCount>1? '自己完成' : '完成';
+	}
 	protected renderSelfDone() {
 		return <div className="px-3 py-2 border-top bg-white cursor-pointer"
 			onClick={this.controller.showDone}>
@@ -113,7 +115,7 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 	protected renderRater() {return;}
 
 	content():JSX.Element {
-		let {caption, discription, owner, $create, $update, point, toList} = this.assign;
+		let {caption, discription, owner, groupMemberCount, $create, $update, point, toList} = this.assign;
 		let isMe = this.isMe(owner);
 		let spanUpdate:any;
 		if ($update.getTime() - $create.getTime() > 6*3600*1000) {
@@ -133,10 +135,10 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 		let toListSelfDone:any;
 		if (isMe === true) {
 			toListSelfDone = <>
-				{this.renderToList()}
-				{toList.length === 0 && this.renderSelfDone()}
-				{this.renderChecker()}
-				{this.renderRater()}
+				{groupMemberCount>1 && this.renderToList()}
+				{(toList.length === 0 || groupMemberCount<=1) && this.renderSelfDone()}
+				{groupMemberCount>1 && this.renderChecker()}
+				{groupMemberCount>1 && this.renderRater()}
 			</>;
 		}
 		return <>

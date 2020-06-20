@@ -19,7 +19,9 @@ export class CHome extends CUqBase {
 	private lastTick: number = 0;
 	@observable todosChanged: boolean = false;
 
-	groupsPager: GroupsPager;
+	defaultGroupId: number;
+	@observable defaultGroupAssignCount: number;
+	myGroupsPager: GroupsPager;
 	groupNotesPager: QueryPager<NoteItem>;
 	myDoingsPager: QueryPager<Doing>;
 
@@ -28,7 +30,7 @@ export class CHome extends CUqBase {
 
 	init() {
 		this.performance = this.uqs.performance;
-		this.groupsPager = new GroupsPager(this.performance.GetMyGroups, 10, 500, true);
+		this.myGroupsPager = new GroupsPager(this.performance.GetMyGroups, 10, 500, true);
 		this.groupNotesPager = new QueryPager<NoteItem>(this.performance.GetGroupNotes, 10, 30, true);
 		this.groupNotesPager.setItemConverter(this.noteItemConverter);
 		this.groupNotesPager.setReverse();
@@ -39,11 +41,29 @@ export class CHome extends CUqBase {
 	
 	async load() {
 		let arr = [
-			this.myDoingsPager.first(undefined),
-			this.groupsPager.first(undefined)
+			//this.myDoingsPager.first(undefined),
+			this.myGroupsPager.first(undefined)
 		];
 		await Promise.all(arr);
+
+		let myDefaultGroupIndex = this.myGroupsPager.items.findIndex(v => v.isDefault === 1);
+		if (myDefaultGroupIndex >= 0) {
+			let ret = this.myGroupsPager.items.splice(myDefaultGroupIndex, 1);
+			let r0 = ret[0];
+			this.defaultGroupId = r0.id;
+			this.defaultGroupAssignCount = r0.count;
+		}
 		//await this.groupsPager.first(undefined);
+	}
+
+	addGroupAssignCount(group:number, delta:number) {
+		if (group === this.defaultGroupId) {
+			this.defaultGroupAssignCount += delta;
+		}
+		else {
+			let groupItem = this.myGroupsPager.items.find(v => Tuid.equ(v.group, group)===true);
+			if (groupItem) groupItem.count += delta;
+		}
 	}
 
 	async saveGroup(parent:number, name:string, discription:string) {
@@ -51,13 +71,15 @@ export class CHome extends CUqBase {
 		let ret = await this.performance.SaveGroup.submit(data);
 		let retGroupId = ret?.group;
 		let groupBoxId = this.performance.Group.boxId(retGroupId);
-		this.groupsPager.items.unshift({
+		this.myGroupsPager.items.unshift({
 			id: retGroupId, 
 			group: groupBoxId, 
 			count: 1, 
 			time: new Date(),
 			unread: 0,
 			owner: this.user.id,
+			isDefault: 0,
+			memberCount: 1,
 		});
 	}
 
@@ -113,7 +135,7 @@ export class CHome extends CUqBase {
 	async refresh() {
 		let arr:Promise<any>[] = [
 			this.performance.MyTickTodo.query({lastTick: this.lastTick}, false),
-			this.groupsPager.refresh()
+			this.myGroupsPager.refresh()
 		];
 		if (this.currentGroup) {
 			arr.push(this.groupNotesPager.attach());
@@ -128,7 +150,7 @@ export class CHome extends CUqBase {
 		}
 		if (this.currentGroup) {
 			let groupId = this.currentGroup.id;
-			let item = this.groupsPager.items.find(v => Tuid.equ(v.group, groupId));
+			let item = this.myGroupsPager.items.find(v => Tuid.equ(v.group, groupId));
 			if (item) {
 				item.time = new Date();
 				item.unread = 0;

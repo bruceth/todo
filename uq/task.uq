@@ -15,7 +15,7 @@ TUID Task (
 	worker ID [$User],
 	stamp (create),
 
-	INDEX assign_id (assign, id) UNIQUE,
+	INDEX assign_worker (assign, worker) UNIQUE,
 );
 
 TUID Todo ver 1.3 (
@@ -35,6 +35,7 @@ TUID Todo ver 1.3 (
 
 BOOK TaskState ver 1.2 (
 	KEY task ID [Task],
+	end TINYINT DEFAULT 0,			-- 1: end
 	state TINYINT DEFAULT 0,		-- EnumTaskState
 	date TIMESTAMP,
 	-- point INT,					-- 通常是分钟数，从Assign带过来的，直接用Assign里面的point
@@ -58,11 +59,13 @@ BOOK MyTask (
 	KEY task ID [Task],
 );
 
+/*
 BOOK MyTaskArchive (
 	KEY me ID [$User],
 	KEY step TINYINT DEFAULT 0,	-- EnumTaskStep
 	KEY task ID [Task],
 );
+*/
 
 -- 领办布置的任务，返回task id
 ACTION TakeAssign (
@@ -96,7 +99,7 @@ RETURNS ret (
 		SET state = EnumTaskState.todo;
 		BOOK MyTask at($user, taskId);
 		BOOK Me at($user) SET tickTodo=$date;
-		BOOK MyTaskArchive at($user, step, taskId);
+		// BOOK MyTaskArchive at($user, step, taskId);
 		BOOK TaskState at(taskId) Set state=state;
 		BOOK TaskFlow at(taskId, 1) SET user=$user, step=step, state=state;
 		INTO ret SELECT taskId as task, step, state, 
@@ -125,7 +128,7 @@ RETURNS ret (
 	SET state = EnumTaskState.done;
 	BOOK MyTask at(checker, taskId);
 	BOOK Me at(checker) SET tickTodo=$date;
-	BOOK MyTaskArchive at($user, step, taskId);
+	// BOOK MyTaskArchive at($user, step, taskId);
 	BOOK TaskState at(taskId) Set state=state, pointDone=pointDone;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
 	BOOK TaskFlow at(taskId, seq) SET user=$user, step=step, state=state;
@@ -153,7 +156,7 @@ RETURNS ret (
 	SET state = EnumTaskState.pass;
 	BOOK MyTask at(owner, taskId);
 	BOOK Me at(owner) SET tickTodo=$date;
-	BOOK MyTaskArchive at($user, step, taskId);
+	// BOOK MyTaskArchive at($user, step, taskId);
 	BOOK TaskState at(taskId) Set state=state;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
 	BOOK TaskFlow at(taskId, seq) SET user=$user, step=step, state=state;
@@ -183,7 +186,7 @@ RETURNS ret (
 	BOOK Me at(worker) SET tickTodo=$date;
 	BOOK MyTask at(owner, taskId);
 	BOOK Me at(owner) SET tickTodo=$date;
-	BOOK MyTaskArchive at($user, step, taskId);
+	// BOOK MyTaskArchive at($user, step, taskId);
 	BOOK TaskState at(taskId) Set state=state;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
 	BOOK TaskFlow at(taskId, seq) SET user=$user, step=step, state=state;
@@ -221,7 +224,7 @@ RETURNS ret (
 	BOOK TaskState at(taskId) Set state=state, pointRate=pointRate;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
 	BOOK TaskFlow at(taskId, seq) SET user=$user, state=state;
-	BOOK MyTaskArchive at($user, step, taskId);
+	// BOOK MyTaskArchive at($user, step, taskId);
 	INTO ret SELECT taskId as task, step, state, 
 		(SELECT a.[group] FROM AssignToGroup as a WHERE a.assign=assignId) as [group];
 };
@@ -317,7 +320,7 @@ RETURNS flow (
 		ORDER BY a.seq ASC;
 };
 
-
+/*
 QUERY GetMyTaskArchive(
 	step TINYINT,			-- EnumTaskStep
 )
@@ -350,6 +353,7 @@ PAGE (
 		ORDER BY a.task DESC
 		limit $pageSize;
 };
+*/
 
 BOOK testBook (
 	key i int,

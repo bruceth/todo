@@ -45,6 +45,7 @@ export interface Performance {
 	
 	CreateAssign: Action;
 	NewAssign: Action;
+	DoneAssign: Action;
 	TakeAssign: Action;
 	TaskDone: Action;
 	TaskPass: Action;
@@ -69,7 +70,7 @@ export interface Performance {
 	GetUserTodos: Query;
 	GetTask: Query;
 	GetMyTasks: Query;
-	GetMyTaskArchive: Query;
+	//GetMyTaskArchive: Query;
 	GetMyMembers: Query;
 
 	Project: Tuid;

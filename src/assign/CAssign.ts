@@ -104,6 +104,8 @@ export class CAssign extends CUqBase {
 			owner: this.user.id,
 			open: 1,
 			point: point,
+			groupId: undefined,
+			groupMemberCount: undefined,
 			$create: new Date(),
 			$update: new Date(),
 			items: [],

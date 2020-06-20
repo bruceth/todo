@@ -111,6 +111,10 @@ export class CApp extends CUqApp {
 	}
 
 	//====== App calls =======
+	addGroupAssignCount(group:number, delta:number) {
+		this.cGroup.addGroupAssignCount(group, delta);
+	}
+
 	async showTask(taskId:number):Promise<void> {
 		await this.cTask.showTask(taskId);
 	}

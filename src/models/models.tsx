@@ -9,6 +9,8 @@ export interface GroupItem {
 	owner: number;
 	unread: number;
 	count: number;
+	isDefault: number;
+	memberCount: number;
 }
 
 export interface Doing {
@@ -44,6 +46,8 @@ export interface Assign {
 	caption: string;
 	owner: number;
 	point: number;
+	groupId: number;
+	groupMemberCount: number;
 	$create: Date;
 	$update: Date;
 	items: AssignItem[];

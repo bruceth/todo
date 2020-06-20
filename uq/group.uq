@@ -45,9 +45,19 @@ PAGE (
 	[group] ID Group,
 	unread SMALLINT,
 	count INT,
+	isDefault TINYINT,
+	memberCount SMALLINT,
 ) {
-	PAGE SELECT a.time, a.[group], a.unread, b.count
-		FROM MyGroup as a JOIN Group as b on a.[group]=b.id
+	PAGE SELECT a.time, a.[group], a.unread
+		, (
+			SELECT count(*) 
+				FROM GroupAssign as ga
+				WHERE ga.group=a.[group] AND ga.end=0
+		) as count
+		, CASE WHEN b.id=(SELECT group FROM Me WHERE me=$user) THEN 1 ELSE 0 END as isDefault
+		, (SELECT count(*) FROM GroupMember WHERE group=a.group) as memberCount
+		FROM MyGroup as a 
+			JOIN Group as b on a.[group]=b.id
 		WHERE a.me=$user and a.time<$pageStart
 		ORDER BY a.time desc
 		LIMIT $pageSize;
