@@ -1,10 +1,11 @@
-import { CSub } from "tonva";
+import { CSub, QueryPager } from "tonva";
 import { CAssigns } from "assigns/CAssigns";
 import { VSelectToList } from "./VSelectToList";
 import { VSelectChecker } from "./VSelectChecker";
 import { VSelectRater } from "./VSelectRater";
 import { VSendOut } from "./VSendOut";
 import { VSendBase } from "./VSendBase";
+import { CUqSub } from "tapp/CBase";
 
 interface Step {
 	caption: string;
@@ -17,31 +18,20 @@ export const steps:Step[] = [
 	{caption: '完成', VPage: VSendOut}
 ];
 
-export class CSend extends CSub<CAssigns> {
+export class CSend extends CUqSub<CAssigns> {
 	step: number = 0;
+	membersPager: QueryPager<{member:number}>;
+	members:{[id:number]: boolean} = {};
+	checker: number = -1;
+	rater: number = -1;
 
 	protected async internalStart() {
 		this.startAction();
 		this.step = 0;
+		this.membersPager = new QueryPager(this.uqs.performance.GetGroupMembers, 100);
+		await this.membersPager.first({group: this.owner.groupId});
 		this.openVPage(steps[0].VPage);
 	}
-/*
-	showSelectToList = () => {
-		this.openVPage(VSelectToList);
-	}
-
-	showSelectChecker = () => {
-		this.openVPage(VSelectChecker);
-	}
-
-	showSelectRater = () => {
-		this.openVPage(VSelectRater);
-	}
-
-	showSendOut = () => {
-		this.openVPage(VSendOut);
-	}
-*/
 
 	prev = () => {
 		this.openVPage(steps[--this.step].VPage);

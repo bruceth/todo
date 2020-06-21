@@ -80,7 +80,7 @@ QUERY GetGroupMembers (
 	group ID,
 )
 PAGE (
-	member ID $User ASC
+	member ID ASC
 ) {
 	PAGE SELECT a.member 
 		FROM GroupMember as a

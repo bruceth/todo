@@ -1,11 +1,15 @@
 import React from "react";
 import { CSend, steps } from "./CSend";
-import { VPage, FA } from "tonva";
+import { VPage, FA, User, Image, UserView } from "tonva";
+import { observer } from "mobx-react";
+import { observable } from "mobx";
 
 export class VSendBase extends VPage<CSend> {
 	header() {return '分配任务'}
 	right() {return <button className="btn btn-sm btn-secondary mr-2" onClick={this.controller.cancel}>取消</button>}
 	get back():'none' {return 'none'}
+
+	@observable protected nextDisabled: boolean = false;
 
 	protected renderCaption(step: number) {
 		return <div className="d-flex align-items-center justify-content-center my-3">
@@ -29,9 +33,11 @@ export class VSendBase extends VPage<CSend> {
 	content() {
 		let {step, prev, next, sendout} = this.controller;
 		let btnNext = step < steps.length-1 ?
-			<button className="btn btn-primary" onClick={next}>
-				<FA className="mr-2" name="arrow-right" /> 下一步
-			</button>
+			React.createElement(observer(()=>
+				<button className="btn btn-primary" onClick={next} disabled={this.nextDisabled}>
+					<FA className="mr-2" name="arrow-right" /> 下一步
+				</button>)
+			)
 			:
 			<button className="btn btn-primary" onClick={sendout}>发出任务</button>;
 		let btnPrev = <button className="btn btn-outline-primary" 
@@ -60,19 +66,25 @@ export class VSendBase extends VPage<CSend> {
 	}
 
 	protected renderToList() {
+		let arr:any[] = [];
+		let {members} = this.controller;
+		let renderUser = (user:User) => {
+			let {id, name, nick, icon} = user;
+			return <div className="mr-5 my-2 d-flex align-items-center w-min-12c">
+				<Image src={icon} className="w-1c h-1c mr-1" />
+				<div>{nick || name}</div>
+			</div>;
+		}
+		for (let i in members) {
+			if (members[i] === true) {
+				arr.push(<UserView key={i} user={Number(i)} render={renderUser} />)
+			}
+		}
 		return <div className="form-group row">
-			<label htmlFor="inputEmail3" className="col-sm-2 col-form-label">执行人</label>
+			<label className="col-sm-2 col-form-label">执行人</label>
 			<div className="col-sm-10">
-		  		<div className="form-control-plaintext border bg-light px-3 py-2">
-					asdf asf asdf asdf asdf asdf asdf sdaf asdfasdf 
-					asdf asf asdf asdf asdf asdf asdf sdaf asdfasdf 
-					asdf asf asdf asdf asdf asdf asdf sdaf asdfasdf 
-					asdf asf asdf asdf asdf asdf asdf sdaf asdfasdf 
-					asdf asf asdf asdf asdf asdf asdf sdaf asdfasdf 
-					asdf asf asdf asdf asdf asdf asdf sdaf asdfasdf 
-					asdf asf asdf asdf asdf asdf asdf sdaf asdfasdf 
-					asdf asf asdf asdf asdf asdf asdf sdaf asdfasdf 
-
+		  		<div className="form-control-plaintext border bg-light px-3 py-2 d-flex flex-wrap">
+					{arr}
 				</div>
 			</div>
 	  	</div>;
@@ -98,5 +110,39 @@ export class VSendBase extends VPage<CSend> {
 				</div>
 			</div>
 	  	</div>;
+	}
+
+	protected renderRadios(radioName:string, userId:number, setter: (userId:number)=>void, none:string) {
+		const cn = 'mr-5 my-2 d-flex align-items-center w-min-12c';
+		let items = this.controller.membersPager.items;
+		let renderUser = (user:User) => {
+			let {id, name, nick, icon} = user;
+			let onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+				setter(Number(evt.target.value));
+			};
+			return <label className={cn}>
+				<input name={radioName} type="radio" className="mx-2" 
+					defaultChecked={id===userId}
+					value={id} onChange={onChange} />
+				<Image src={icon} className="w-1c h-1c mr-1" />
+				<div>{nick || name}</div>
+			</label>;
+		}
+		return <div className="d-flex px-3 py-2 bg-white border rounded flex-wrap">
+			<label className={cn + ' text-warning'}>
+				<input name={radioName} type="radio" className="mx-2" defaultChecked={userId===-1}
+					onChange={()=>this.controller.checker=undefined} />
+				{none}
+			</label>
+			<label className={cn + ' text-info'}>
+				<input name={radioName} type="radio" className="mx-2" defaultChecked={userId===this.controller.user.id}
+					onChange={()=>this.controller.checker=this.controller.user.id} />
+				我自己
+			</label>
+			{items.map((v, index) => {
+				if (v.member === this.controller.user.id) return;
+				return <UserView user={v.member} render={renderUser} />
+			})}
+		</div>
 	}
 }
