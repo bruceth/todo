@@ -18,7 +18,9 @@ export class Action extends Entity {
 
 export class ActionSubmitCaller extends ActionCaller {
     get path():string {return 'action/' + this.entity.name;}
-    buildParams():any {return {data: this.entity.pack(this.params)}}
+    buildParams():any {
+		return {data: this.entity.pack(this.params)}
+	}
 }
 
 class SubmitReturnsCaller extends ActionSubmitCaller {

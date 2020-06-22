@@ -201,7 +201,10 @@ export abstract class Entity {
         let arrs = this.arrFields; 
         if (arrs !== undefined) {
             for (let arr of arrs) {
-                this.packArr(ret, arr.fields, data[arr.name]);
+				let {name, fields} = arr;
+				let arrData = data[name];
+				if (!arrData) arrData = data[name.toLowerCase()];
+                this.packArr(ret, fields, arrData);
             }
         }
         return ret.join('');

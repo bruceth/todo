@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { CUqBase } from "tapp";
 import { Performance } from '../tapp'
 import { Task, Assign } from "models";
-import { QueryPager, BoxId, Tuid } from "tonva";
+import { BoxId, Tuid } from "tonva";
 import { observable } from "mobx";
 import { VDone } from './VDone';
 
@@ -97,7 +97,7 @@ export abstract class CAssigns extends CUqBase {
 					this.endItems.unshift(this.assignItems[index]);
 				}
 				this.cApp.addGroupAssignCount(this.groupId, -1);
-			}			
+			}
 		}
 	}
 }

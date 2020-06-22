@@ -45,6 +45,8 @@ export interface Assign {
 	id: number;
 	caption: string;
 	owner: number;
+	checker: number;
+	rater: number;
 	point: number;
 	groupId: number;
 	groupMemberCount: number;

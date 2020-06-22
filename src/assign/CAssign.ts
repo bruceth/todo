@@ -102,6 +102,8 @@ export class CAssign extends CUqBase {
 			caption,
 			discription: undefined,
 			owner: this.user.id,
+			checker: undefined,
+			rater: undefined,
 			open: 1,
 			point: point,
 			groupId: undefined,

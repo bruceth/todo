@@ -236,7 +236,7 @@ export abstract class VTaskBase extends VBase {
 				let {date, user, state, comment} = v;
 				let pointer = <FA className="text-success mr-1" name="check-circle-o" />;
 				// eslint-disable-next-line
-				let {text, act} = stateText(state);
+				let {me, act} = stateText(state);
 				return <div key={index} className="px-3 py-1 small">
 					{pointer} <span className="mr-3 text-success">{act}</span> 
 					<span className="mr-3"><EasyTime date={date} always={true} /></span>
@@ -248,11 +248,11 @@ export abstract class VTaskBase extends VBase {
 	}
 
 	private renderState(state: EnumTaskState):JSX.Element {
-		let {text} = stateText(state);
-		if (!text) return;
+		let {me} = stateText(state);
+		if (!me) return;
 		return <div className="px-3 pt-2 pb-3 text-primary">
 			<FA className="mr-2" name="chevron-circle-right" />
-			<b>{text}</b>
+			<b>{me}</b>
 		</div>;
 	}
 

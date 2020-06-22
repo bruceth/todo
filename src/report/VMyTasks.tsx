@@ -12,7 +12,7 @@ export class VMyTasks extends VPage<CReport> {
 	private renderTaskItem = (stepText:string, myTaskItem: AssignTask, index:number) => {
 		let {assign, $create, stepDate, stepComment, state} = myTaskItem;
 		// eslint-disable-next-line
-		let {text, act} = stateText(state);
+		let {me, act} = stateText(state);
 		return tv(assign, (values:Assign) => {
 			let {caption, discription} = values;
 			let left = <div className={cnIcon}>{caption[0].toUpperCase()}</div>;
@@ -20,7 +20,7 @@ export class VMyTasks extends VPage<CReport> {
 			return <LMR className="py-3 px-3" left={left} right={right}>
 				<div className="small text-muted pb-1">
 					<FA className="text-danger mr-1" name="chevron-circle-right" />
-					<span className="text-primary">{text}</span> &nbsp;
+					<span className="text-primary">{me}</span> &nbsp;
 					<EasyTime date={$create} always={true} />开始
 					<Muted>{stepComment}</Muted>
 				</div>
