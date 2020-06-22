@@ -100,8 +100,12 @@ ACTION SendAssign ver 1.0 (
 	IF exists(SELECT id FROM Assign WHERE id=assignId AND owner=$user) {
 		TUID Assign ID assignId SET checker=checkerId, rater=raterId;
 		FOREACH toList {
+			VAR taskId ID, seq TINYINT;
 			BOOK AssignTo AT(assignId, to);
-			TUID Task SET assign=assignId, worker=to;
+			TUID Task INTO taskId SET assign=assignId, worker=to;
+			BOOK TaskState AT(taskId) SET state=0;
+			SET seq = IFNULL((SELECT max(seq) FROM TaskFlow WHERE task=taskId), 0) + 1;
+			BOOK TaskFlow AT(taskId, seq) SET user=$user, state=0;
 		}
 	}
 };
