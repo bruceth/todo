@@ -47,18 +47,23 @@ BOOK ArchiveMyAssign (
 	KEY assign ID Assign,
 );
 
-BOOK GroupAssign (
-	KEY group ID [Group],
+BOOK AssignEx (
 	KEY assign ID Assign,
-	end TINYINT DEFAULT 0,		-- 1: end
-	INDEX assign_group(assign, group) UNIQUE,
+	group ID [Group],
+	end TINYINT DEFAULT 0,							-- 1: end
+	-- INDEX assign_group(assign, group) UNIQUE,
+	-- INDEX assign_group(assign) UNIQUE,				-- assign 只允许在一个group存在，所以index应该assign单独唯一
+	INDEX group_assign(group, assign) UNIQUE,
 );
 
+/*
 BOOK ArchiveGroupAssign (
 	KEY group ID [Group],
 	KEY assign ID Assign,
 );
+*/
 
+-- 这个表未来会去掉
 BOOK AssignToGroup (
 	KEY assign ID Assign,
 	group ID Group,
@@ -136,6 +141,7 @@ RETURNS tasks (
 	worker ID,
 	[$create] TIMESTAMP,
 	state TINYINT,
+	end TINYINT,
 	point SMALLINT,
 	pointDone SMALLINT,
 	pointRate SMALLINT,
@@ -159,17 +165,18 @@ RETURNS toList (
 	INTO assign SELECT a.id, a.caption, a.discription, a.owner
 		, a.checker, a.rater
 		, a.open, a.point
-		, b.[group] as groupId, b.end
+		, b.[group] as groupId
+		, b.[end]
 		, (SELECT count(*) FROM GroupMember WHERE [group]=b.[group]) as groupMemberCount
 		, a.[$create]
 		, a.[$update]
-		FROM Assign as a JOIN GroupAssign as b on a.id=b.assign
+		FROM Assign as a JOIN AssignEx as b on a.id=b.assign
 		WHERE a.id=assignId;
 	INTO items SELECT a.id, a.discription
 		FROM AssignItem as a
 		WHERE a.assign=assignId
 		ORDER BY a.id;
-	INTO tasks SELECT a.id, a.worker, a.[$create], b.state, c.point, b.pointDone, b.pointRate, b.likes
+	INTO tasks SELECT a.id, a.worker, a.[$create], b.state, b.end, c.point, b.pointDone, b.pointRate, b.likes
 		FROM Task as a 
 			LEFT JOIN TaskState as b on a.id=b.task
 			LEFT JOIN Assign as c on a.assign=c.id
@@ -201,6 +208,7 @@ RETURNS tasks (
 	worker ID,
 	[$create] TIMESTAMP,
 	state TINYINT,
+	end TINYINT,
 	date TIMESTAMP,
 	point SMALLINT,
 	pointDone SMALLINT,
@@ -230,7 +238,7 @@ RETURNS tasks (
 	}
 	INTO tasks SELECT a.id as assign, b.id, b.worker, 
 		b.[$create], 
-		c.state, c.date, d.point, c.pointDone, c.pointRate, c.likes
+		c.state, c.end, c.date, d.point, c.pointDone, c.pointRate, c.likes
 		FROM [$Page] as a 
 			JOIN Task as b ON a.id=b.assign
 			LEFT JOIN TaskState as c on b.id=c.task

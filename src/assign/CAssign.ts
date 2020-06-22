@@ -107,6 +107,7 @@ export class CAssign extends CUqBase {
 			open: 1,
 			point: point,
 			groupId: undefined,
+			end: 0,
 			groupMemberCount: undefined,
 			$create: new Date(),
 			$update: new Date(),
