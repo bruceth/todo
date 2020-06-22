@@ -71,6 +71,7 @@ export interface AssignTask {
 	worker: number; // ID,
 	$create: Date; // TIMESTAMP,
 	state: EnumTaskState;
+	end: number;			// 1表示结束
 	date: Date;
 	stepDate: Date;
 	stepComment: string;
