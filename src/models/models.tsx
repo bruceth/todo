@@ -49,6 +49,7 @@ export interface Assign {
 	rater: number;
 	point: number;
 	groupId: number;
+	end: number;				// 1: 表示结束
 	groupMemberCount: number;
 	$create: Date;
 	$update: Date;
