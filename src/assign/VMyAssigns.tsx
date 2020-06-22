@@ -53,10 +53,10 @@ export class VMyAssigns extends VPage<CAssign> {
 			{tasks.map((v, index) => {
 				// eslint-disable-next-line
 				let {assign, worker, state, date} = v;
-				let {text, act} = stateText(state);
+				let {me, act} = stateText(state);
 				return <div key={index} className="small">
 					<FA className="text-danger mr-1" name="chevron-circle-right" />
-					<span className="text-primary">{text}</span> &nbsp;
+					<span className="text-primary">{me}</span> &nbsp;
 					<UserView user={worker} render={this.renderUser} /> &nbsp;
 					{act} &nbsp; <EasyTime date={date} />
 				</div>

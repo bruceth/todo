@@ -1,10 +1,8 @@
 import React from "react";
 import { CAssigns } from "../CAssigns";
-import { QueryPager, BoxId, tv, User, useUser } from "tonva";
-import { Task, Group } from "models";
+import { QueryPager, BoxId, tv, useUser } from "tonva";
+import { Group } from "models";
 import { VListForGroup } from "./VListForGroup";
-import { VList } from "../VList";
-import { CAssignsMy } from "assigns/my/CAssignsMy";
 import { VGroupDetail } from "./VGroupDetail";
 import { observable } from "mobx";
 import { VAssignForGroup, VAssignForG0 } from "./VAssignForGroup";

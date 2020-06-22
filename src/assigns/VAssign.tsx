@@ -98,7 +98,7 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 		return <div className="small text-muted px-3 py-2">todos</div>;
 	}
 
-	protected renderToList() {return;}
+	protected renderAssignTo() {return;}
 
 	protected get selfDoneCaption():string {return '自己完成';}
 	protected renderSelfDone() {
@@ -108,56 +108,62 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 		</div>;
 	}
 
+	protected renderTasks() {return;}
+
 	//protected renderChecker() {return;}
 
 	//protected renderRater() {return;}
 
 	content():JSX.Element {
-		let {caption, discription, owner, $create, $update, point, toList} = this.assign;
-		let isMe = this.isMe(owner);
-		let spanUpdate:any;
-		if ($update.getTime() - $create.getTime() > 6*3600*1000) {
-			spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
-		}
-		let renderTop = (user:User):JSX.Element => {
-			let {icon, name, nick} = user;
-			return <div className="d-flex px-3 py-3 border-bottom">
-				<Image className="w-2c h-2c" src={icon} /> 
-				<div className="ml-3">
-					<div>{nick || name}</div>
-					<div><Muted><EasyTime date={$create} /> {spanUpdate}</Muted></div>
-				</div>
-			</div>;
-		}
-		let vHour = point && <Muted>({hourText(point)})</Muted>;
-		let toListSelfDone:any;
-		if (isMe === true) {
-			toListSelfDone = <>
-				{this.renderToList()}
-				{(toList.length === 0) && this.renderSelfDone()}
-				{/*this.renderChecker()*/}
-				{/*this.renderRater()**/}
-			</>;
-		}
-		return <>
-			{this.renderCaption()}
-			{this.renderFrom()}
-			{this.renderDiscription()}
-			{this.renderTodos()}
-			{toListSelfDone}
-			{
-				false && <>
-					<div className="m-3 rounded border bg-white">
-						<UserView user={owner} render={renderTop} />
-						<div className="px-3 pt-2"><b>{caption}</b> &nbsp; {vHour}</div>
-						<div className="px-3 pt-2 pb-3">{discription}</div>
-						{this.renderItems()}
-					</div>
-					{this.renderTasks()}
-					{this.renderCommands()}
-				</>
+		return React.createElement(observer(() => {
+			let {caption, discription, owner, $create, $update, point, toList, tasks} = this.assign;
+			let isMe = this.isMe(owner);
+			let spanUpdate:any;
+			if ($update.getTime() - $create.getTime() > 6*3600*1000) {
+				spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
 			}
-		</>;
+			let renderTop = (user:User):JSX.Element => {
+				let {icon, name, nick} = user;
+				return <div className="d-flex px-3 py-3 border-bottom">
+					<Image className="w-2c h-2c" src={icon} /> 
+					<div className="ml-3">
+						<div>{nick || name}</div>
+						<div><Muted><EasyTime date={$create} /> {spanUpdate}</Muted></div>
+					</div>
+				</div>;
+			}
+			let vHour = point && <Muted>({hourText(point)})</Muted>;
+			let toListSelfDone:any;
+			if (isMe === true && toList.length === 0) {
+				toListSelfDone = <>
+					{this.renderAssignTo()}
+					{this.renderSelfDone()}
+					{/*this.renderChecker()*/}
+					{/*this.renderRater()**/}
+				</>;
+			}
+
+			return <>
+				{this.renderCaption()}
+				{this.renderFrom()}
+				{this.renderDiscription()}
+				{this.renderTodos()}
+				{toListSelfDone}
+				{tasks.length > 0 && this.renderTasks()}
+				{
+					false && <>
+						<div className="m-3 rounded border bg-white">
+							<UserView user={owner} render={renderTop} />
+							<div className="px-3 pt-2"><b>{caption}</b> &nbsp; {vHour}</div>
+							<div className="px-3 pt-2 pb-3">{discription}</div>
+							{this.renderItems()}
+						</div>
+						{this.renderTasks()}
+						{this.renderCommands()}
+					</>
+				}
+			</>;
+		}));
 	}
 
 	private renderItems():JSX.Element {
@@ -179,7 +185,7 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 		await this.controller.showTask(taskId);
 	}
 
-	private renderTasks():JSX.Element {
+	private renderTasksOld():JSX.Element {
 		let {tasks} = this.assign;
 		if (tasks.length === 0) return;
 		let renderUser = (user:User) => {

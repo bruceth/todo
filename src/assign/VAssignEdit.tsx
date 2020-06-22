@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { hourText } from 'tools';
-import { VPage, ItemSchema, StringSchema, UiSchema, UiTextItem, UiRange, UiTextAreaItem, Edit, Schema, Context, NumSchema, IdSchema, UiIdItem, Page, tv } from "tonva";
+import { VPage, ItemSchema, StringSchema, UiSchema, UiTextItem, UiRange, UiTextAreaItem, Edit, Schema, Context, NumSchema, IdSchema, UiIdItem, tv } from "tonva";
 import { CAssign } from "./CAssign";
 import { observer } from 'mobx-react';
 import { VAssignItems } from './VAssignItems';
 import { ProjectItem } from '../project';
-import { debug } from 'console';
 
 export class VAssignEdit extends VPage<CAssign> {
 	private vAssignItems: VAssignItems;

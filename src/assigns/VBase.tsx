@@ -1,7 +1,7 @@
 import React from "react";
 import { CAssigns } from "./CAssigns";
-import { VPage, useUser, Tuid, BoxId } from "tonva";
-import { Task, Assign } from "models";
+import { VPage, useUser } from "tonva";
+import { Assign } from "models";
 
 export abstract class VBase<T extends CAssigns> extends VPage<T> {
 	protected get assign(): Assign {return this.controller.assign;};
@@ -36,8 +36,4 @@ export abstract class VBase<T extends CAssigns> extends VPage<T> {
 	protected renderDivBottom() {
 		return <div ref={v=>this.divBottom=v} style={{height:'0.01rem'}}></div>
 	}
-
-	protected isMe(user:number|BoxId):boolean {
-		return (Tuid.equ(user, this.controller.user.id))
-	};
 }

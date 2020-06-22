@@ -116,7 +116,9 @@ RETURNS assign (
 	id ID,
 	caption CHAR(100),
 	discription TEXT,
-	owner ID [$User],
+	owner ID,
+	checker ID,
+	rater ID,
 	open TINYINT,
 	point SMALLINT,
 	groupId ID,
@@ -153,7 +155,9 @@ RETURNS toList (
 	to ID,							-- $user 
 )
 {
-	INTO assign SELECT a.id, a.caption, a.discription, a.owner, a.open, a.point
+	INTO assign SELECT a.id, a.caption, a.discription, a.owner
+		, a.checker, a.rater
+		, a.open, a.point
 		, b.[group] as groupId
 		, (SELECT count(*) FROM GroupMember WHERE [group]=b.[group]) as groupMemberCount
 		, a.[$create]

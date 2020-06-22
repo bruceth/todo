@@ -1,6 +1,6 @@
 import React from 'react';
 import { CAssigns, AssignItem } from "./CAssigns";
-import { VPage, List, FA, Muted, EasyTime, User, Image, tv, UserView } from "tonva";
+import { List, FA, Muted, EasyTime, tv } from "tonva";
 import { VBase } from "./VBase";
 import { observer } from "mobx-react";
 import { Doing, Assign } from 'models';
@@ -16,7 +16,7 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 	content() {
 		let page = observer(() => {
 			let {assignItems} = this.controller;
-			let none = <div className="px-3 py-2 text-muted small border-top">[无]</div>;
+			//let none = <div className="px-3 py-2 text-muted small border-top">[无]</div>;
 			return <>
 				{this.renderDivTop()}
 				{this.renderList('待办', this.renderAssignItem, assignItems)}
@@ -137,8 +137,8 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 	private renderState(doing:Doing):JSX.Element {
 		let {state, date} = doing;
 		let pointer = <FA className="text-danger mr-1" name="chevron-circle-right" />;
-		let {text, act} = stateText(state);
-		return <>{pointer} <small>{text}</small> &nbsp; <Muted>{act}于<EasyTime date={date} /></Muted></>;
+		let {me, act} = stateText(state);
+		return <>{pointer} <small>{me}</small> &nbsp; <Muted>{act}于<EasyTime date={date} /></Muted></>;
 	}
 
 	private renderAssignItem = (item:AssignItem, index: number) => {

@@ -1,4 +1,4 @@
-import { CSub, QueryPager } from "tonva";
+import { QueryPager } from "tonva";
 import { CAssigns } from "assigns/CAssigns";
 import { VSelectToList } from "./VSelectToList";
 import { VSelectChecker } from "./VSelectChecker";
@@ -6,6 +6,7 @@ import { VSelectRater } from "./VSelectRater";
 import { VSendOut } from "./VSendOut";
 import { VSendBase } from "./VSendBase";
 import { CUqSub } from "tapp/CBase";
+import { observable } from "mobx";
 
 interface Step {
 	caption: string;
@@ -21,9 +22,9 @@ export const steps:Step[] = [
 export class CSend extends CUqSub<CAssigns> {
 	step: number = 0;
 	membersPager: QueryPager<{member:number}>;
-	members:{[id:number]: boolean} = {};
-	checker: number = -1;
-	rater: number = -1;
+	@observable members:{[id:number]: boolean} = {};
+	@observable checker: number = 0;
+	@observable rater: number = 0;
 
 	protected async internalStart() {
 		this.startAction();
@@ -40,8 +41,18 @@ export class CSend extends CUqSub<CAssigns> {
 		this.openVPage(steps[++this.step].VPage);
 	}
 
-	sendout = () => {
-		alert('发送出去');
+	sendout = async () => {
+		let toList:{to:number}[] = [];
+		for (let i in this.members) {
+			if (this.members[i] === true) toList.push({to:Number(i)});
+		}
+		let data = {
+			assignId: this.owner.assign.id,
+			checkerId: this.checker,
+			raterId: this.rater,
+			toList
+		};
+		await this.uqs.performance.SendAssign.submit(data);
 		this.popToTopPage();
 	}
 

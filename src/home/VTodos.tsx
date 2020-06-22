@@ -33,8 +33,8 @@ export class VTodos extends View<CHome> {
 	private renderState(doing:Doing):JSX.Element {
 		let {state, date} = doing;
 		let pointer = <FA className="text-danger mr-1" name="chevron-circle-right" />;
-		let {text, act} = stateText(state);
-		return <>{pointer} <small>{text}</small> &nbsp; <Muted>{act}于<EasyTime date={date} /></Muted></>;
+		let {me, act} = stateText(state);
+		return <>{pointer} <small>{me}</small> &nbsp; <Muted>{act}于<EasyTime date={date} /></Muted></>;
 	}
 
 	private renderDoing = (doing:Doing, index: number) => {

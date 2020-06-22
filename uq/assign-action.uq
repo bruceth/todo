@@ -88,3 +88,20 @@ RETURNS ret (
 	}
 	INTO ret SELECT assignEnd as end;
 };
+
+ACTION SendAssign ver 1.0 (
+	assignId ID,
+	checkerId ID,
+	raterId ID,
+	ARR toList (
+		to ID
+	)
+) {
+	IF exists(SELECT id FROM Assign WHERE id=assignId AND owner=$user) {
+		TUID Assign ID assignId SET checker=checkerId, rater=raterId;
+		FOREACH toList {
+			BOOK AssignTo AT(assignId, to);
+			TUID Task SET assign=assignId, worker=to;
+		}
+	}
+};
