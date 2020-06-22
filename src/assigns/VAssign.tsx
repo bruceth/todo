@@ -6,8 +6,8 @@ import { hourText } from 'tools';
 import { observer } from 'mobx-react';
 
 export class VAssign<T extends CAssigns> extends VBase<T> {
-	init(param?: any) {
-		super.init(param);
+	init(params: any) {
+		super.init(params);
 	}
 
 	private onTakeAssign = () => {
@@ -138,8 +138,6 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 				toListSelfDone = <>
 					{this.renderAssignTo()}
 					{this.renderSelfDone()}
-					{/*this.renderChecker()*/}
-					{/*this.renderRater()**/}
 				</>;
 			}
 
