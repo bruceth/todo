@@ -51,8 +51,8 @@ PAGE (
 	PAGE SELECT a.time, a.[group], a.unread
 		, (
 			SELECT count(*) 
-				FROM GroupAssign as ga
-				WHERE ga.group=a.[group] AND ga.end=0
+				FROM AssignEx as e
+				WHERE e.group=a.[group] AND e.end=0
 		) as count
 		, CASE WHEN b.id=(SELECT group FROM Me WHERE me=$user) THEN 1 ELSE 0 END as isDefault
 		, (SELECT count(*) FROM GroupMember WHERE group=a.group) as memberCount

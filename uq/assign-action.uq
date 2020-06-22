@@ -9,9 +9,9 @@ RETURNS ret (
 	IF group IS NULL OR group=0 {
 		SET group=a.group FROM Me as a WHERE a.me=$user;
 	}
-	INTO ret SELECT  a.assign, a.end
-		FROM GroupAssign as a
-		WHERE a.group=group AND (a.end=end OR end IS NULL)
+	INTO ret SELECT a.assign, a.[end]
+		FROM AssignEx as a
+		WHERE a.group=[group] AND (end IS NULL OR a.[end]=end)
 		ORDER BY a.assign DESC;
 };
 
@@ -31,7 +31,7 @@ ACTION CreateAssign ver 1.0 (
 			BOOK Me AT($user) SET group=group;
 		}
 	}
-	BOOK GroupAssign at(group, assignId);
+	BOOK AssignEx at(assignId) SET group=group;
 	INTO ret SELECT assignId as id;
 };
 
@@ -47,7 +47,7 @@ RETURNS ret (
 		, taskEnd TINYINT, assignEnd TINYINT;
 	SET ownerId=a.owner, checkerId=a.checker, raterId=a.rater
 		FROM Assign as a WHERE a.id=assign;
-	SET groupId=a.group FROM GroupAssign as a WHERE a.assign=assign;
+	SET groupId=a.group FROM AssignEx as a WHERE a.assign=assign;
 	SET taskId=a.id
 		FROM Task as a WHERE a.assign=assign AND a.worker=$user;
 	IF taskId IS NULL AND $user=ownerId {
@@ -84,7 +84,7 @@ RETURNS ret (
 		else {
 			SET assignEnd=1;
 		}
-		BOOK GroupAssign at(groupId, assign) SET end=assignEnd;
+		BOOK AssignEx at(assign) SET end=assignEnd;
 	}
 	INTO ret SELECT assignEnd as end;
 };
