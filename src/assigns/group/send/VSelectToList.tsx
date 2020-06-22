@@ -42,7 +42,7 @@ export class VSelectToList extends VSendBase {
 					{items.map((v, index) => {
 						let {member} = v;
 						if (this.isMe(member) === true) return undefined;
-						return <UserView user={v.member} render={renderUser} />
+						return <UserView key={member} user={member} render={renderUser} />
 					})}
 				</div>
 				<label className={cn}>

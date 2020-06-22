@@ -27,13 +27,20 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 		return React.createElement(page);
 	}
 
-	private renderList(caption:string, renderItem: (item:any, index:number)=>JSX.Element, assignItems: AssignItem[]) {
-	let none = <div className="px-3 py-3 text-muted small border-top border-bottom d-flex align-items-center">
+	private renderList(caption:string, 
+		renderItem: (item:any, index:number)=>JSX.Element, 
+		assignItems: AssignItem[]) 
+	{
+		let none = <div className="px-3 py-3 text-muted small border-top border-bottom d-flex align-items-center">
 			<FA className="text-warning mr-3" name="circle-thin" />
 			无{caption}任务
 		</div>;
 		return <List className="bg-transparent mb-3" items={assignItems}
-			item={{render: renderItem, onClick: this.onClickAssign, key: this.keyAssign, className:"bg-transparent"}}
+			item={{
+				render: renderItem, 
+				onClick:this.onClickAssign, 
+				key: this.keyAssign, 
+				className:"bg-transparent"}}
 			none={none}
 		/>;
 	}
@@ -127,7 +134,7 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 	}
 
 	private keyAssign = (doing: Doing) => {
-		return doing?.task;
+		return doing.task;
 	}
 
 	private onClickAssign = (item: AssignItem) => {

@@ -68,7 +68,6 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 			{this.renderChecks(checks)}
 			{this.renderRates(rates)}
 
-			<div className="h-1c" />
 			{this.renderOthers(EnumTaskState.start, starts)}
 			{this.renderOthers(EnumTaskState.done, dones)}
 			{this.renderOthers(EnumTaskState.pass, passes)}
@@ -88,6 +87,7 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 	}
 
 	private renderMy(task: AssignTask) {
+		if (!task) return;
 		let {state} = task;
 		let ret = stateText(state);
 		let {me, act} = ret;
@@ -123,18 +123,21 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 	private renderOthers(state:EnumTaskState, tasks: AssignTask[]) {
 		if (tasks.length === 0) return;
 		let {me, other} = stateText(state);
-		return <div>
-			{tasks.map((v, index) => {
-				let {id} = v;
-				return <div key={id} className="d-flex px-3 py-2 bg-white border-bottom cursor-pointer"
-					onClick={() => alert('显示任务的执行过程')}>
-					<UserView user={v.worker} render={this.renderUser} />
-					<span className="ml-3">{other || me}任务</span>
-					<div className="mr-auto"></div>
-					<FA name="angle-right" />
-				</div>
-			})}
-		</div>;
+		return <>
+			<div className="h-1c" />
+			<div>
+				{tasks.map((v, index) => {
+					let {id} = v;
+					return <div key={id} className="d-flex px-3 py-2 bg-white border-bottom cursor-pointer"
+						onClick={() => alert('显示任务的执行过程')}>
+						<UserView user={v.worker} render={this.renderUser} />
+						<span className="ml-3">{other || me}任务</span>
+						<div className="mr-auto"></div>
+						<FA name="angle-right" />
+					</div>
+				})}
+			</div>
+		</>;
 	}
 }
 

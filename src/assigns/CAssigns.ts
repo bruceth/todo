@@ -42,6 +42,16 @@ export abstract class CAssigns extends CUqBase {
 	}
 
 	showAssign = async (assignId: BoxId) => {
+		await this.loadAssign(assignId);
+		this.openVAssign();
+	}
+
+	async reloadAssign() {
+		if (!this.assign) return;
+		await this.loadAssign(this.assign.id);
+	}
+
+	private async loadAssign(assignId:BoxId | number) {
 		let retAssign = await this.performance.GetAssign.query({assignId}, true);
 		let {assign, items, tasks, todos, tolist} = retAssign;
 		let assignObj:Assign = {items, tasks, todos, toList:tolist} as any;
@@ -49,7 +59,6 @@ export abstract class CAssigns extends CUqBase {
 		let discription:string = assignObj.discription;
 		if (discription) assignObj.discription = discription.replace(/\\n/g, '\n');
 		this.assign = assignObj;
-		this.openVAssign();
 	}
 
 	showTask = async (taskId:number) => {
@@ -62,7 +71,6 @@ export abstract class CAssigns extends CUqBase {
 		let discription:string = task.discription;
 		if (discription) task.discription = discription.replace(/\\n/g, '\n');
 
-		//this.assign = task;
 		this.startAction();
 		this.openVAssign();
 	}
@@ -94,7 +102,8 @@ export abstract class CAssigns extends CUqBase {
 			if (index >= 0) {
 				this.assignItems.splice(index, 1);
 				if (this.endItems) {
-					this.endItems.unshift(this.assignItems[index]);
+					let assign = this.assignItems[index];
+					this.endItems.unshift(assign);
 				}
 				this.cApp.addGroupAssignCount(this.groupId, -1);
 			}
