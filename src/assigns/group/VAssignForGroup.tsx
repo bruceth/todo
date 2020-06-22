@@ -4,7 +4,6 @@ import { CAssignsGroup } from "./CAssignsGroup";
 import { FA, UserView, User, Image } from "tonva";
 import { EnumTaskState, stateText } from "tapp";
 import { AssignTask } from "models";
-import { findAllByTestId } from "@testing-library/react";
 
 export class VAssignForGroup extends VAssign<CAssignsGroup> {
 	protected renderAssignTo() {
@@ -90,7 +89,8 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 
 	private renderMy(task: AssignTask) {
 		let {state} = task;
-		let {me, act} = stateText(state);
+		let ret = stateText(state);
+		let {me, act} = ret;
 		return <div className="px-3 py-3 bg-white border-bottom cursor-pointer"
 			onClick={()=>alert('正在实现中...')}>
 			<FA name="chevron-circle-right" className="text-danger mr-3" />
@@ -125,7 +125,8 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 		let {me, other} = stateText(state);
 		return <div>
 			{tasks.map((v, index) => {
-				return <div className="d-flex px-3 py-2 bg-white border-bottom cursor-pointer"
+				let {id} = v;
+				return <div key={id} className="d-flex px-3 py-2 bg-white border-bottom cursor-pointer"
 					onClick={() => alert('显示任务的执行过程')}>
 					<UserView user={v.worker} render={this.renderUser} />
 					<span className="ml-3">{other || me}任务</span>
