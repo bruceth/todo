@@ -35,9 +35,11 @@ export class CSend extends CUqSub<CAssigns> {
 	}
 
 	prev = () => {
+		this.popToTopPage();
 		this.openVPage(steps[--this.step].VPage);
 	}
 	next = () => {
+		this.popToTopPage();
 		this.openVPage(steps[++this.step].VPage);
 	}
 
