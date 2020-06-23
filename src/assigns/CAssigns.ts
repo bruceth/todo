@@ -104,11 +104,11 @@ export abstract class CAssigns extends CUqBase {
 			case EnumTaskState.doing:
 				return TaskAct.done;
 			case EnumTaskState.done:
-				if (checker > 0) return TaskAct.check;
-				if (rater > 0) return TaskAct.rate;
+				if (this.isMe(checker)) return TaskAct.check;
+				if (this.isMe(rater)) return TaskAct.rate;
 				return;
 			case EnumTaskState.pass:
-				if (rater > 0) return TaskAct.rate;
+				if (this.isMe(rater)) return TaskAct.rate;
 				return;
 			case EnumTaskState.fail:
 			case EnumTaskState.rated:
@@ -129,11 +129,11 @@ export abstract class CAssigns extends CUqBase {
 		switch (state) {
 			default:
 				alert('unkown state ' + state);
-				break;
+				return;
 			case EnumTaskState.start:
 			case EnumTaskState.todo:
 			case EnumTaskState.doing:
-				this.openVPage(VDone, task);
+				v = VDone;
 				break;
 			case EnumTaskState.done:
 				if (checker > 0) v = VCheck;
