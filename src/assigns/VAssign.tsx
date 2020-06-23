@@ -33,8 +33,8 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 			if ($update.getTime() - $create.getTime() > 6*3600*1000) {
 				spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
 			}
-			return <div className="d-flex px-3 py-1 border-top bg-white align-items-center small">
-				<div className="mr-3">创建：</div>
+			return <div className="d-flex px-3 py-2 border-top bg-white align-items-center small">
+				<div className="mr-3">创建人：</div>
 				<Image className="w-1-5c h-1-5c mr-3" src={icon} /> 
 				<span className="mr-3">{nick || name}</span>
 				<span><Muted><EasyTime date={$create} /> {spanUpdate}</Muted></span>
@@ -42,6 +42,9 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 		}
 		return <UserView user={owner} render={renderUser} />;
 	}
+
+	protected renderChecker() {}
+	protected renderRater() {}
 
 	protected renderDiscription(hasTitle:boolean = true) {
 		let Disp = observer(() => {
@@ -110,13 +113,9 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 
 	protected renderTasks() {return;}
 
-	//protected renderChecker() {return;}
-
-	//protected renderRater() {return;}
-
 	content():JSX.Element {
 		return React.createElement(observer(() => {
-			let {caption, discription, owner, $create, $update, point, toList, tasks} = this.assign;
+			let {caption, discription, owner, $create, $update, point, toList, tasks, end} = this.assign;
 			let isMe = this.isMe(owner);
 			let spanUpdate:any;
 			if ($update.getTime() - $create.getTime() > 6*3600*1000) {
@@ -134,7 +133,7 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 			}
 			let vHour = point && <Muted>({hourText(point)})</Muted>;
 			let toListSelfDone:any;
-			if (isMe === true && toList.length === 0) {
+			if (isMe === true && toList.length === 0 && end === 0) {
 				toListSelfDone = <>
 					{this.renderAssignTo()}
 					{this.renderSelfDone()}
@@ -144,6 +143,8 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 			return <>
 				{this.renderCaption()}
 				{this.renderFrom()}
+				{this.renderChecker()}
+				{this.renderRater()}
 				{this.renderDiscription()}
 				{this.renderTodos()}
 				{toListSelfDone}

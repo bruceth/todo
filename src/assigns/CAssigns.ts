@@ -1,10 +1,10 @@
 import _ from 'lodash';
-import { CUqBase } from "tapp";
+import { CUqBase, EnumTaskState, TaskAct } from "tapp";
 import { Performance } from '../tapp'
 import { Task, Assign } from "models";
 import { BoxId, Tuid } from "tonva";
 import { observable } from "mobx";
-import { VDone } from './VDone';
+import { VDone, VCheck, VRate } from './task';
 
 export interface AssignItem {
 	assign: BoxId;
@@ -62,6 +62,8 @@ export abstract class CAssigns extends CUqBase {
 	}
 
 	showTask = async (taskId:number) => {
+		alert('show task 的代码都要改写为新的');
+		return;
 		let retTask = await this.performance.GetTask.query({taskId});
 		let task:Task = {} as any;
 		_.mergeWith(task, retTask.task[0]);
@@ -94,19 +96,91 @@ export abstract class CAssigns extends CUqBase {
 		this.openVPage(VDone);
 	}
 
-	doneAssign = async (point?: number) => {
-		let ret = await this.performance.DoneAssign.submit({assign: this.assign.id, pointDone:point});
-		if (ret.end === 1) {
-			let assignId = this.assign.id;
-			let index = this.assignItems.findIndex(v => Tuid.equ(v.assign, assignId));
-			if (index >= 0) {
-				this.assignItems.splice(index, 1);
-				if (this.endItems) {
-					let assign = this.assignItems[index];
-					this.endItems.unshift(assign);
-				}
-				this.cApp.addGroupAssignCount(this.groupId, -1);
-			}
+	getTaskAction(state:EnumTaskState):string {
+		let {checker, rater} = this.assign;
+		switch (state) {
+			case EnumTaskState.start:
+			case EnumTaskState.todo:
+			case EnumTaskState.doing:
+				return TaskAct.done;
+			case EnumTaskState.done:
+				if (checker > 0) return TaskAct.check;
+				if (rater > 0) return TaskAct.rate;
+				return;
+			case EnumTaskState.pass:
+				if (rater > 0) return TaskAct.rate;
+				return;
+			case EnumTaskState.fail:
+			case EnumTaskState.rated:
+			case EnumTaskState.cancel:
+				return;
 		}
+	}
+
+	meAct = async () => {
+		let task = this.assign.tasks.find(v => this.isMe(v.worker) === true);
+		if (!task) {
+			alert('task cannot be undefined');
+			return;
+		}
+		let {state} = task;
+		let {checker, rater} = this.assign;
+		let v;
+		switch (state) {
+			default:
+				alert('unkown state ' + state);
+				break;
+			case EnumTaskState.start:
+			case EnumTaskState.todo:
+			case EnumTaskState.doing:
+				this.openVPage(VDone, task);
+				break;
+			case EnumTaskState.done:
+				if (checker > 0) v = VCheck;
+				else if (rater > 0) v = VRate;
+				break;
+			case EnumTaskState.pass:
+				if (rater > 0) v = VRate;
+				break;
+		}
+		this.openVPage(v, task);
+	}
+
+	private afterAct(retAct: {end:number}) {
+		if (retAct.end === 0) return;
+		let assignId = this.assign.id;
+		let index = this.assignItems.findIndex(v => Tuid.equ(v.assign, assignId));
+		if (index < 0) return;
+		this.assignItems.splice(index, 1);
+		if (this.endItems) {
+			let assign = this.assignItems[index];
+			this.endItems.unshift(assign);
+		}
+		this.cApp.addGroupAssignCount(this.groupId, -1);
+	}
+
+	doneAssign = async (point: number, comment: string) => {
+		let ret = await this.performance.DoneAssign.submit({assign: this.assign.id, point, comment});
+		this.afterAct(ret);
+	}
+
+	doneTask = async (task:number, point:number, comment:string) => {
+		let ret = await this.performance.DoneTask.submit({task, point, comment});
+		this.afterAct(ret);
+	}
+
+	passTask = async (task:number, point:number, comment: string) => {
+		let ret = await this.performance.PassTask.submit({task, point, comment});
+		this.afterAct(ret);
+	}
+
+	failTask = async (task:number, comment:string) => {
+		let ret = await this.performance.FailTask.submit({task, comment});
+		this.afterAct(ret);
+	}
+
+	rateTask = async (task:number, point:number, comment:string) => {
+		let ret = await this.performance.RateTask.submit({task, point, comment});
+		this.afterAct(ret);
 	}
 }

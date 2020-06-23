@@ -5,7 +5,7 @@ export class VSelectChecker extends VSendBase {
 	protected renderMiddlePart() {
 		return <div>
 			{this.renderToList()}
-			{this.renderRadios(
+			{this.renderRadios('检查人',
 				'checker', 
 				this.controller.checker, 
 				userId=>this.controller.checker=userId,

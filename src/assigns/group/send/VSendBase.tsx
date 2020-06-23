@@ -132,7 +132,7 @@ export class VSendBase extends VPage<CSend> {
 	  	</div>;
 	}
 
-	protected renderRadios(radioName:string, userId:number, setter: (userId:number)=>void, none:string) {
+	protected renderRadios(caption:string, radioName:string, userId:number, setter: (userId:number)=>void, none:string) {
 		const cn = 'mr-5 my-2 d-flex align-items-center w-min-12c';
 		let items = this.controller.membersPager.items;
 		let renderUser = (user:User) => {
@@ -148,24 +148,27 @@ export class VSendBase extends VPage<CSend> {
 				<div>{nick || name}</div>
 			</label>;
 		}
-		return <div className="px-3 py-2 bg-white border rounded">
-			<div className="d-flex flex-wrap">
-				<label className={cn + ' text-warning'}>
-					<input name={radioName} type="radio" className="mx-2" defaultChecked={userId===0}
-						onChange={()=>setter(0)} />
-					{none}
-				</label>
-				<label className={cn + ' text-info'}>
-					<input name={radioName} type="radio" className="mx-2" defaultChecked={this.isMe(userId)}
-						onChange={()=>setter(this.controller.user.id)} />
-					我自己
-				</label>
-			</div>
-			<div className="d-flex flex-wrap">
-				{items.map((v, index) => {
-					if (v.member === this.controller.user.id) return null;
-					return <UserView user={v.member} render={renderUser} />
-				})}
+		return <div className="form-group">
+			<label className="">{caption}</label>
+			<div className="px-3 py-2 bg-white border rounded">
+				<div className="d-flex flex-wrap">
+					<label className={cn + ' text-warning'}>
+						<input name={radioName} type="radio" className="mx-2" defaultChecked={userId===0}
+							onChange={()=>setter(0)} />
+						{none}
+					</label>
+					<label className={cn + ' text-info'}>
+						<input name={radioName} type="radio" className="mx-2" defaultChecked={this.isMe(userId)}
+							onChange={()=>setter(this.controller.user.id)} />
+						我自己
+					</label>
+				</div>
+				<div className="d-flex flex-wrap">
+					{items.map((v, index) => {
+						if (v.member === this.controller.user.id) return null;
+						return <UserView user={v.member} render={renderUser} />
+					})}
+				</div>
 			</div>
 		</div>
 	}

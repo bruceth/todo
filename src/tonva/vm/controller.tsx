@@ -68,6 +68,18 @@ export abstract class Controller {
     protected onDispose() {
     }
 
+	isMe(id:any):boolean {
+		if (id === null) return false;
+		let {user} = this;
+		let userId = user.id;
+		switch (typeof id) {
+			default: return false;
+			case 'string': return Number(id) === userId;
+			case 'number': return id === userId;
+			case 'object': return id.id === userId;
+		}
+	}
+
     protected async openVPage<C extends Controller>(vp: new (controller: C)=>VPage<C>, param?:any, afterBack?:(ret:any)=>void):Promise<void> {
         await (new vp((this as any) as C)).open(param, afterBack);
     }

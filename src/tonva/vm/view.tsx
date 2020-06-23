@@ -18,18 +18,7 @@ export abstract class View<C extends Controller> {
     }
 
 	protected get isDev() {return  env.isDevelopment}
-	protected isMe(id:any):boolean {
-		if (id === null) return false;
-		let {user} = this.controller;
-		let userId = user.id;
-		switch (typeof id) {
-			default: return false;
-			case 'string': return Number(id) === userId;
-			case 'number': return id === userId;
-			case 'object': return id.id === userId;
-		}
-	}
-
+	protected isMe(id:any) {return this.controller.isMe(id)}
     abstract render(param?:any): JSX.Element;
 
     protected renderVm(vm: new (controller: C)=>View<C>, param?:any) {
