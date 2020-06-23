@@ -37,20 +37,23 @@ export class VSelectToList extends VSendBase {
 					<div>{nick || name}</div>
 				</label>;
 			}
-			return <div className="px-3 py-2 bg-white border rounded">
-				<div className="d-flex flex-wrap">
-					{items.map((v, index) => {
-						let {member} = v;
-						if (this.isMe(member) === true) return undefined;
-						return <UserView key={member} user={member} render={renderUser} />
-					})}
+			return <div className="form-group">
+				<label className="">执行人</label>
+				<div className="px-3 py-2 bg-white border rounded">
+					<div className="d-flex flex-wrap">
+						{items.map((v, index) => {
+							let {member} = v;
+							if (this.isMe(member) === true) return undefined;
+							return <UserView key={member} user={member} render={renderUser} />
+						})}
+					</div>
+					<label className={cn}>
+						<input type="checkbox" className="mx-2" value={meId} 
+							defaultChecked={members[meId]===true}
+							onChange={(evt: React.ChangeEvent<HTMLInputElement>)=>members[meId]=evt.target.checked} />
+						<div className="text-info">我自己</div>
+					</label>
 				</div>
-				<label className={cn}>
-					<input type="checkbox" className="mx-2" value={meId} 
-						defaultChecked={members[meId]===true}
-						onChange={(evt: React.ChangeEvent<HTMLInputElement>)=>members[meId]=evt.target.checked} />
-					<div className="text-info">我自己</div>
-				</label>
 			</div>;
 		}));
 	}

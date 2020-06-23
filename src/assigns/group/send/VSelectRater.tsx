@@ -6,7 +6,7 @@ export class VSelectRater extends VSendBase {
 		return <div>
 			{this.renderToList()}
 			{this.renderChecker()}
-			{this.renderRadios(
+			{this.renderRadios('评价人',
 				'rater', 
 				this.controller.rater, 
 				userId=>this.controller.rater=userId,
