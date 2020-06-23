@@ -6,6 +6,30 @@ import { EnumTaskState, stateText } from "tapp";
 import { AssignTask } from "models";
 
 export class VAssignForGroup extends VAssign<CAssignsGroup> {
+	protected renderChecker() {
+		let {checker} = this.assign;
+		if (!checker) return;
+		return this.renderCheckerOrRater(checker, '查验人');
+	}
+
+	protected renderRater() {
+		let {rater} = this.assign;
+		if (!rater) return;
+		return this.renderCheckerOrRater(rater, '评价人');
+	}
+
+	private renderCheckerOrRater(user:number, caption:string) {
+		let renderUser = (user:User):JSX.Element => {
+			let {icon, name, nick} = user;
+			return <div className="d-flex px-3 py-2 border-top bg-white align-items-center small">
+				<div className="mr-3">{caption}：</div>
+				<Image className="w-1c h-1c mr-3" src={icon} /> 
+				<span className="mr-3">{nick || name}</span>
+			</div>;
+		}
+		return <UserView user={user} render={renderUser} />;
+	}
+
 	protected renderAssignTo() {
 		return <div className="px-3 py-2 border-top bg-white cursor-pointer"
 			onClick={this.controller.showAssignTo}>
@@ -64,9 +88,9 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 		}
 
 		return <>
-			{this.renderMy(my)}
 			{this.renderChecks(checks)}
 			{this.renderRates(rates)}
+			{this.renderMy(my)}
 
 			{this.renderOthers(EnumTaskState.start, starts)}
 			{this.renderOthers(EnumTaskState.done, dones)}
@@ -88,14 +112,21 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 
 	private renderMy(task: AssignTask) {
 		if (!task) return;
-		let {state} = task;
-		let ret = stateText(state);
-		let {me, act} = ret;
+		let {state, end} = task;
+		let action = this.controller.getTaskAction(state);
+		if (!action) {
+			let {me} = stateText(state);
+			return <div className="px-3 py-2 bg-white border-bottom cursor-pointer"
+				onClick={() => this.controller.showTask(task.id)}>
+				我的任务 <span className="text-warning">{me}</span>
+				{this.renderEndFlag(end)}
+			</div>;
+		}
 		return <div className="px-3 py-3 bg-white border-bottom cursor-pointer"
-			onClick={()=>alert('正在实现中...')}>
+			onClick={this.controller.meAct}>
 			<FA name="chevron-circle-right" className="text-danger mr-3" />
-			<span className="text-primary ">{me}</span> 我的任务
-		</div>
+			<span className="text-primary ">{action}</span> 我的任务
+		</div>;
 	}
 
 	private renderActions(actName:string, act:(task:AssignTask)=>void, tasks: AssignTask[]) {
@@ -120,18 +151,23 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 		return this.renderActions('评价', act, tasks);
 	}
 
+	private renderEndFlag(end:number) {
+		if (end === 1) return <FA className="mx-3 text-danger small" name="stop" />
+	}
+
 	private renderOthers(state:EnumTaskState, tasks: AssignTask[]) {
 		if (tasks.length === 0) return;
-		let {me, other} = stateText(state);
+		let {me} = stateText(state);
 		return <>
 			<div className="h-1c" />
 			<div>
-				{tasks.map((v, index) => {
-					let {id} = v;
-					return <div key={id} className="d-flex px-3 py-2 bg-white border-bottom cursor-pointer"
+				{tasks.map((v:AssignTask, index) => {
+					let {id, end} = v;
+					return <div key={id} className="d-flex px-3 py-2 bg-white border-bottom cursor-pointer align-items-center"
 						onClick={() => alert('显示任务的执行过程')}>
 						<UserView user={v.worker} render={this.renderUser} />
-						<span className="ml-3">{other || me}任务</span>
+						<span className="ml-3">任务{me}</span>
+						{this.renderEndFlag(end)}
 						<div className="mr-auto"></div>
 						<FA name="angle-right" />
 					</div>

@@ -7,7 +7,6 @@ export enum EnumTaskState {
 	todo=20, doing=21, done=22, 
 	pass=40, fail=41,
 	rated=60, 
-	archive=-20,
 	cancel=-40
 };
 export enum EnumTaskStep {todo=20, done=22, check=40, rate=60};
@@ -19,19 +18,24 @@ export interface StateText {
 }
 
 const stateTexts:{[key in EnumTaskState]:StateText} = {
-	[EnumTaskState.start]: {me:'办理',  other:'收到', act:undefined, pending:true},
+	[EnumTaskState.start]: {me:'收到', other:'收到', act:undefined, pending:true},
 	[EnumTaskState.todo]: {me:'待办', act:'领办', pending:true},		// todo=20
 	[EnumTaskState.doing]: {me:'在办', act:'领办', pending:true},		// doing=21
-	[EnumTaskState.done]: {me:'待查验', act:'完成', pending:false}, 	// done=22, 
-	[EnumTaskState.pass]: {me:'待评价', act:'验收', pending:false}, 	// pass=40, 
-	[EnumTaskState.fail]: {me:'待办', act:'拒签', pending:false},		// fail=41,
+	[EnumTaskState.done]: {me:'已完成', act:'完成', pending:false}, 	// done=22, 
+	[EnumTaskState.pass]: {me:'已验收', act:'验收', pending:false}, 	// pass=40, 
+	[EnumTaskState.fail]: {me:'已拒签', act:'拒签', pending:false},		// fail=41,
 	[EnumTaskState.rated]: {me:'已评价', act:'评价', pending:false}, 	// rated=60, 
-	[EnumTaskState.archive]: {me:'已归档', act:'评价', pending:false},		// archive=-20,
 	[EnumTaskState.cancel]: {me:'已取消', act:'归档', pending:false},		// cancel=-40
 }
 
 export function stateText(state:EnumTaskState):StateText {
 	return stateTexts[state];
+}
+
+export const TaskAct = {
+	done: '办理',
+	check: '查验',
+	rate: '评价',
 }
 
 export interface Performance {
@@ -53,6 +57,11 @@ export interface Performance {
 	NewAssign: Action;
 	DoneAssign: Action;
 	SendAssign: Action;
+	DoneTask: Action;
+	PassTask: Action;
+	FailTask: Action;
+	RateTask: Action;
+
 	TakeAssign: Action;
 	TaskDone: Action;
 	TaskPass: Action;

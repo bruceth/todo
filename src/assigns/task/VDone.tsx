@@ -1,9 +1,7 @@
 import React from "react";
-import { CAssigns } from "./CAssigns";
-import { VAssign } from "./VAssign";
+import { VTask } from "./VTask";
 
-
-export class VDone extends VAssign<CAssigns> {
+export class VDone extends VTask {
 	header() {return '完成'}
 	protected get back():'close' {return 'close'}
 
@@ -22,8 +20,13 @@ export class VDone extends VAssign<CAssigns> {
 	private done = async () => {
 		// 暂时界面上不输入分数
 		let point = 0;
-		await this.controller.doneAssign(point);
+		let comment:string;
+		if (this.task) {
+			await this.controller.doneTask(this.task.id, point, comment);
+		}
+		else {
+			await this.controller.doneAssign(point, comment);
+		}
 		this.closePage(2);
 	}
 }
-

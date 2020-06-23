@@ -133,8 +133,8 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 		this.scrollToTop();
 	}
 
-	private keyAssign = (doing: Doing) => {
-		return doing.task;
+	private keyAssign = (assignItem: AssignItem) => {
+		return assignItem.assign.id;
 	}
 
 	private onClickAssign = (item: AssignItem) => {
