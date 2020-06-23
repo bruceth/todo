@@ -27,6 +27,6 @@ export class VDone extends VTask {
 		else {
 			await this.controller.doneAssign(point, comment);
 		}
-		this.closePage(2);
+		this.afterAct();
 	}
 }

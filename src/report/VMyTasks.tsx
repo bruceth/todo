@@ -2,7 +2,7 @@ import * as React from 'react';
 import classNames from 'classnames';
 import { List, EasyTime, Muted, tv, TabProp, Tabs, FA, LMR, VPage } from 'tonva';
 import { Assign, AssignTask } from 'models';
-import { EnumTaskStep, stateText } from 'tapp';
+import { EnumTaskAct, stateText } from 'tapp';
 import { CReport } from './CReport';
 
 const cnIcon = "d-flex justify-content-center align-items-center rounded border border-info text-danger w-3c h-3c font-1-5c mr-3";
@@ -48,7 +48,7 @@ export class VMyTasks extends VPage<CReport> {
 						onClick: this.onTaskClick
 					}} />
 			</div>,
-			onShown: () => this.controller.loadTaskArchive(EnumTaskStep.todo),
+			onShown: () => this.controller.loadTaskArchive(EnumTaskAct.todo),
 		},
 		{
 			name: 'done',
@@ -60,7 +60,7 @@ export class VMyTasks extends VPage<CReport> {
 						onClick: this.onTaskClick
 					}} />
 			</div>,
-			onShown: () => this.controller.loadTaskArchive(EnumTaskStep.done),
+			onShown: () => this.controller.loadTaskArchive(EnumTaskAct.done),
 		},
 		{
 			name: 'check',
@@ -72,7 +72,7 @@ export class VMyTasks extends VPage<CReport> {
 						onClick: this.onTaskClick
 					}} />
 			</div>,
-			onShown: () => this.controller.loadTaskArchive(EnumTaskStep.check),
+			onShown: () => this.controller.loadTaskArchive(EnumTaskAct.check),
 		},
 		{
 			name: 'rate',
@@ -84,7 +84,7 @@ export class VMyTasks extends VPage<CReport> {
 						onClick: this.onTaskClick
 					}} />
 			</div>,
-			onShown: () => this.controller.loadTaskArchive(EnumTaskStep.rate),
+			onShown: () => this.controller.loadTaskArchive(EnumTaskAct.rate),
 		},
 	];
 

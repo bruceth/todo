@@ -22,7 +22,7 @@ export class VRate extends VTask {
 		let point = 0;
 		let comment:string;
 		await this.controller.rateTask(this.task.id, point, comment);
-		this.closePage(2);
+		this.afterAct();
 	}
 }
 

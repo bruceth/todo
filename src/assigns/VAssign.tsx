@@ -18,10 +18,11 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 	header() {return '任务详情';}
 
 	protected renderCaption() {
-		let {caption} = this.assign;
+		let {caption, end} = this.assign;
+		let icon = end === 1? 'check-circle-o' : 'circle-o';
 		return <div className="bg-white p-3 d-flex align-items-center">
-			<FA className="mr-3 text-info" name="circle-o" size="lg" fixWidth={true} />
-			<div className="h4"><b>{caption}</b></div>
+			<FA className="mr-3 text-success" name={icon} size="lg" />
+			<b>{caption}</b>
 		</div>;
 	}
 
@@ -33,31 +34,33 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 			if ($update.getTime() - $create.getTime() > 6*3600*1000) {
 				spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
 			}
-			return <div className="d-flex px-3 py-2 border-top bg-white align-items-center small">
-				<div className="mr-3">创建人：</div>
-				<Image className="w-1-5c h-1-5c mr-3" src={icon} /> 
-				<span className="mr-3">{nick || name}</span>
-				<span><Muted><EasyTime date={$create} /> {spanUpdate}</Muted></span>
+			return <div className="d-flex px-3 py-2 border-top bg-white align-items-center text-muted">
+				<Image className="w-1c h-1c mr-2" src={icon} />
+				<span className="mr-2 small">{nick || name}</span>
+				<span className="mr-3 small">创建于<EasyTime date={$create} /> {spanUpdate}</span>
 			</div>;
 		}
 		return <UserView user={owner} render={renderUser} />;
 	}
 
-	protected renderChecker() {}
-	protected renderRater() {}
+	protected renderFlow() {}
+
+	protected vStopFlag = <FA name="square-o" className="text-danger small" />;
+
+	protected renderDiscriptionContent() {
+		let {discription} = this.assign;
+		if (!discription) return;
+		let parts = discription.split('\n');
+		return <div className="bg-white px-3 py-2 border-top">
+			{parts.map((v, index) => <div key={index} className="py-2">{v}</div>)}
+		</div>;
+	}
 
 	protected renderDiscription(hasTitle:boolean = true) {
 		let Disp = observer(() => {
-			let {discription, owner} = this.assign;
-			let renderDiv = () => {
-				if (!discription) return;
-				let parts = discription.split('\n');
-				return <div className="bg-white px-3 py-2 border-top">
-					{parts.map((v, index) => <div key={index} className="py-2">{v}</div>)}
-				</div>;
-			};
-			if (hasTitle === false) {
-				return renderDiv();
+			let {discription, owner, end} = this.assign;
+			if (hasTitle === false || end === 1) {
+				return this.renderDiscriptionContent();
 			}
 			if (this.isMe(owner) === true) {
 				if (discription) {
@@ -65,7 +68,7 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 						<div className="small muted pt-2 pb-1 px-3 cursor-pointer" onClick={this.editDiscription}>
 							说明 <FA name="pencil-square-o ml-3" />
 						</div>
-						{renderDiv()}
+						{this.renderDiscriptionContent()}
 					</div>;
 				}
 				else {
@@ -74,7 +77,7 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 					</div>;
 				}
 			};
-			return renderDiv();
+			return this.renderDiscriptionContent();
 		});
 		return React.createElement(Disp);
 	}
@@ -98,7 +101,7 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 	}
 
 	protected renderTodos() {
-		return <div className="small text-muted px-3 py-2">todos</div>;
+		return <div className="small text-muted px-3 py-2">明细事项 [设计中...]</div>;
 	}
 
 	protected renderAssignTo() {return;}
@@ -117,20 +120,6 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 		return React.createElement(observer(() => {
 			let {caption, discription, owner, $create, $update, point, toList, tasks, end} = this.assign;
 			let isMe = this.isMe(owner);
-			let spanUpdate:any;
-			if ($update.getTime() - $create.getTime() > 6*3600*1000) {
-				spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
-			}
-			let renderTop = (user:User):JSX.Element => {
-				let {icon, name, nick} = user;
-				return <div className="d-flex px-3 py-3 border-bottom">
-					<Image className="w-2c h-2c" src={icon} /> 
-					<div className="ml-3">
-						<div>{nick || name}</div>
-						<div><Muted><EasyTime date={$create} /> {spanUpdate}</Muted></div>
-					</div>
-				</div>;
-			}
 			let vHour = point && <Muted>({hourText(point)})</Muted>;
 			let toListSelfDone:any;
 			if (isMe === true && toList.length === 0 && end === 0) {
@@ -141,14 +130,32 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 			}
 
 			return <>
-				{this.renderCaption()}
 				{this.renderFrom()}
-				{this.renderChecker()}
-				{this.renderRater()}
+				{this.renderCaption()}
 				{this.renderDiscription()}
 				{this.renderTodos()}
 				{toListSelfDone}
 				{tasks.length > 0 && this.renderTasks()}
+				{this.renderFlow()}
+			</>;
+		}));
+	}
+
+/*
+	let spanUpdate:any;
+	if ($update.getTime() - $create.getTime() > 6*3600*1000) {
+		spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
+	}
+	let renderTop = (user:User):JSX.Element => {
+		let {icon, name, nick} = user;
+		return <div className="d-flex px-3 py-3 border-bottom">
+			<Image className="w-2c h-2c" src={icon} /> 
+			<div className="ml-3">
+				<div>{nick || name}</div>
+				<div><Muted><EasyTime date={$create} /> {spanUpdate}</Muted></div>
+			</div>
+		</div>;
+	}
 				{
 					false && <>
 						<div className="m-3 rounded border bg-white">
@@ -161,9 +168,8 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 						{this.renderCommands()}
 					</>
 				}
-			</>;
-		}));
-	}
+
+*/
 
 	private renderItems():JSX.Element {
 		let {items} = this.assign;
@@ -178,10 +184,6 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 			</div>;
 		})}
 		</div>;
-	}
-
-	private showTask = async (taskId: number) => {
-		await this.controller.showTask(taskId);
 	}
 
 	private renderTasksOld():JSX.Element {
@@ -201,7 +203,7 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 					let {worker, $create} = v;
 					return <div key={index}
 						className="px-3 py-2 d-flex cursor-pointer" 
-						onClick={()=>this.showTask(v.id)}>
+						onClick={()=>this.controller.showFlowDetail(v)}>
 						<FA name="hand-paper-o mr-3 mt-2" className="text-info" fixWidth={true} />
 						<div className="">
 							<UserView user={worker} render={renderUser} />

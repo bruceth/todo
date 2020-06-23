@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import { CUqBase, EnumTaskState, TaskAct } from "tapp";
 import { Performance } from '../tapp'
-import { Task, Assign } from "models";
+import { Task, Assign, AssignTask } from "models";
 import { BoxId, Tuid } from "tonva";
 import { observable } from "mobx";
 import { VDone, VCheck, VRate } from './task';
+import { VFlowDetail } from './task';
 
 export interface AssignItem {
 	assign: BoxId;
@@ -61,9 +62,12 @@ export abstract class CAssigns extends CUqBase {
 		this.assign = assignObj;
 	}
 
-	showTask = async (taskId:number) => {
-		alert('show task 的代码都要改写为新的');
+	showFlowDetail = async (task:AssignTask) => {
+		let ret = await this.uqs.performance.GetTaskFlow.query({taskId: task.id}, true);
+		task.flows = ret.ret;
+		this.openVPage(VFlowDetail, task);
 		return;
+		/*
 		let retTask = await this.performance.GetTask.query({taskId});
 		let task:Task = {} as any;
 		_.mergeWith(task, retTask.task[0]);
@@ -75,6 +79,7 @@ export abstract class CAssigns extends CUqBase {
 
 		this.startAction();
 		this.openVAssign();
+		*/
 	}
 
 	newAssign = async (caption:string) => {

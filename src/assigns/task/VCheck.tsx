@@ -28,13 +28,13 @@ export class VCheck extends VTask {
 		let point = 0;
 		let comment:string;
 		await this.controller.passTask(this.task.id, point, comment);
-		this.closePage(2);
+		this.afterAct();
 	}
 
 	private fail = async () => {
 		let comment:string;
 		await this.controller.failTask(this.task.id, comment);
-		this.closePage(2);
+		this.afterAct();
 	}
 }
 
