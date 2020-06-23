@@ -94,7 +94,7 @@ export class VSendBase extends VPage<CSend> {
 			if (members[i] === true) {
 				if (this.isMe(i) === true) {
 					me = i;
-					break;
+					continue;
 				}
 				arr.push(this.renderUser(i))
 			}
@@ -152,12 +152,12 @@ export class VSendBase extends VPage<CSend> {
 			<div className="d-flex flex-wrap">
 				<label className={cn + ' text-warning'}>
 					<input name={radioName} type="radio" className="mx-2" defaultChecked={userId===0}
-						onChange={()=>this.controller.checker=undefined} />
+						onChange={()=>setter(0)} />
 					{none}
 				</label>
 				<label className={cn + ' text-info'}>
 					<input name={radioName} type="radio" className="mx-2" defaultChecked={this.isMe(userId)}
-						onChange={()=>this.controller.checker=this.controller.user.id} />
+						onChange={()=>setter(this.controller.user.id)} />
 					我自己
 				</label>
 			</div>
