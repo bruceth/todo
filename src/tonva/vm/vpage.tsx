@@ -47,7 +47,7 @@ export abstract class VPage<C extends Controller> extends View<C> {
 
 	protected onPageScroll(e:any) {}
 	protected async onPageScrollTop(scroller: Scroller): Promise<boolean> {return false;}
-	protected async onPageScrollBottom(scroller: Scroller): Promise<boolean> {return false;}
+	protected async onPageScrollBottom(scroller: Scroller): Promise<void> {return;}
 	protected afterBack():void {}
 	protected get back(): 'close' | 'back' | 'none' {return 'back'}
 	protected get headerClassName(): string {return null;}

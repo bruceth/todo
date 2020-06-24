@@ -23,10 +23,12 @@ export class QueryPager<T extends any> extends PageItems<T> {
 	}
 
     protected async onLoad() {
+		if (this.$page) return;
         let {schema} = this.query;
-        if (schema !== undefined) return;
-		await this.query.loadSchema();
-		schema = this.query.schema;
+        if (schema === undefined) {
+			await this.query.loadSchema();
+			schema = this.query.schema;
+		}
 		if (schema === undefined) return;
 		let $page = this.$page = (schema.returns as any[]).find(v => v.name === '$page');
 		if ($page === undefined) return;
