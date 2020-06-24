@@ -109,11 +109,20 @@ export abstract class CAssigns extends CUqBase {
 			case EnumTaskState.doing:
 				return TaskAct.done;
 			case EnumTaskState.done:
-				if (this.isMe(checker)) return TaskAct.check;
-				if (this.isMe(rater)) return TaskAct.rate;
+				if (checker) {
+					if (this.isMe(checker) === true) return TaskAct.check;
+					return;
+				}
+				if (rater) {
+					if (this.isMe(rater)) return TaskAct.rate;
+					return;
+				}
 				return;
 			case EnumTaskState.pass:
-				if (this.isMe(rater)) return TaskAct.rate;
+				if (rater) {
+					if (this.isMe(rater)) return TaskAct.rate;
+					return;
+				}
 				return;
 			case EnumTaskState.fail:
 			case EnumTaskState.rated:
