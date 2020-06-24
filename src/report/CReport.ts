@@ -1,4 +1,4 @@
-import { CUqBase, EnumTaskState, Performance, EnumTaskStep } from "../tapp";
+import { CUqBase, EnumTaskState, Performance, EnumTaskAct } from "../tapp";
 import { VMyTasks } from "./VMyTasks";
 import { VReport } from "./VReport";
 import { QueryPager } from "tonva";
@@ -61,7 +61,7 @@ export class CReport extends CUqBase {
 		this.openVPage(VMyTodos);
 	}
 
-	async loadTaskArchive(step: EnumTaskStep) {
+	async loadTaskArchive(step: EnumTaskAct) {
 		this.myTasksPager.reset();
 		await this.myTasksPager.first({step});
 	}

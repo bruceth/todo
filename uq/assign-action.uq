@@ -44,9 +44,9 @@ ACTION DoneAssign ver 1.8 (
 RETURNS ret (
 	end TINYINT,
 ) {
-	var taskId ID, ownerId ID, step TINYINT, state TINYINT;
+	var taskId ID, ownerId ID, act TINYINT, state TINYINT;
 
-	SET step = EnumTaskStep.done;
+	SET act = EnumTaskAct.done;
 	SET state = EnumTaskState.done;
 	SET taskId=a.id
 		FROM Task as a WHERE a.assign=assign AND a.worker=$user;
@@ -58,7 +58,7 @@ RETURNS ret (
 	ELSE {
 		SET assign = 0;
 	}
-	PROC ProcessTask(taskId, state, step);
+	PROC ProcessTask(taskId, act, state);
 	BOOK TaskState at(taskId) Set pointDone=point;
 };
 
@@ -71,10 +71,10 @@ RETURNS ret (
 	end TINYINT,
 ) {
 	IF exists (SELECT a.id FROM Task as a WHERE a.worker=$user) {
-		VAR step TINYINT, state TINYINT;
-		SET step = EnumTaskStep.done;
+		VAR act TINYINT, state TINYINT;
+		SET act = EnumTaskAct.done;
 		SET state = EnumTaskState.done;
-		PROC ProcessTask(task, state, step);
+		PROC ProcessTask(task, act, state);
 		BOOK TaskState at(task) Set pointDone=point;
 	}
 };
@@ -88,10 +88,10 @@ RETURNS ret (
 	end TINYINT,
 ) {
 	IF exists(SELECT a.id FROM Task as a JOIN Assign as b on a.assign=b.id WHERE b.checker=$user) {
-		VAR step TINYINT, state TINYINT;
-		SET step = EnumTaskStep.done;
+		VAR act TINYINT, state TINYINT;
+		SET act = EnumTaskAct.check;
 		SET state = EnumTaskState.pass;
-		PROC ProcessTask(task, state, step);
+		PROC ProcessTask(task, act, state);
 	}
 };
 
@@ -103,10 +103,10 @@ RETURNS ret (
 	end TINYINT,
 ) {
 	IF exists(SELECT a.id FROM Task as a JOIN Assign as b on a.assign=b.id WHERE b.checker=$user) {
-		VAR step TINYINT, state TINYINT;
-		SET step = EnumTaskStep.done;
+		VAR act TINYINT, state TINYINT;
+		SET act = EnumTaskAct.check;
 		SET state = EnumTaskState.fail;
-		PROC ProcessTask(task, state, step);
+		PROC ProcessTask(task, act, state);
 	}
 };
 
@@ -119,17 +119,17 @@ RETURNS ret (
 	end TINYINT,
 ) {
 	IF exists(SELECT a.id FROM Task as a JOIN Assign as b on a.assign=b.id WHERE b.rater=$user) {
-		VAR step TINYINT, state TINYINT;
-		SET step = EnumTaskStep.done;
+		VAR act TINYINT, state TINYINT;
+		SET act = EnumTaskAct.rate;
 		SET state = EnumTaskState.rated;
-		PROC ProcessTask(task, state, step);
+		PROC ProcessTask(task, act, state);
 	}
 };
 
 PROC ProcessTask ver 1.0 (
 	taskId ID,
+	act TINYINT,
 	state TINYINT,
-	step TINYINT
 )
 RETURNS ret (
 	end TINYINT,
@@ -142,21 +142,34 @@ RETURNS ret (
 		FROM Assign as a WHERE a.id=assign;
 	SET groupId=a.group FROM AssignEx as a WHERE a.assign=assign;
 	IF assign > 0 {
-		-- 界面提醒变化
-		SET taskEnd=1;
-		BOOK Me at($user) SET tickTodo=$date;
-		IF NOT checkerId IS NULL {
-			BOOK Me at(checkerId) SET tickTodo=$date;
-			SET taskEnd=0;
+		-- 设置任务结束标志
+		SET taskEnd = 1;
+		IF state=EnumTaskState.done {
+			IF NOT checkerId IS NULL {
+				SET taskEnd=0;
+			}
+			ELSEIF NOT raterId IS NULL {
+				SET taskEnd=0;
+			}
 		}
-		ELSEIF NOT raterId IS NULL {
-			BOOK Me at(raterId) SET tickTodo=$date;
-			SET taskEnd=0;
+		ELSEIF state=EnumTaskState.pass {
+			IF NOT raterId IS NULL {
+				BOOK Me at(raterId) SET tickTodo=$date;
+				SET taskEnd=0;
+			}
+		}
+		ELSEIF state=EnumTaskState.start OR state=EnumTaskState.todo OR state=EnumTaskState.doing {
+			SET taskEnd = 0;
+		}
+
+		-- 提醒组成员变化
+		FOREACH (VAR memberId INT OF SELECT a.member as memberId FROM GroupMember as a WHERE a.group=groupId) {
+			BOOK Me at(memberId) SET tickTodo=$date;
 		}
 
 		BOOK TaskState at(taskId) Set state=state, end=taskEnd;
 		SET seq = IFNULL((SELECT max(seq) FROM TaskFlow WHERE task=taskId), 0) + 1;
-		BOOK TaskFlow at(taskId, seq) SET user=$user, step=step, state=state;
+		BOOK TaskFlow at(taskId, seq) SET user=$user, act=act, state=state;
 
 		-- 设置assign end标志
 		IF EXISTS(SELECT a.id FROM Task as a JOIN TaskState as b ON a.id=b.task WHERE a.assign=assign AND b.end=0) {

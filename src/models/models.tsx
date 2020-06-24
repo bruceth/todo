@@ -1,4 +1,4 @@
-import { EnumNoteType, EnumTaskState } from '../tapp';
+import { EnumNoteType, EnumTaskState, EnumTaskAct } from '../tapp';
 import { BoxId } from 'tonva';
 
 export interface GroupItem {
@@ -76,6 +76,7 @@ export interface AssignTask {
 	date: Date;
 	stepDate: Date;
 	stepComment: string;
+	flows?: TaskFlow[];
 }
 
 export interface AssignToItem {
@@ -115,8 +116,9 @@ export interface MeTask {
 }
 
 export interface TaskFlow {
-	date: Date,
-	user: number,
-	state: number,			// 0:初建，10:领办，20:已办，30:拒办，40:取消
-	comment: string,
+	user: number;
+	act: EnumTaskAct;
+	state: EnumTaskState;			// 0:初建，10:领办，20:已办，30:拒办，40:取消
+	date: Date;
+	comment: string;
 }

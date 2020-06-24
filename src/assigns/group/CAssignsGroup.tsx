@@ -1,12 +1,13 @@
 import React from "react";
 import { CAssigns } from "../CAssigns";
 import { QueryPager, BoxId, tv, useUser } from "tonva";
-import { Group } from "models";
+import { Group, AssignTask } from "models";
 import { VListForGroup } from "./VListForGroup";
 import { VGroupDetail } from "./VGroupDetail";
 import { observable } from "mobx";
 import { VAssignForGroup, VAssignForG0 } from "./VAssignForGroup";
 import { CSend } from "./send";
+import { VCheck, VRate } from "assigns/task";
 
 export class CAssignsGroup extends CAssigns {
 	groupBoxId:BoxId;
@@ -57,4 +58,19 @@ export class CAssignsGroup extends CAssigns {
 		let cSend = this.newSub(CSend);
 		cSend.start();
 	}
+
+	showCheck = async (task: AssignTask) => {
+		this.openVPage(VCheck, task);
+	}
+
+	showRate = async (task: AssignTask) => {
+		this.openVPage(VRate, task);
+	}
+
+	/*
+	showFlowDetail = async (task: AssignTask) => {
+		this.showFlowDetail(task);
+		//this.openVPage(VFlowDetail, task);
+	}
+	*/
 }

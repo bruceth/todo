@@ -9,7 +9,7 @@ export enum EnumTaskState {
 	rated=60, 
 	cancel=-40
 };
-export enum EnumTaskStep {todo=20, done=22, check=40, rate=60};
+export enum EnumTaskAct {todo=20, done=22, check=40, rate=60};
 export interface StateText {
 	me:string; 
 	other?:string; 
@@ -30,6 +30,16 @@ const stateTexts:{[key in EnumTaskState]:StateText} = {
 
 export function stateText(state:EnumTaskState):StateText {
 	return stateTexts[state];
+}
+
+export function actText(act:EnumTaskAct): string {
+	switch (act) {
+		default: return '';
+		case EnumTaskAct.todo: return '办理';
+		case EnumTaskAct.done: return '完成';
+		case EnumTaskAct.check: return '查验';
+		case EnumTaskAct.rate: return '评价';
+	}
 }
 
 export const TaskAct = {
@@ -85,6 +95,7 @@ export interface Performance {
 	GetMyArchiveTodos: Query;
 	GetUserTodos: Query;
 	GetTask: Query;
+	GetTaskFlow: Query;
 	GetMyTasks: Query;
 	//GetMyTaskArchive: Query;
 	GetMyMembers: Query;

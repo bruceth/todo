@@ -4,9 +4,8 @@ ENUM EnumTaskState (
 	todo=20, doing=21, done=22, 
 	pass=40, fail=41,
 	rated=60,
-	archive=-20,
 	cancel=-40);
-ENUM EnumTaskStep (todo=20, done=22, check=40, rate=60);
+ENUM EnumTaskAct (todo=20, done=22, check=40, rate=60, cancel=-40);
 
 -- Task拥有一个或者多个Todo
 TUID Task (
@@ -48,7 +47,7 @@ BOOK TaskFlow ver 1.2 (
 	KEY task ID [Task],
 	KEY seq TINYINT,				-- 顺序加1
 	user ID [$User], 
-	step TINYINT,					-- EnumTaskStep
+	act TINYINT,					-- EnumTaskAct
 	state TINYINT,					-- 0:初建，10:领办，20:已办，30:拒办，40:取消
 	date TIMESTAMP,
 	comment TEXT,
@@ -59,10 +58,24 @@ BOOK MyTask (
 	KEY task ID [Task],
 );
 
+QUERY GetTaskFlow(taskId ID)
+RETURNS ret (
+	user ID, 
+	act TINYINT,					-- EnumTaskAct
+	state TINYINT,					-- 0:初建，10:领办，20:已办，30:拒办，40:取消
+	date TIMESTAMP,
+	comment TEXT,
+) {
+	INTO ret SELECT user, act, state, date, comment 
+		FROM TaskFlow
+		WHERE task=taskId
+		ORDER BY seq;
+};
+
 /*
 BOOK MyTaskArchive (
 	KEY me ID [$User],
-	KEY step TINYINT DEFAULT 0,	-- EnumTaskStep
+	KEY step TINYINT DEFAULT 0,	-- EnumTaskAct
 	KEY task ID [Task],
 );
 */
@@ -95,13 +108,13 @@ RETURNS ret (
 			-- TUID Todo SET task=taskId, assignItem=itemId, discription=discription;
 			TUID Todo SET task=taskId, assignItem=assignItem, discription=discription;
 		}
-		SET step = EnumTaskStep.todo;
+		SET step = EnumTaskAct.todo;
 		SET state = EnumTaskState.todo;
 		BOOK MyTask at($user, taskId);
 		BOOK Me at($user) SET tickTodo=$date;
 		// BOOK MyTaskArchive at($user, step, taskId);
 		BOOK TaskState at(taskId) Set state=state;
-		BOOK TaskFlow at(taskId, 1) SET user=$user, step=step, state=state;
+		BOOK TaskFlow at(taskId, 1) SET user=$user, act=step, state=state;
 		INTO ret SELECT taskId as task, step, state, 
 			(SELECT a.[group] FROM AssignToGroup as a WHERE a.assign=assignId) as [group];
 	}
@@ -124,14 +137,14 @@ RETURNS ret (
 		WHERE a.id=taskId;
 	DELETE FROM MyTask WHERE me=worker AND task=taskId;
 	BOOK Me at(worker) SET tickTodo=$date;
-	SET step = EnumTaskStep.done;
+	SET step = EnumTaskAct.done;
 	SET state = EnumTaskState.done;
 	BOOK MyTask at(checker, taskId);
 	BOOK Me at(checker) SET tickTodo=$date;
 	// BOOK MyTaskArchive at($user, step, taskId);
 	BOOK TaskState at(taskId) Set state=state, pointDone=pointDone;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
-	BOOK TaskFlow at(taskId, seq) SET user=$user, step=step, state=state;
+	BOOK TaskFlow at(taskId, seq) SET user=$user, act=step, state=state;
 	INTO ret SELECT taskId as task, step, state, 
 		(SELECT a.[group] FROM AssignToGroup as a WHERE a.assign=assignId) as [group];
 };
@@ -152,14 +165,14 @@ RETURNS ret (
 		WHERE a.id=taskId;
 	DELETE FROM MyTask WHERE me=checker AND task=taskId;
 	BOOK Me at(checker) SET tickTodo=$date;
-	SET step = EnumTaskStep.check;
+	SET step = EnumTaskAct.check;
 	SET state = EnumTaskState.pass;
 	BOOK MyTask at(owner, taskId);
 	BOOK Me at(owner) SET tickTodo=$date;
 	// BOOK MyTaskArchive at($user, step, taskId);
 	BOOK TaskState at(taskId) Set state=state;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
-	BOOK TaskFlow at(taskId, seq) SET user=$user, step=step, state=state;
+	BOOK TaskFlow at(taskId, seq) SET user=$user, act=step, state=state;
 	INTO ret SELECT taskId as task, step, state, 
 		(SELECT a.[group] FROM AssignToGroup as a WHERE a.assign=assignId) as [group];
 };
@@ -180,7 +193,7 @@ RETURNS ret (
 		WHERE a.id=taskId;
 	DELETE FROM MyTask WHERE me=checker AND task=taskId;
 	BOOK Me at(checker) SET tickTodo=$date;
-	SET step = EnumTaskStep.check;
+	SET step = EnumTaskAct.check;
 	SET state = EnumTaskState.fail;
 	BOOK MyTask at(worker, taskId);
 	BOOK Me at(worker) SET tickTodo=$date;
@@ -189,7 +202,7 @@ RETURNS ret (
 	// BOOK MyTaskArchive at($user, step, taskId);
 	BOOK TaskState at(taskId) Set state=state;
 	SET seq = (SELECT max(seq)+1 FROM TaskFlow WHERE task=taskId);
-	BOOK TaskFlow at(taskId, seq) SET user=$user, step=step, state=state;
+	BOOK TaskFlow at(taskId, seq) SET user=$user, act=step, state=state;
 	INTO ret SELECT taskId as task, step, state, 
 		(SELECT a.[group] FROM AssignToGroup as a WHERE a.assign=assignId) as [group];
 };
@@ -212,11 +225,11 @@ RETURNS ret (
 	DELETE FROM MyTask WHERE me=owner AND task=taskId;
 	BOOK Me at(owner) SET tickTodo=$date;
 
-	SET step=EnumTaskStep.rate;
+	SET step=EnumTaskAct.rate;
 	-- open=1，自动归档，否则，手动归档
 	IF open=1 {
 		DELETE FROM MyAssign WHERE me=owner AND assign=assignId;
-		Set state=EnumTaskState.archive;
+		Set state=EnumTaskState.rated;
 	}
 	else {
 		SET state=EnumTaskState.rated;
@@ -322,7 +335,7 @@ RETURNS flow (
 
 /*
 QUERY GetMyTaskArchive(
-	step TINYINT,			-- EnumTaskStep
+	step TINYINT,			-- EnumTaskAct
 )
 PAGE (
 	id ID ASC,
@@ -342,8 +355,8 @@ PAGE (
 		b.[$create], 
 		c.state, 
 		c.date,
-		(SELECT f.date FROM TaskFlow as f WHERE f.task=a.task AND f.step=step ORDER by f.seq DESC LIMIT 1) as stepDate,
-		(SELECT f.comment FROM TaskFlow as f WHERE f.task=a.task AND f.step=step ORDER by f.seq DESC LIMIT 1) as stepComment,
+		(SELECT f.date FROM TaskFlow as f WHERE f.task=a.task AND f.act=step ORDER by f.seq DESC LIMIT 1) as stepDate,
+		(SELECT f.comment FROM TaskFlow as f WHERE f.task=a.task AND f.act=step ORDER by f.seq DESC LIMIT 1) as stepComment,
 		d.point, c.pointDone, c.pointRate, c.likes
 		FROM MyTaskArchive as a 
 			JOIN Task as b on a.task=b.id

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NoteItem } from "./NoteItem";
-import { EnumTaskStep, EnumTaskState } from 'tapp';
+import { EnumTaskAct, EnumTaskState } from 'tapp';
 import { FA } from 'tonva';
 
 export class NoteTaskTodo extends NoteItem {
@@ -10,7 +10,7 @@ export class NoteTaskTodo extends NoteItem {
 	time: Date;
 	owner: number;
 	x: number;
-	step: EnumTaskStep;
+	step: EnumTaskAct;
 	state: EnumTaskState;
 
 	renderAsNote():JSX.Element {
@@ -34,10 +34,10 @@ export class NoteTaskTodo extends NoteItem {
 		let text:string;
 		switch (this.step) {
 			default: text = '未知 ' + this.step; break;
-			case EnumTaskStep.todo: text = '领办'; break;
-			case EnumTaskStep.done: text = '已办'; break;
-			case EnumTaskStep.check: text = '查验'; break;
-			case EnumTaskStep.rate: text = '评价'; break;
+			case EnumTaskAct.todo: text = '领办'; break;
+			case EnumTaskAct.done: text = '已办'; break;
+			case EnumTaskAct.check: text = '查验'; break;
+			case EnumTaskAct.rate: text = '评价'; break;
 		}
 		return <div className="border rounded px-3 py-1 text-muted bg-light cursor-pointer"
 			onClick={this.onClick}>

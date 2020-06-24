@@ -1,5 +1,5 @@
 import { Note } from "../../models";
-import { EnumNoteType, EnumTaskStep, EnumTaskState } from "../../tapp";
+import { EnumNoteType, EnumTaskAct, EnumTaskState } from "../../tapp";
 import { NoteText } from "./NoteText";
 import { NoteAssign } from "./NoteAssign";
 import { NoteTaskTodo } from "./NoteTaskTodo";
@@ -82,7 +82,7 @@ function buildNoteTaskTodo(cGroup: CHome, note:Note, results:{[name:string]:any[
 	ret.$create = $create;
 	if (content) {
 		let parts = content.split('|');
-		ret.step = Number(parts[0]) as EnumTaskStep;
+		ret.step = Number(parts[0]) as EnumTaskAct;
 		ret.state = Number(parts[1]) as EnumTaskState;
 	}
 
