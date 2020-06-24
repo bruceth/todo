@@ -1,21 +1,21 @@
 import _ from 'lodash';
 import { CUqBase, EnumTaskState, TaskAct } from "tapp";
 import { Performance } from '../tapp'
-import { Task, Assign, AssignTask } from "models";
+import { Task, Assign, AssignItem, AssignTask } from "models";
 import { BoxId, Tuid } from "tonva";
 import { observable } from "mobx";
 import { VDone, VCheck, VRate } from './task';
 import { VFlowDetail } from './task';
 
-export interface AssignItem {
+export interface AssignListItem {
 	assign: BoxId;
 }
 
 export abstract class CAssigns extends CUqBase {
 	protected performance: Performance;
 	@observable assign: Assign;
-	@observable assignItems: AssignItem[];
-	@observable endItems: AssignItem[];
+	@observable assignListItems: AssignListItem[];
+	@observable endListItems: AssignListItem[];
 
 	protected async internalStart() {
 	}
@@ -32,14 +32,14 @@ export abstract class CAssigns extends CUqBase {
 	showList = async () => {
 		let params = {group: this.groupId, end: 0};
 		let result = await this.performance.GetAssigns.query(params, true);
-		this.assignItems = result.ret;
+		this.assignListItems = result.ret;
 		this.openVList();
 	}
 
 	async loadEndItems() {
 		let params = {group: this.groupId, end: 1};
 		let result = await this.performance.GetAssigns.query(params, true);
-		this.endItems = result.ret;
+		this.endListItems = result.ret;
 	}
 
 	showAssign = async (assignId: BoxId) => {
@@ -89,12 +89,24 @@ export abstract class CAssigns extends CUqBase {
 		let res = result;
 		let {id} = res;
 		let assign = this.performance.Assign.boxId(id);
-		this.assignItems.unshift({assign});
+		this.assignListItems.unshift({assign});
 	}
 
 	async saveAssignDiscription(discription: string) {
 		await this.performance.Assign.saveProp(this.assign.id, 'discription', discription);
 		this.assign.discription = discription;
+	}
+
+	saveAssignItem = async (todoContent: string):Promise<any> => {
+		let assignItem = {
+			id: undefined as any,
+			assign: this.assign.id,
+			discription: todoContent,
+		};
+		let ret = await this.performance.AssignItem.save(undefined, assignItem);
+		assignItem.id = ret.id;
+		this.assign.items.push({id:ret.id,discription:todoContent});
+		return assignItem;
 	}
 
 	showDone = async () => {
@@ -163,12 +175,12 @@ export abstract class CAssigns extends CUqBase {
 	private afterAct(retAct: {end:number}) {
 		if (retAct.end === 0) return;
 		let assignId = this.assign.id;
-		let index = this.assignItems.findIndex(v => Tuid.equ(v.assign, assignId));
+		let index = this.assignListItems.findIndex(v => Tuid.equ(v.assign, assignId));
 		if (index < 0) return;
-		this.assignItems.splice(index, 1);
-		if (this.endItems) {
-			let assign = this.assignItems[index];
-			this.endItems.unshift(assign);
+		this.assignListItems.splice(index, 1);
+		if (this.endListItems) {
+			let assign = this.assignListItems[index];
+			this.endListItems.unshift(assign);
 		}
 		this.cApp.addGroupAssignCount(this.groupId, -1);
 	}

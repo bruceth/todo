@@ -1,5 +1,5 @@
 import React from 'react';
-import { CAssigns, AssignItem } from "./CAssigns";
+import { CAssigns, AssignListItem } from "./CAssigns";
 import { List, FA, Muted, EasyTime, tv } from "tonva";
 import { VBase } from "./VBase";
 import { observer } from "mobx-react";
@@ -15,7 +15,7 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 
 	content() {
 		let page = observer(() => {
-			let {assignItems} = this.controller;
+			let {assignListItems: assignItems} = this.controller;
 			//let none = <div className="px-3 py-2 text-muted small border-top">[无]</div>;
 			return <>
 				{this.renderDivTop()}
@@ -29,7 +29,7 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 
 	private renderList(caption:string, 
 		renderItem: (item:any, index:number)=>JSX.Element, 
-		assignItems: AssignItem[]) 
+		assignItems: AssignListItem[]) 
 	{
 		let none = <div className="px-3 py-3 text-muted small border-top border-bottom d-flex align-items-center">
 			<FA className="text-warning mr-3" name="circle-thin" />
@@ -48,7 +48,7 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 	private onToggleEndItems = async () => {
 		if (this.endItemsVisible === true) {
 			this.endItemsVisible = false;
-			this.controller.endItems = undefined;
+			this.controller.endListItems = undefined;
 		}
 		else {
 			this.endItemsVisible = true;
@@ -67,7 +67,7 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 					onClick={this.onToggleEndItems}>
 					<FA className="mr-2" name="chevron-down" /> 已完成
 			</button>
-			{this.renderList('完成', this.renderEndItem, this.controller.endItems)}
+			{this.renderList('完成', this.renderEndItem, this.controller.endListItems)}
 		</>;
 	}
 
@@ -133,11 +133,11 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 		this.scrollToTop();
 	}
 
-	private keyAssign = (assignItem: AssignItem) => {
+	private keyAssign = (assignItem: AssignListItem) => {
 		return assignItem.assign.id;
 	}
 
-	private onClickAssign = (item: AssignItem) => {
+	private onClickAssign = (item: AssignListItem) => {
 		this.controller.showAssign(item.assign);
 	}
 
@@ -148,15 +148,15 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 		return <>{pointer} <small>{me}</small> &nbsp; <Muted>{act}于<EasyTime date={date} /></Muted></>;
 	}
 
-	private renderAssignItem = (item:AssignItem, index: number) => {
+	private renderAssignItem = (item:AssignListItem, index: number) => {
 		return this.renderAssignItemBase(item, false);
 	}
 
-	private renderEndItem = (item:AssignItem, index: number) => {
+	private renderEndItem = (item:AssignListItem, index: number) => {
 		return this.renderAssignItemBase(item, true);
 	}
 
-	private renderAssignItemBase(item:AssignItem, end:boolean) {
+	private renderAssignItemBase(item:AssignListItem, end:boolean) {
 		let {assign} = item;
 		let icon:string, color:string, textColor:string;
 		if (end === true) {
