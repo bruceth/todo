@@ -1,9 +1,11 @@
 import React from 'react';
 import { VBase } from "./VBase";
 import { CAssigns } from './CAssigns';
-import { Muted, EasyTime, Image, UserView, FA, User, Page } from 'tonva';
+import { Muted, EasyTime, Image, UserView, FA, User, Page, List } from 'tonva';
 import { hourText } from 'tools';
 import { observer } from 'mobx-react';
+import { observable } from 'mobx';
+import { AssignItem } from 'models';
 
 export class VAssign<T extends CAssigns> extends VBase<T> {
 	init(params: any) {
@@ -101,8 +103,91 @@ export class VAssign<T extends CAssigns> extends VBase<T> {
 	}
 
 	protected renderTodos() {
-		return <div className="small text-muted px-3 py-2">明细事项 [设计中...]</div>;
+		let {items} = this.controller.assign;
+		let icon = 'circle';
+		let cnIcon = 'text-primary';
+		let renderItems = items.length === 0 ? null :
+			<div className="py-2 border-top">
+			{ items.map((v, index) => {
+					let {discription} = v;
+					return <div key={index} className="px-3 py-2 d-flex align-items-center">
+					<small><small><FA name={icon} className={cnIcon} fixWidth={true} /></small></small>
+				<div className="flex-fill ml-3">{discription}</div>
+				</div>})
+			}
+			</div>;
+		
+		return <><div className="small text-muted px-3 py-2">事项明细</div>
+			{renderItems}
+		</>;
 	}
+
+	@observable private isFocused: boolean = false;
+	@observable private inputContent: string;
+	footer() {
+		let {assign} = this.controller;
+		if (!this.isMe(assign?.owner)) {
+			return null;
+		}
+		let Footer = observer(() => this.isFocused === true?
+			<div className="d-flex p-3 align-items-center border-top">
+				<input className="flex-fill form-control mr-1 mb-0" 
+					type="text" ref={this.inputRef}
+					onBlur={this.onBlur}
+					onKeyDown={this.onKeyDown} onChange={this.onInputChange} />
+				<button onClick={this.onAddAssignItem} disabled={!this.inputContent}
+					className="btn btn-success">
+						<FA name="plus" />
+				</button>
+			</div>
+			:
+			<div className="p-3 border-top"
+				onClick={() => this.isFocused = true}>
+				<FA className="mr-3 text-success" name="plus" />添加事项
+			</div>
+		);
+		return React.createElement(Footer);
+	}
+
+	private input: HTMLInputElement;
+	private lostFocusTimeoutHandler: NodeJS.Timeout;
+	private onKeyDown = (evt:React.KeyboardEvent<HTMLInputElement>) => {
+		if (evt.keyCode === 13) {
+			this.onAddAssignItem();
+		}
+	}
+	private onBlur = (evt:React.FocusEvent<HTMLInputElement>) => {
+		this.lostFocusTimeoutHandler = setTimeout(() => {
+			this.lostFocusTimeoutHandler = undefined;
+			this.isFocused = false;
+		}, 200);
+	}
+	private onInputChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+		this.inputContent = this.input.value.trim();
+	}
+	private inputRef = (input:any) => {
+		if (!input) return;
+		if (window.getComputedStyle(input).visibility === 'hidden') return;
+		this.input = input;
+		this.input.focus();
+		if (this.inputContent) this.input.value = this.inputContent;
+	}
+
+	private onAddAssignItem = async () => {
+		clearTimeout(this.lostFocusTimeoutHandler);
+		if (!this.input) return;
+		if (!this.inputContent) return;
+		this.input.disabled = true;
+		clearTimeout(this.lostFocusTimeoutHandler);
+		//this.inputed = false;
+		await this.controller.saveAssignItem(this.inputContent);
+		this.input.value = '';
+		this.inputContent = undefined;
+		this.input.disabled = false;
+		this.input.focus();
+		this.scrollToTop();
+	}
+
 
 	protected renderAssignTo() {return;}
 
