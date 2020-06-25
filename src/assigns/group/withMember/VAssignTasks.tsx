@@ -1,70 +1,22 @@
 import React from "react";
-import { VAssign } from "../VAssign";
-import { CAssignsGroup } from "./CAssignsGroup";
-import { FA, UserView, User, Image } from "tonva";
-import { EnumTaskState, stateText } from "tapp";
+import { CAssignsWithMember } from "./CAssignsWithMember";
+import { View, FA } from "tonva";
 import { AssignTask } from "models";
+import { EnumTaskState, stateText } from "tapp";
+import { vStopFlag } from "assigns/VAssign";
 
-export class VAssignForGroup extends VAssign<CAssignsGroup> {
-	protected renderChecker() {
-		let {checker} = this.assign;
-		if (!checker) return;
-		return this.renderCheckerOrRater(checker, '查验人');
-	}
 
-	protected renderRater() {
-		let {rater} = this.assign;
-		if (!rater) return;
-		return this.renderCheckerOrRater(rater, '评价人');
-	}	
+// 注意：这里涉及到面向对象的基础知识。继承还是包含
+// renderTasks 可以写到一个 VAssingWithMember 里面去
+// 但是，到这里，VAssign的继承有两条线
+// 一条线是：Draft，Doing，End
+// 另外一条线是：Self, NoMember, WithMember
+// 目前的继承，只能由一条线，目前选择了 Draft, Doing, End
 
-	private renderCheckerOrRater(user:number, caption:string) {
-		let renderUser = (user:User):JSX.Element => {
-			let {icon, name, nick} = user;
-			return <div className="d-flex px-3 py-2 border-top bg-white align-items-center small">
-				<div className="mr-3">{caption}：</div>
-				<Image className="w-1c h-1c mr-3" src={icon} /> 
-				<span className="mr-3">{nick || name}</span>
-			</div>;
-		}
-		return <UserView user={user} render={renderUser} />;
-	}
-
-	protected renderFlow() {
-		let cn = 'border border-warning rounded px-2 py-1 d-flex align-items-center';
-		let {checker, rater} = this.assign;
-		let angle = <FA name="angle-right" className="mx-3 text-muted" />;
-		let renderAdmin = (admin:any, action:string): JSX.Element => {
-			if (!admin) return;
-			let renderUser = (user:User):JSX.Element => {
-				let {icon, name, nick} = user;
-				return <div className={cn}>
-					<Image className="w-1c h-1c mr-1" src={icon} /> 
-					<span className="mr-2 small">{nick || name}</span>
-					<small className="text-muted">{action}</small>
-				</div>;
-			}
-			return <>
-				{angle}
-				<UserView user={admin} render={renderUser} />
-			</>;
-		}		
-		return <div className="d-flex mt-3 px-3 py-2 border-top bg-white align-items-center">
-			<FA name="circle-o text-primary small" />
-			{angle}
-			<div className={cn + ' small'}>执行</div>
-			{renderAdmin(checker, '查验')}
-			{renderAdmin(rater, '评分')}
-			{angle}
-			{this.vStopFlag}
-		</div>;
-	}
-
-	protected renderAssignTo() {
-		return <div className="px-3 py-2 border-top bg-white cursor-pointer"
-			onClick={this.controller.showAssignTo}>
-			<FA className="mr-3 text-info" name="user-plus" fixWidth={true} /> 分配给
-		</div>
+// 于是，把renderTasks用单独的View，以控件的方式来实现。分别在Doing和End中使用
+export class VAssignTasks extends View<CAssignsWithMember> {
+	render() {
+		return this.renderTasks()
 	}
 
 	protected renderTasks() {
@@ -86,14 +38,14 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 
 		for (let task of tasks) {
 			let {
-				id, //: number; // Task ID ASC,
-				assign, //: number|any; // ID Assign,
+				//id, //: number; // Task ID ASC,
+				//assign, //: number|any; // ID Assign,
 				worker, //: number; // ID,
-				$create, //: Date; // TIMESTAMP,
+				//$create, //: Date; // TIMESTAMP,
 				state, //: EnumTaskState;
-				date, //: Date;
-				stepDate, //: Date;
-				stepComment, //: string;
+				//date, //: Date;
+				//stepDate, //: Date;
+				//stepComment, //: string;
 			} = task;
 			if (this.isMe(worker) === true) {
 				my = task;
@@ -118,6 +70,7 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 		}
 
 		return <>
+			<div className="pt-3" />
 			{this.renderChecks(checks)}
 			{this.renderRates(rates)}
 			{this.renderMy(my)}
@@ -130,14 +83,6 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 			{this.renderOthers(EnumTaskState.cancel, cancels)}
 			{this.renderOthers(undefined, others)}
 		</>;
-	}
-	
-	private renderUser = (user:User) => {
-		let {name, nick, icon} = user;
-		return <div className="d-flex align-items-center">
-			<Image src={icon} className="w-1c h-1c mr-2" />
-			<div>{nick || name}</div>
-		</div>;
 	}
 
 	private renderMy(task: AssignTask) {
@@ -168,7 +113,7 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 				onClick={()=>act(task)}>
 				<FA name="chevron-circle-right" className="text-danger mr-3" />
 				<span className="text-primary mr-2">{actName}</span>
-				<UserView user={worker} render={this.renderUser} />
+				{this.renderUserBase(worker)}
 			</div>
 		}
 	}
@@ -184,7 +129,7 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 	}
 
 	private renderEndFlag(end:number) {
-		if (end === 1) return <span className="mx-3">{this.vStopFlag}</span>;
+		if (end === 1) return <span className="mx-3">{vStopFlag}</span>;
 	}
 
 	private renderOthers(state:EnumTaskState, tasks: AssignTask[]) {
@@ -197,7 +142,7 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 					let {id, end} = v;
 					return <div key={id} className="d-flex px-3 py-2 bg-white border-bottom cursor-pointer align-items-center"
 						onClick={() => this.controller.showFlowDetail(v)}>
-						<UserView user={v.worker} render={this.renderUser} />
+						{this.renderUserBase(v.worker)}
 						<span className="ml-3 small text-info">任务{me}</span>
 						{this.renderEndFlag(end)}
 						<FA name="angle-right" className="ml-auto" />
@@ -206,8 +151,4 @@ export class VAssignForGroup extends VAssign<CAssignsGroup> {
 			</div>
 		</>;
 	}
-}
-
-export class VAssignForG0 extends VAssign<CAssignsGroup> {
-	protected get selfDoneCaption():string {return '完成';}
 }

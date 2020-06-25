@@ -55,8 +55,9 @@ export class CSend extends CUqSub<CAssigns> {
 			toList
 		};
 		await this.uqs.performance.SendAssign.submit(data);
-		this.owner.reloadAssign();
+		//this.owner.reloadAssign();
 		this.popToTopPage();
+		this.owner.showAssign();
 	}
 
 	cancel = async () => {

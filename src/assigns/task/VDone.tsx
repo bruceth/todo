@@ -3,17 +3,10 @@ import { VTask } from "./VTask";
 
 export class VDone extends VTask {
 	header() {return '完成'}
-	protected get back():'close' {return 'close'}
 
-	content() {
-		return <div className="m-3">
-			<div className="border rounded">
-				{this.renderCaption()}
-				{this.renderDiscription(false)}
-			</div>
-			<div className="mt-3 text-center">
-				<button className="btn btn-success" onClick={this.done}>确认完成</button>
-			</div>
+	protected renderMore() {
+		return <div className="mt-3 text-center">
+			<button className="btn btn-success" onClick={this.done}>确认完成</button>
 		</div>
 	}
 
@@ -28,5 +21,10 @@ export class VDone extends VTask {
 			await this.controller.doneAssign(point, comment);
 		}
 		this.afterAct();
+	}
+
+	protected renderTodos():JSX.Element {
+		// 改写，根据Done来显示。每项加Checkbox
+		return super.renderTodos();
 	}
 }

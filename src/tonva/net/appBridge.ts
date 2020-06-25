@@ -62,7 +62,7 @@ window.addEventListener('message', async function(evt) {
             await initSubWin(message);
             break;
         case 'pop-app':
-            this.console.log('///\\\\\\ pop-app');
+            window.console.log('///\\\\\\ pop-app');
             nav.navBack();
             break;
         case 'center-api':
@@ -87,7 +87,7 @@ window.addEventListener('message', async function(evt) {
             break;
         default:
 			if ((message.source as string)?.startsWith('react-devtools') === true) break;
-            this.console.log('message: %s', JSON.stringify(message));
+            window.console.log('message: %s', JSON.stringify(message));
             break;
     }
 });

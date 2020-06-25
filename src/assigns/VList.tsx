@@ -56,17 +56,16 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 		}
 	}
 	private renderEndItems() {
+		let btnToggle = (icon:string) => <button className="btn btn-info mx-3 my-2"
+			onClick={this.onToggleEndItems}>
+			<FA className="mr-2" name={icon} /> 已完成
+		</button>;
+
 		if (this.endItemsVisible === false) {
-			return <button className="btn btn-info mx-3 my-2"
-				onClick={this.onToggleEndItems}>
-				<FA className="mr-2" name="chevron-right" /> 已完成
-			</button>;
+			return btnToggle('chevron-right');
 		}
 		return <>
-			<button className="btn btn-info mx-3 my-2"
-					onClick={this.onToggleEndItems}>
-					<FA className="mr-2" name="chevron-down" /> 已完成
-			</button>
+			{btnToggle('chevron-down')}
 			{this.renderList('完成', this.renderEndItem, this.controller.endListItems)}
 		</>;
 	}

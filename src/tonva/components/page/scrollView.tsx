@@ -19,7 +19,7 @@ export class Scroller {
 export interface ScrollProps {
     onScroll?: (e:any) => void;
     onScrollTop?: (scroller: Scroller) => Promise<boolean>;
-	onScrollBottom?: (scroller: Scroller) => Promise<boolean>;
+	onScrollBottom?: (scroller: Scroller) => Promise<void>;
 	className?: string;
 }
 interface ScrollViewProps extends ScrollProps {
