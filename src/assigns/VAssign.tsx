@@ -29,19 +29,14 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 
 	protected renderFrom() {
 		let {owner, $create, $update} = this.assign;
-		let renderUser = (user:User):JSX.Element => {
-			let {icon, name, nick} = user;
-			let spanUpdate:any;
-			if ($update.getTime() - $create.getTime() > 6*3600*1000) {
-				spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
-			}
-			return <div className="d-flex px-3 py-2 border-top bg-white align-items-center text-muted">
-				<Image className="w-1c h-1c mr-2" src={icon} />
-				<span className="mr-2 small">{nick || name}</span>
-				<span className="mr-3 small">创建于<EasyTime date={$create} /> {spanUpdate}</span>
-			</div>;
+		let spanUpdate:any;
+		if ($update.getTime() - $create.getTime() > 6*3600*1000) {
+			spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
 		}
-		return <UserView user={owner} render={renderUser} />;
+		return <div className="d-flex px-3 py-2 border-top bg-white align-items-center text-muted">
+			<small>{this.renderUser(owner)}</small>
+			<span className="mr-3 small">创建于<EasyTime date={$create} /> {spanUpdate}</span>
+		</div>;
 	}
 
 	protected renderDiscription() {
@@ -93,25 +88,22 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 	protected renderContent() {
 		return <>
 			{super.renderContent()}
-			{this.renderDraft()}
+			<div className="pt-3">
+				{this.renderDraft()}
+			</div>
 		</>;
 	}
 
-	protected renderDraft() {
-		return <div className="pt-3">
-				{this.renderAssignTo()}
-				{this.renderSelfDone()}
+	protected get selfDoneCaption():string {return '自己完成';}
+	protected renderSelfDone() {
+		return <div className="px-3 py-2 border-top bg-white cursor-pointer"
+			onClick={this.controller.showDone}>
+			<FA className="mr-3 text-primary" name="chevron-circle-right" fixWidth={true} /> {this.selfDoneCaption}
 		</div>;
-		/*
-		let {owner, toList, end} = this.assign;
-		let isMe = this.isMe(owner);
-		let toListSelfDone:any;
-		if (isMe === true && toList.length === 0 && end === 0) {
-			toListSelfDone = <div className="pt-3">
-				{this.renderAssignTo()}
-				{this.renderSelfDone()}
-			</div>;
-		}*/
+	}
+
+	protected renderDraft() {
+		return this.renderSelfDone()
 	}
 
 	protected renderDiscription() {
@@ -216,16 +208,6 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 		this.input.disabled = false;
 		this.input.focus();
 		this.scrollToTop();
-	}
-
-	protected renderAssignTo() {return;}
-
-	protected get selfDoneCaption():string {return '自己完成';}
-	protected renderSelfDone() {
-		return <div className="px-3 py-2 border-top bg-white cursor-pointer"
-			onClick={this.controller.showDone}>
-			<FA className="mr-3 text-primary" name="chevron-circle-right" fixWidth={true} /> {this.selfDoneCaption}
-		</div>;
 	}
 }
 

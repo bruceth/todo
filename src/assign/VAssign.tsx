@@ -70,13 +70,6 @@ export class VAssign extends VPage<CAssign> {
 	private renderTasks():JSX.Element {
 		let {tasks} = this.assign;
 		if (tasks.length === 0) return;
-		let renderUser = (user:User) => {
-			let {icon, name, nick} = user;
-			return <>
-				<Image className="w-1c h-1c" src={icon} /> 
-				<span className="ml-3">{nick || name}</span>
-			</>;
-		}
 		return <div className="py-2 m-3 rounded border bg-white">
 			<div className="border-top border-bottom px-3 bg-light"><Muted>已领办为任务</Muted></div>
 			{
@@ -87,7 +80,7 @@ export class VAssign extends VPage<CAssign> {
 						onClick={()=>this.showTask(v.id)}>
 						<FA name="hand-paper-o mr-3 mt-2" className="text-info" fixWidth={true} />
 						<div className="">
-							<UserView user={worker} render={renderUser} />
+							{this.renderUser(worker)}
 							<div>
 								<EasyTime date={$create} />
 								<span className="mx-3">领办</span>

@@ -66,22 +66,17 @@ export class VSendBase extends VPage<CSend> {
 
 	protected renderMiddlePart():JSX.Element {return;}
 
-	protected renderUser(id:number|string, none?:any) {
+	protected renderUserWithCheck(id:number|string, none?:any) {
 		const cn = 'mr-5 my-2 d-flex align-items-center w-min-12c';
 		let check = () => <FA name="check" className="text-primary mr-2" />;
 		if (!id) return <div className={cn}><FA name="times" className="text-danger mr-2" /> {none}</div>;
 		if (this.isMe(id) === true) {
 			return <div className={cn + ' text-info'}>{check()}我自己</div>;
 		}
-		let renderUser = (user:User) => {
-			let {name, nick, icon} = user;
-			return <div className={cn}>
-				{check()}
-				<Image src={icon} className="w-1c h-1c mr-1" />
-				<div>{nick || name}</div>
-			</div>;
-		}
-		return <UserView key={id} user={Number(id)} render={renderUser} />
+		return <div className={cn}>
+			{check()}
+			{this.renderUser(id)}
+		</div>;
 	}
 
 	protected renderToList() {
@@ -94,7 +89,7 @@ export class VSendBase extends VPage<CSend> {
 					me = i;
 					continue;
 				}
-				arr.push(this.renderUser(i))
+				arr.push(this.renderUserWithCheck(i))
 			}
 		}
 		return <div className="form-group">
@@ -102,7 +97,7 @@ export class VSendBase extends VPage<CSend> {
 			<div className="">
 		  		<div className="form-control-plaintext border bg-light px-3 py-2">
 					<div className="d-flex flex-wrap">{arr}</div>
-					{me && this.renderUser(me)}
+					{me && this.renderUserWithCheck(me)}
 				</div>
 			</div>
 	  	</div>;
@@ -113,7 +108,7 @@ export class VSendBase extends VPage<CSend> {
 			<label className="">检查人</label>
 			<div className="">
 				<div className="form-control-plaintext border bg-light px-3 py-2">
-					{this.renderUser(this.controller.checker, '无需检查')}
+					{this.renderUserWithCheck(this.controller.checker, '无需检查')}
 				</div>
 			</div>
 	  	</div>;
@@ -124,7 +119,7 @@ export class VSendBase extends VPage<CSend> {
 			<label className="">评价人</label>
 			<div className="">
 				<div className="form-control-plaintext border bg-light px-3 py-2">
-					{this.renderUser(this.controller.rater, '无需评价')}
+					{this.renderUserWithCheck(this.controller.rater, '无需评价')}
 				</div>
 			</div>
 	  	</div>;
@@ -133,19 +128,6 @@ export class VSendBase extends VPage<CSend> {
 	protected renderRadios(caption:string, radioName:string, userId:number, setter: (userId:number)=>void, none:string) {
 		const cn = 'mr-5 my-2 d-flex align-items-center w-min-12c';
 		let items = this.controller.membersPager.items;
-		let renderUser = (user:User) => {
-			let {id, name, nick, icon} = user;
-			let onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-				setter(Number(evt.target.value));
-			};
-			return <label className={cn}>
-				<input name={radioName} type="radio" className="mx-2" 
-					defaultChecked={id===userId}
-					value={id} onChange={onChange} />
-				<Image src={icon} className="w-1c h-1c mr-1" />
-				<div>{nick || name}</div>
-			</label>;
-		}
 		return <div className="form-group">
 			<label className="">{caption}</label>
 			<div className="px-3 py-2 bg-white border rounded">
@@ -163,8 +145,17 @@ export class VSendBase extends VPage<CSend> {
 				</div>
 				<div className="d-flex flex-wrap">
 					{items.map((v, index) => {
-						if (v.member === this.controller.user.id) return null;
-						return <UserView user={v.member} render={renderUser} />
+						let {member} = v;
+						if (member === this.controller.user.id) return null;
+						let onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+							setter(Number(evt.target.value));
+						};
+						return <label className={cn}>
+							<input name={radioName} type="radio" className="mx-2" 
+								defaultChecked={member===userId}
+								value={member} onChange={onChange} />
+							{this.renderUser(member)}
+						</label>;
 					})}
 				</div>
 			</div>

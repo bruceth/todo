@@ -27,9 +27,4 @@ export abstract class VBase<T extends CAssigns> extends VPage<T> {
 	protected renderDivBottom() {
 		return <div ref={v=>this.divBottom=v} style={{height:'0.01rem'}}></div>
 	}
-
-	protected renderUser = (user:number|User, tag?:string, className?:string) => {
-		if (!tag) return this.renderUserBase(user);
-		return React.createElement('div', {className}, this.renderUserBase(user));
-	}
 }

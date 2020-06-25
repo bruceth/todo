@@ -27,20 +27,12 @@ export class VMain extends VPage<CMember> {
 
 	private renderMemberItem = (memberItem:MemberItem, index:number) => {
 		let {member, count} = memberItem;
-		let renderUser = (user:User) => {
-			let {icon, nick, name} = user;
-			return <div className="d-flex px-3 py-2">
-				<Image className="w-2c h-2c mr-3" src={icon} />
-				<div className="flex-grow-1">
-					<div>{nick || name}</div>
-					
-				</div>
-				<div>
-					{count>0 && <Muted>{count}群</Muted>}
-				</div>
+		return <div className="d-flex px-3 py-2">
+			{this.renderUser(member, 'w-2c h-2c mr-3', 'flex-grow-1')}
+			<div>
+				{count>0 && <Muted>{count}群</Muted>}
 			</div>
-		}
-		return <UserView user={member} render={renderUser} />
+		</div>
 	}
 
 	private onMemberItem = (userId:number) => {

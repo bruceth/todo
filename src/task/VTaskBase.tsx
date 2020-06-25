@@ -102,16 +102,6 @@ export abstract class VTaskBase extends VBase {
 		if ($update.getTime() - $create.getTime() > 6*3600*1000) {
 			spanUpdate = <><Muted>更新:</Muted> <EasyTime date={$update} /></>;
 		}
-		let renderUser = (user:User):JSX.Element => {
-			let {icon, name, nick} = user;
-			return <div className="d-flex px-3 py-2 bg-light">
-				<Image className="w-2c h-2c" src={icon} /> 
-				<div className="ml-3">
-					<div>{nick || name}</div>
-					<div><Muted><EasyTime date={$create} /> {spanUpdate}</Muted></div>
-				</div>
-			</div>;
-		}
 		let vDisp;
 		if (discription) {
 			let parts = discription.split('\\n');
@@ -120,7 +110,10 @@ export abstract class VTaskBase extends VBase {
 			</div>;
 		}
 		return <>
-			<UserView user={owner} render={renderUser} />
+			<div className="d-flex px-3 py-2 bg-light">
+				{this.renderUser(owner, 'w-2c h-2c mr-3')}
+				<div><Muted><EasyTime date={$create} /> {spanUpdate}</Muted></div>
+			</div>
 			<div className="px-3 py-3 bg-white">
 				<div><b>{caption}</b></div>
 				{vDisp}
