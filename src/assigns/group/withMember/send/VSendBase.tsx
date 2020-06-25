@@ -64,9 +64,7 @@ export class VSendBase extends VPage<CSend> {
 		*/
 	}
 
-	protected renderMiddlePart() {
-		return <div></div>;
-	}
+	protected renderMiddlePart():JSX.Element {return;}
 
 	protected renderUser(id:number|string, none?:any) {
 		const cn = 'mr-5 my-2 d-flex align-items-center w-min-12c';

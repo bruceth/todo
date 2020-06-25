@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { CUqBase, EnumTaskState, TaskAct } from "tapp";
 import { Performance } from '../tapp'
-import { Task, Assign, AssignItem, AssignTask } from "models";
+import { Assign, AssignTask } from "models";
 import { BoxId, Tuid } from "tonva";
 import { observable } from "mobx";
 import { VDone, VCheck, VRate } from './task';
@@ -42,15 +42,19 @@ export abstract class CAssigns extends CUqBase {
 		this.endListItems = result.ret;
 	}
 
-	showAssign = async (assignId: BoxId) => {
-		await this.loadAssign(assignId);
+	showAssign = async (assignId?: BoxId) => {
+		let id:any = assignId;
+		if (!assignId) id = this.assign.id;
+		await this.loadAssign(id);
 		this.openVAssign();
 	}
 
+	/*
 	async reloadAssign() {
 		if (!this.assign) return;
 		await this.loadAssign(this.assign.id);
 	}
+	*/
 
 	private async loadAssign(assignId:BoxId | number) {
 		let retAssign = await this.performance.GetAssign.query({assignId}, true);
@@ -66,20 +70,6 @@ export abstract class CAssigns extends CUqBase {
 		let ret = await this.uqs.performance.GetTaskFlow.query({taskId: task.id}, true);
 		task.flows = ret.ret;
 		this.openVPage(VFlowDetail, task);
-		return;
-		/*
-		let retTask = await this.performance.GetTask.query({taskId});
-		let task:Task = {} as any;
-		_.mergeWith(task, retTask.task[0]);
-		task.todos = retTask.todos;
-		task.flows = retTask.flow;
-		task.meTask = retTask.meTask;
-		let discription:string = task.discription;
-		if (discription) task.discription = discription.replace(/\\n/g, '\n');
-
-		this.startAction();
-		this.openVAssign();
-		*/
 	}
 
 	newAssign = async (caption:string) => {

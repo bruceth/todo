@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Page } from '../components';
-import { env } from '../tool';
+import { Page, Image, UserView } from '../components';
+import { env, User } from '../tool';
 import { Controller } from './controller';
 import { VPage } from './vpage';
 
@@ -30,11 +30,6 @@ export abstract class View<C extends Controller> {
     }
 
     protected async event(type:string, value?:any) {
-        /*
-        if (this._resolve_$_ !== undefined) {
-            await this._resolve_$_({type:type, value:value});
-            return;
-        }*/
         await this.controller.event(type, value);
     }
 
@@ -45,6 +40,23 @@ export abstract class View<C extends Controller> {
     protected returnCall(value:any) {
         this.controller.returnCall(value);
     }
+
+	protected renderUserBase(user:any, imageClassName?:string, textClassName?:string) {
+		let renderUser = (user:User) => {
+			let {name, nick, icon} = user;
+			return <>
+				<Image src={icon} className={imageClassName || 'w-1c h-1c mr-2'} />
+				<span className={textClassName}>{nick || name}</span>
+			</>;
+		}
+		return <UserView user={user} render={renderUser} />
+	}
+
+	protected renderMe(imageClassName?:string, textClassName?:string) {
+		let {user} = this.controller;
+		if (!user) return;
+		return this.renderUserBase(user.id, imageClassName, textClassName);
+	}
 
     protected openPage(view: React.StatelessComponent<any>, param?:any) {
         let type = typeof param;

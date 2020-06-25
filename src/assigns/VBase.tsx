@@ -1,17 +1,8 @@
 import React from "react";
 import { CAssigns } from "./CAssigns";
-import { VPage, useUser, User, Image, UserView } from "tonva";
-import { Assign } from "models";
+import { VPage, User } from "tonva";
 
 export abstract class VBase<T extends CAssigns> extends VPage<T> {
-	protected get assign(): Assign {return this.controller.assign;};
-
-	init(param?: any) {
-		if (this.assign) {
-			useUser(this.assign.owner);
-		}
-	}
-
 	private divTop:HTMLElement;
 	protected scrollToTop() {
 		setTimeout(() => {
@@ -37,14 +28,8 @@ export abstract class VBase<T extends CAssigns> extends VPage<T> {
 		return <div ref={v=>this.divBottom=v} style={{height:'0.01rem'}}></div>
 	}
 
-	protected renderUserBase(user:any) {
-		let renderUser = (user:User) => {
-			let {name, nick, icon} = user;
-			return <>
-				<Image src={icon} className="w-1c h-1c mr-1" />
-				<div>{nick || name}</div>
-			</>;
-		}
-		return <UserView user={user} render={renderUser} />
+	protected renderUser = (user:number|User, tag?:string, className?:string) => {
+		if (!tag) return this.renderUserBase(user);
+		return React.createElement('div', {className}, this.renderUserBase(user));
 	}
 }
