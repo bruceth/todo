@@ -3,18 +3,11 @@ import { VTask } from "./VTask";
 
 export class VRate extends VTask {
 	header() {return '评价'}
-	protected get back():'close' {return 'close'}
 
-	content() {
-		return <div className="m-3">
-			<div className="border rounded">
-				{this.renderCaption()}
-				{this.renderDiscription(false)}
-			</div>
-			<div className="mt-3 text-center">
-				<button className="btn btn-success" onClick={this.done}>评价</button>
-			</div>
-		</div>
+	protected renderMore() {
+		return <div className="mt-3 text-center">
+			<button className="btn btn-success" onClick={this.done}>评价</button>
+		</div>;
 	}
 
 	private done = async () => {
@@ -25,4 +18,3 @@ export class VRate extends VTask {
 		this.afterAct();
 	}
 }
-

@@ -4,23 +4,16 @@ import { FA } from "tonva";
 
 export class VCheck extends VTask {
 	header() {return '查验'}
-	protected get back():'close' {return 'close'}
 
-	content() {
-		return <div className="m-3">
-			<div className="border rounded">
-				{this.renderCaption()}
-				{this.renderDiscription(false)}
-			</div>
-			<div className="mt-3 d-flex">
-				<button className="btn btn-success mx-auto px-4" onClick={this.pass}>
-					<FA className="mr-2" name="check" /> 验收
-				</button>
-				<button className="btn btn-outline-danger" onClick={this.fail}>
-					<FA name="times" /> 拒签
-				</button>
-			</div>
-		</div>
+	protected renderMore() {
+		return <div className="mt-3 d-flex">
+			<button className="btn btn-success mx-auto px-4" onClick={this.pass}>
+				<FA className="mr-2" name="check" /> 验收
+			</button>
+			<button className="btn btn-outline-danger" onClick={this.fail}>
+				<FA name="times" /> 拒签
+			</button>
+		</div>;
 	}
 
 	private pass = async () => {
@@ -36,5 +29,9 @@ export class VCheck extends VTask {
 		await this.controller.failTask(this.task.id, comment);
 		this.afterAct();
 	}
-}
 
+	protected renderTodos():JSX.Element {
+		// 改写，根据Check来显示。每项需要加确认
+		return super.renderTodos();
+	}
+}

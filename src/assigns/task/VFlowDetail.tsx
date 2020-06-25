@@ -7,22 +7,17 @@ import { stateText, actText } from 'tapp';
 export class VFlowDetail extends VTask {
 	header() {return '执行过程'}
 
-	protected renderDiscription(hasTitle:boolean = true) {
-		return this.renderDiscriptionContent();
-	}
-
 	protected renderFrom():JSX.Element {return;}
 
-	content() {
-		let {flows} = this.task;
+	protected renderMore() {
 		return <>
-			{super.content()}
 			<div className="d-flex mx-3 mt-3 mb-1 align-items-center">{this.renderUserBase(this.task.worker)}</div>
-			{this.renderFlows(flows)}
+			{this.renderFlows()}
 		</>;
 	}
 
-	private renderFlows(flows: TaskFlow[]) {
+	private renderFlows() {
+		let {flows} = this.task;
 		return flows.map((v, index) => {
 			let {date, user, state, act} = v;
 			let {me} = stateText(state);

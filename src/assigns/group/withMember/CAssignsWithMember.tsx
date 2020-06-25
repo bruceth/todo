@@ -1,28 +1,22 @@
 import React from "react";
-import { CAssigns } from "../CAssigns";
-import { QueryPager, BoxId, tv, useUser } from "tonva";
-import { Group, AssignTask } from "models";
+import { QueryPager, useUser } from "tonva";
+import { AssignTask } from "models";
 import { VListForGroup } from "./VListForGroup";
 import { VGroupDetail } from "./VGroupDetail";
-import { observable } from "mobx";
-import { VAssignForGroup, VAssignForG0 } from "./VAssignForGroup";
 import { CSend } from "./send";
 import { VCheck, VRate } from "assigns/task";
+import { CAssignsForGroup } from "../CAssignsForGroup";
+import { VAssignDraftWithMember, VAssignEndWithMember, VAssignDoingWithMember } from "./VAssignWithMember";
 
-export class CAssignsGroup extends CAssigns {
-	groupBoxId:BoxId;
-	@observable group: Group;
-
-	init(group:BoxId) {
-		super.init(group);
-		this.groupBoxId = group;
-	}
-
-	get caption():any {return tv(this.groupBoxId, (values)=><>{values.name}</>)}
-	get groupId(): number {return this.groupBoxId.id;}
+export class CAssignsWithMember extends CAssignsForGroup {
 	protected openVList():void {this.openVPage(VListForGroup);}
 	protected openVAssign(): void {
-		this.openVPage(this.assign.groupMemberCount>1? VAssignForGroup : VAssignForG0);
+		let {end, tasks} = this.assign;
+		let vp;
+		if (end === 1) vp = VAssignEndWithMember;		
+		else if (tasks.length === 0) vp = VAssignDraftWithMember;
+		else vp = VAssignDoingWithMember;
+		this.openVPage(vp);
 	}
 
 	showGroupDetail = async () => {
@@ -66,11 +60,4 @@ export class CAssignsGroup extends CAssigns {
 	showRate = async (task: AssignTask) => {
 		this.openVPage(VRate, task);
 	}
-
-	/*
-	showFlowDetail = async (task: AssignTask) => {
-		this.showFlowDetail(task);
-		//this.openVPage(VFlowDetail, task);
-	}
-	*/
 }
