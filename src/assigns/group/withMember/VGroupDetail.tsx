@@ -8,7 +8,7 @@ import { VBase } from '../../VBase';
 export class VGroupDetail extends VBase<CAssignsWithMember> {
 	private groupMembersPager: QueryPager<any>;
 
-    async open(groupMembersPager: QueryPager<any>) {
+  async open(groupMembersPager: QueryPager<any>) {
 		this.groupMembersPager = groupMembersPager;
 		this.openPage(this.page);
 	}

@@ -99,6 +99,33 @@ export abstract class CAssigns extends CUqBase {
 		return assignItem;
 	}
 
+	saveTodoItem = async (todoContent: string):Promise<any> => {
+		let id:number = undefined;
+		let assignItem: number = undefined;
+		let taskId: number = 0;
+		for (let item of this.assign.tasks) {
+			if (item.worker === this.user.id) {
+				taskId = item.id;
+				break;
+			}
+		}
+		if (taskId <= 0)
+			return;
+		let todo = {
+			id: id, 
+			task: taskId,
+			assignItem,
+			discription: todoContent,
+			x: 0,
+			$update: new Date()
+		};
+		let ret = await this.uqs.performance.Todo.save(undefined, todo);
+		todo.id = ret.id;
+		this.assign.todos.push(todo);
+		return todo;
+	}
+	
+
 	showDone = async () => {
 		this.openVPage(VDone);
 	}

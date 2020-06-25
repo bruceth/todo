@@ -55,6 +55,7 @@ export interface Assign {
 	$update: Date;
 	items: AssignItem[];
 	tasks?: AssignTask[];
+	todos?: Todo[];
 	toList: AssignToItem[];
 
 	open: number; 		// 0:开放 1: 一个人执行 2:指定人

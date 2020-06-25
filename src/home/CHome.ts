@@ -121,7 +121,7 @@ export class CHome extends CUqBase {
 		await cAssignsMy.showList();
 	}
 
-	showGroupAssigns = async (item: any) => {
+	showGroupAssigns = async (item: GroupItem) => {
 		this.todosChanged = false;
 		let cAssignsGroup = this.newC(CAssignsGroup, item.group);
 		await cAssignsGroup.showList();

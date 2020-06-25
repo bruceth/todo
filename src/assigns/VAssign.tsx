@@ -49,7 +49,7 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 	}
 
 	protected renderTodos() {
-		let {items} = this.controller.assign;
+		let {items, todos} = this.controller.assign;
 		let icon = 'circle';
 		let cnIcon = 'text-primary';
 		if (items.length === 0) return null;
@@ -59,6 +59,16 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 				let {discription} = v;
 				return <div key={index} className="px-3 py-2 d-flex align-items-center bg-white border-top">
 					<small><small><FA name={icon} className={cnIcon} fixWidth={true} /></small></small>
+					<div className="flex-fill ml-3">{discription}</div>
+				</div>
+			})}
+			{todos.map((item, index) => {
+				let {assignItem, discription} = item;
+				if (assignItem) {
+					return null;
+				}
+				return <div key={index+1000} className="px-3 py-2 d-flex align-items-center bg-white border-top">
+					<small><small><FA name={icon} className={'text'} fixWidth={true} /></small></small>
 					<div className="flex-fill ml-3">{discription}</div>
 				</div>
 			})}
@@ -143,8 +153,8 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 		</Page>);
 	}
 
-	@observable private isFocused: boolean = false;
-	@observable private inputContent: string;
+	@observable protected isFocused: boolean = false;
+	@observable protected inputContent: string;
 	footer() {
 		let {assign} = this.controller;
 		if (!this.isMe(assign?.owner)) {
@@ -172,23 +182,23 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 		return React.createElement(Footer);
 	}
 
-	private input: HTMLInputElement;
-	private lostFocusTimeoutHandler: NodeJS.Timeout;
-	private onKeyDown = (evt:React.KeyboardEvent<HTMLInputElement>) => {
+	protected input: HTMLInputElement;
+	protected lostFocusTimeoutHandler: NodeJS.Timeout;
+	protected onKeyDown = (evt:React.KeyboardEvent<HTMLInputElement>) => {
 		if (evt.keyCode === 13) {
 			this.onAddAssignItem();
 		}
 	}
-	private onBlur = (evt:React.FocusEvent<HTMLInputElement>) => {
+	protected onBlur = (evt:React.FocusEvent<HTMLInputElement>) => {
 		this.lostFocusTimeoutHandler = setTimeout(() => {
 			this.lostFocusTimeoutHandler = undefined;
 			this.isFocused = false;
 		}, 200);
 	}
-	private onInputChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+	protected onInputChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
 		this.inputContent = this.input.value.trim();
 	}
-	private inputRef = (input:any) => {
+	protected inputRef = (input:any) => {
 		if (!input) return;
 		if (window.getComputedStyle(input).visibility === 'hidden') return;
 		this.input = input;
@@ -196,7 +206,7 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 		if (this.inputContent) this.input.value = this.inputContent;
 	}
 
-	private onAddAssignItem = async () => {
+	protected onAddAssignItem = async () => {
 		clearTimeout(this.lostFocusTimeoutHandler);
 		if (!this.input) return;
 		if (!this.inputContent) return;
@@ -210,6 +220,48 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 		this.scrollToTop();
 	}
 }
+
+export class VAssignDoing<T extends CAssigns> extends VAssignDraft<T> {
+	//暂时借用VassinghDraft， 等实现VInput
+	footer() {
+		let {assign} = this.controller;
+		let {tasks} = assign;
+		let Footer = observer(() => this.isFocused === true?
+			<div className="d-flex p-3 align-items-center border-top">
+				<input className="flex-fill form-control mr-1 mb-0" 
+					type="text" ref={this.inputRef}
+					onBlur={this.onBlur}
+					onKeyDown={this.onKeyDown} onChange={this.onInputChange} />
+				<button onClick={this.onAddAssignItem} disabled={!this.inputContent}
+					className="btn btn-success">
+						<FA name="plus" />
+				</button>
+			</div>
+			:
+			<div className="p-3 border-top"
+				onClick={() => this.isFocused = true}>
+				<FA className="mr-3 text-success" name="plus" />添加事项
+			</div>
+		);
+		return React.createElement(Footer);
+	}
+
+	protected onAddAssignItem = async () => {
+		//这里增加todo
+		clearTimeout(this.lostFocusTimeoutHandler);
+		if (!this.input) return;
+		if (!this.inputContent) return;
+		this.input.disabled = true;
+		clearTimeout(this.lostFocusTimeoutHandler);
+		await this.controller.saveTodoItem(this.inputContent);
+		this.input.value = '';
+		this.inputContent = undefined;
+		this.input.disabled = false;
+		this.input.focus();
+		this.scrollToTop();
+	}
+}
+
 
 export class VAssignEnd<T extends CAssigns> extends VAssign<T> {
 }
