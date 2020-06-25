@@ -41,7 +41,7 @@ export abstract class View<C extends Controller> {
         this.controller.returnCall(value);
     }
 
-	protected renderUserBase(user:any, imageClassName?:string, textClassName?:string) {
+	protected renderUser(user:any, imageClassName?:string, textClassName?:string) {
 		let renderUser = (user:User) => {
 			let {name, nick, icon} = user;
 			return <>
@@ -52,10 +52,18 @@ export abstract class View<C extends Controller> {
 		return <UserView user={user} render={renderUser} />
 	}
 
+	protected renderUserText(user:any) {
+		let renderUser = (user:User) => {
+			let {name, nick} = user;
+			return <>{nick || name}</>;
+		}
+		return <UserView user={user} render={renderUser} />
+	}
+
 	protected renderMe(imageClassName?:string, textClassName?:string) {
 		let {user} = this.controller;
 		if (!user) return;
-		return this.renderUserBase(user.id, imageClassName, textClassName);
+		return this.renderUser(user.id, imageClassName, textClassName);
 	}
 
     protected openPage(view: React.StatelessComponent<any>, param?:any) {

@@ -37,7 +37,7 @@ export class VSelectToList extends VSendBase {
 								<input type="checkbox" className="mx-2" value={member} 
 									defaultChecked={members[member]===true}
 									onChange={onChange} />
-								{this.renderUserBase(member)}
+								{this.renderUser(member)}
 							</label>;
 						})}
 					</div>
