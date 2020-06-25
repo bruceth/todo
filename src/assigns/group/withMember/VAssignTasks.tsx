@@ -113,7 +113,7 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 				onClick={()=>act(task)}>
 				<FA name="chevron-circle-right" className="text-danger mr-3" />
 				<span className="text-primary mr-2">{actName}</span>
-				{this.renderUserBase(worker)}
+				{this.renderUser(worker)}
 			</div>
 		}
 	}
@@ -142,7 +142,7 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 					let {id, end} = v;
 					return <div key={id} className="d-flex px-3 py-2 bg-white border-bottom cursor-pointer align-items-center"
 						onClick={() => this.controller.showFlowDetail(v)}>
-						{this.renderUserBase(v.worker)}
+						{this.renderUser(v.worker)}
 						<span className="ml-3 small text-info">任务{me}</span>
 						{this.renderEndFlag(end)}
 						<FA name="angle-right" className="ml-auto" />

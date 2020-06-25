@@ -42,11 +42,6 @@ export class VMyAssigns extends VPage<CAssign> {
 		</LMR>;
 	}
 
-	private renderUser = (user: User) => {
-		let {name, nick} = user;
-		return <span className="text-info">{nick || name}</span>;
-	}
-
 	private renderAssignTasks(tasks: AssignTask[]) {
 		if (tasks === undefined || tasks.length === 0) return;
 		return <div>
@@ -57,7 +52,8 @@ export class VMyAssigns extends VPage<CAssign> {
 				return <div key={index} className="small">
 					<FA className="text-danger mr-1" name="chevron-circle-right" />
 					<span className="text-primary">{me}</span> &nbsp;
-					<UserView user={worker} render={this.renderUser} /> &nbsp;
+					{this.renderUserText(worker)}
+					&nbsp;
 					{act} &nbsp; <EasyTime date={date} />
 				</div>
 			})}
