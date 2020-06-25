@@ -1,11 +1,15 @@
 import React from "react";
-import { VAssignDraft, VAssignEnd, vStopFlag, VAssign } from "../../VAssign";
+import { VAssignDraft, VAssignDoing, VAssignEnd, vStopFlag, VAssign } from "../../VAssign";
 import { CAssignsWithMember } from "./CAssignsWithMember";
 import { FA } from "tonva";
 import { VAssignTasks } from "./VAssignTasks";
 
 export class VAssignDraftWithMember extends VAssignDraft<CAssignsWithMember> {
 	protected renderDraft() {
+		let { assign } = this.controller;
+		if (!this.isMe(assign.owner)) {
+			return null; //不是自己创建的任务
+		}
 		return <>
 			<div className="px-3 py-2 border-top bg-white cursor-pointer"
 				onClick={this.controller.showAssignTo}>
@@ -16,7 +20,10 @@ export class VAssignDraftWithMember extends VAssignDraft<CAssignsWithMember> {
 	}
 }
 
-export class VAssignDoingWithMember extends VAssign<CAssignsWithMember> {
+export class VAssignDoingWithMember extends VAssignDoing<CAssignsWithMember> {
+	protected renderDraft():JSX.Element {
+		return null;
+	}
 	protected renderContent() {
 		return <>
 			{super.renderContent()}
