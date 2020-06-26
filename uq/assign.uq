@@ -149,6 +149,7 @@ RETURNS tasks (
 ) 
 RETURNS todos (
 	id ID,
+	task ID,
 	assignItem ID,					-- if null, worker added
 	discription TEXT,
 	x TINYINT,						-- 0: normal, 1: deleted
@@ -181,11 +182,10 @@ RETURNS toList (
 			LEFT JOIN TaskState as b on a.id=b.task
 			LEFT JOIN Assign as c on a.assign=c.id
 		WHERE a.assign=assignId;
-	INTO todos SELECT a.id, a.assignItem, a.discription, a.x, a.[$update]
+	INTO todos SELECT a.id, a.task, a.assignItem, a.discription, a.x, a.[$update]
 		, a.done, a.doneMemo, a.check, a.checkMemo
 		FROM Todo as a
-			JOIN tasks as b ON a.task=b.id
-			WHERE b.worker=$user;
+			JOIN tasks as b ON a.task=b.id;
 	INTO toList SELECT [to]
 		FROM AssignTo
 		WHERE assign=assignId;

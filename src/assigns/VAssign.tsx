@@ -49,11 +49,21 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 	}
 
 	protected renderTodos() {
-		let {items, todos} = this.controller.assign;
+		let {items, todos, tasks} = this.controller.assign;
 		let icon = 'circle';
 		let cnIcon = 'text-primary';
-		if (items.length === 0) return null;
+		//if (items.length === 0) return null;
 		//<div className="small text-muted px-3 py-2">事项</div>
+		let taskId: number = undefined;
+		for (let task of tasks) {
+			if (this.isMe(task.worker)) {
+				taskId = task.id;
+				break;
+			}
+		}
+		let todoList = todos.filter((t, i) =>{
+			if (t.task === taskId && t.assignItem === undefined) return t;
+		});
 		return <div className="">
 			{items.map((v, index) => {
 				let {discription} = v;
@@ -62,11 +72,8 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 					<div className="flex-fill ml-3">{discription}</div>
 				</div>
 			})}
-			{todos.map((item, index) => {
-				let {assignItem, discription} = item;
-				if (assignItem) {
-					return null;
-				}
+			{todoList.map((item, index) => {
+				let {discription} = item;
 				return <div key={index+1000} className="px-3 py-2 d-flex align-items-center bg-white border-top">
 					<small><small><FA name={icon} className={'text'} fixWidth={true} /></small></small>
 					<div className="flex-fill ml-3">{discription}</div>
