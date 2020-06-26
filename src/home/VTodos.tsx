@@ -2,11 +2,12 @@ import { CHome } from "./CHome";
 import { View } from "tonva";
 import React from 'react';
 import { List, EasyTime, Muted, tv, FA, VPage, User, Image, UserView } from 'tonva';
-import { Assign, Doing } from 'models';
+import { Assign } from 'models';
 import { stateText } from 'tapp';
 //import { CReport, Doing } from './CReport';
 import { observer } from 'mobx-react';
 
+/*
 export class VTodos extends View<CHome> {
 	render() {
 		return this.content();
@@ -67,3 +68,4 @@ export class VTodos extends View<CHome> {
 		});
 	}
 }
+*/

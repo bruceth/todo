@@ -13,6 +13,7 @@ export interface GroupItem {
 	memberCount: number;
 }
 
+/*
 export interface Doing {
 	task: number; // ID ASC,
 	assign: any; // ID Assign,
@@ -21,6 +22,7 @@ export interface Doing {
 	state: EnumTaskState; 
 	date: Date;		// task act time
 }
+*/
 
 export interface Group {
 	id: number;
@@ -55,7 +57,7 @@ export interface Assign {
 	$update: Date;
 	items: AssignItem[];
 	tasks?: AssignTask[];
-	todos?: Todo[];
+	//todos?: Todo[];
 	toList: AssignToItem[];
 
 	open: number; 		// 0:开放 1: 一个人执行 2:指定人
@@ -78,6 +80,7 @@ export interface AssignTask {
 	stepDate: Date;
 	stepComment: string;
 	flows?: TaskFlow[];
+	todos?: Todo[];
 }
 
 export interface AssignToItem {

@@ -1,5 +1,5 @@
 import React from "react";
-import { CAssignsWithMember } from "./CAssignsWithMember";
+import { CAssignsWithMember, TasksToCategory } from "./CAssignsWithMember";
 import { View, FA } from "tonva";
 import { AssignTask } from "models";
 import { EnumTaskState, stateText } from "tapp";
@@ -20,6 +20,7 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 	}
 
 	protected renderTasks() {
+		/*
 		let {tasks, checker, rater} = this.controller.assign;
 		let my: AssignTask;
 		let starts: AssignTask[] = [];
@@ -69,20 +70,22 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 			}
 		}
 
+		let allOthers = [...starts, ...dones, ...passes, ...fails, ...rateds, ...cancels];
+		*/
 		return <>
-			<div className="pt-3" />
+			{this.renderSelf()}
+			{this.renderOthers()}
+		</>;
+	}
+
+	private renderSelf() {
+		let {my, checks, rates} = this.controller.tasksToCategory;
+		if (checks.length === 0 && rates.length === 0 && my === undefined) return;
+		return <div className="pt-3">
 			{this.renderChecks(checks)}
 			{this.renderRates(rates)}
 			{this.renderMy(my)}
-
-			{this.renderOthers(EnumTaskState.start, starts)}
-			{this.renderOthers(EnumTaskState.done, dones)}
-			{this.renderOthers(EnumTaskState.pass, passes)}
-			{this.renderOthers(EnumTaskState.fail, fails)}
-			{this.renderOthers(EnumTaskState.rated, rateds)}
-			{this.renderOthers(EnumTaskState.cancel, cancels)}
-			{this.renderOthers(undefined, others)}
-		</>;
+		</div>
 	}
 
 	private renderMy(task: AssignTask) {
@@ -107,24 +110,25 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 	}
 
 	private renderActions(actName:string, act:(task:AssignTask)=>void, tasks: AssignTask[]) {
-		for (let task of tasks) {
+		if (tasks.length === 0) return;
+		return tasks.map((task, index) => {
 			let {worker} = task;
-			return <div className="px-3 py-3 bg-white border-bottom cursor-pointer d-flex align-items-center"
+			return <div key={index} className="px-3 py-3 bg-white border-bottom cursor-pointer d-flex align-items-center"
 				onClick={()=>act(task)}>
 				<FA name="chevron-circle-right" className="text-danger mr-3" />
 				<span className="text-primary mr-2">{actName}</span>
 				{this.renderUser(worker)}
 			</div>
-		}
+		});
 	}
 	
 	private renderChecks(tasks: AssignTask[]) {
-		let act = (task:AssignTask) => this.controller.showCheck(task);
+		let act = this.controller.showCheck;
 		return this.renderActions('检查', act, tasks);
 	}
 
 	private renderRates(tasks: AssignTask[]) {
-		let act = (task:AssignTask) => this.controller.showRate(task);
+		let act = this.controller.showRate;
 		return this.renderActions('评价', act, tasks);
 	}
 
@@ -132,23 +136,31 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 		if (end === 1) return <span className="mx-3">{vStopFlag}</span>;
 	}
 
-	private renderOthers(state:EnumTaskState, tasks: AssignTask[]) {
-		if (tasks.length === 0) return;
-		let {me} = stateText(state);
-		return <>
-			<div className="h-1c" />
-			<div>
-				{tasks.map((v:AssignTask, index) => {
-					let {id, end} = v;
-					return <div key={id} className="d-flex px-3 py-2 bg-white border-bottom cursor-pointer align-items-center"
-						onClick={() => this.controller.showFlowDetail(v)}>
-						{this.renderUser(v.worker)}
-						<span className="ml-3 small text-info">任务{me}</span>
-						{this.renderEndFlag(end)}
-						<FA name="angle-right" className="ml-auto" />
-					</div>
-				})}
-			</div>
-		</>;
+	private renderOthers() {
+		let {
+			starts,
+			dones,
+			passes,
+			fails,
+			rateds,
+			cancels,
+			// invalids
+		} = this.controller.tasksToCategory;
+
+		let arr = [...starts, ...dones, ...passes, ...fails, ...rateds, ...cancels];
+		if (arr.length) return;
+		return <div className="pt-3">
+			{arr.map((v:AssignTask, index) => {
+				let {id, end, state} = v;
+				let {me} = stateText(state);
+				return <div key={id} className="d-flex px-3 py-2 bg-white border-bottom cursor-pointer align-items-center"
+					onClick={() => this.controller.showFlowDetail(v)}>
+					{this.renderUser(v.worker)}
+					<span className="ml-3 small text-info">任务{me}</span>
+					{this.renderEndFlag(end)}
+					<FA name="angle-right" className="ml-auto" />
+				</div>
+			})}
+		</div>
 	}
 }

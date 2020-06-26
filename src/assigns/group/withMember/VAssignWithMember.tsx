@@ -1,8 +1,10 @@
 import React from "react";
-import { VAssignDraft, VAssignDoing, VAssignEnd, vStopFlag, VAssign } from "../../VAssign";
-import { CAssignsWithMember } from "./CAssignsWithMember";
+import { VAssignDraft, VAssignEnd, vStopFlag, VAssign } from "../../VAssign";
+import { CAssignsWithMember, TasksToCategory } from "./CAssignsWithMember";
 import { FA } from "tonva";
 import { VAssignTasks } from "./VAssignTasks";
+import { FooterInputProps, VFooterInput } from "../../VFooterInput";
+import { EnumTaskState } from "tapp";
 
 export class VAssignDraftWithMember extends VAssignDraft<CAssignsWithMember> {
 	protected renderDraft() {
@@ -20,14 +22,43 @@ export class VAssignDraftWithMember extends VAssignDraft<CAssignsWithMember> {
 	}
 }
 
-export class VAssignDoingWithMember extends VAssignDoing<CAssignsWithMember> {
-	protected renderDraft():JSX.Element {
-		return null;
-	}
+abstract class VAssignWithMemberTasks extends VAssign<CAssignsWithMember> {
 	protected renderContent() {
 		return <>
 			{super.renderContent()}
 			{this.renderVm(VAssignTasks)}
+		</>;
+	}
+
+	protected renderTodos() {
+		let {my} = this.controller.tasksToCategory;
+		if (!my) {
+			return super.renderTodos();
+		}
+		let {todos} = my;
+		return todos.map((item, index) => {
+			let {assignItem, discription} = item;
+			let cn:string, icon:string;
+			if (assignItem) {
+				cn = 'text-primary';
+				icon = 'circle';
+			}
+			else {
+				cn = 'text-info';
+				icon = 'circle-o'
+			}
+			return <div key={index+1000} className="px-3 py-2 d-flex align-items-center bg-white border-top">
+				<small><small><FA name={icon} className={cn} fixWidth={true} /></small></small>
+				<div className="flex-fill ml-3">{discription}</div>
+			</div>
+		});
+	}
+}
+
+export class VAssignDoingWithMember extends VAssignWithMemberTasks {
+	protected renderContent() {
+		return <>
+			{super.renderContent()}
 			{this.renderFlow()}
 		</>;
 	}
@@ -57,13 +88,26 @@ export class VAssignDoingWithMember extends VAssignDoing<CAssignsWithMember> {
 			{vStopFlag}
 		</div>;
 	}
+
+	footer() {
+		let {my, myCanEdit} = this.controller.tasksToCategory;
+		if (!my || myCanEdit === false) return;
+		switch (my.state) {
+			default: return;
+			case EnumTaskState.start:
+			case EnumTaskState.todo:
+			case EnumTaskState.doing: break;
+		}
+		let props:FooterInputProps = {
+			onAdd: async (inputContent:string):Promise<void> => {
+				await this.controller.saveTodoItem(inputContent);
+				this.scrollToTop();
+			},
+			caption: '添加我的任务事项'
+		};
+		return this.renderVm(VFooterInput, props);
+	}
 }
 
-export class VAssignEndWithMember extends VAssignEnd<CAssignsWithMember> {
-	protected renderContent() {
-		return <>
-			{super.renderContent()}
-			{this.renderVm(VAssignTasks)}
-		</>;
-	}
+export class VAssignEndWithMember extends VAssignWithMemberTasks {
 }

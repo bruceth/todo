@@ -1,10 +1,10 @@
 import React from 'react';
 import { VBase } from "./VBase";
 import { CAssigns } from './CAssigns';
-import { Muted, EasyTime, Image, UserView, FA, User, Page, useUser } from 'tonva';
+import { Muted, EasyTime, FA, Page, useUser } from 'tonva';
 import { observer } from 'mobx-react';
-import { observable } from 'mobx';
 import { Assign } from 'models';
+import { VFooterInput, FooterInputProps } from './VFooterInput';
 
 export const vStopFlag = <FA name="square-o" className="text-danger small" />;
 
@@ -48,31 +48,46 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 		</div>;
 	}
 
-	protected renderTodos() {
-		let {items, todos} = this.controller.assign;
+	protected renderAssignItems():any {
+		let {items} = this.controller.assign;
 		let icon = 'circle';
 		let cnIcon = 'text-primary';
 		if (items.length === 0) return null;
 		//<div className="small text-muted px-3 py-2">事项</div>
-		return <div className="">
-			{items.map((v, index) => {
-				let {discription} = v;
-				return <div key={index} className="px-3 py-2 d-flex align-items-center bg-white border-top">
-					<small><small><FA name={icon} className={cnIcon} fixWidth={true} /></small></small>
-					<div className="flex-fill ml-3">{discription}</div>
-				</div>
-			})}
-			{todos.map((item, index) => {
-				let {assignItem, discription} = item;
-				if (assignItem) {
-					return null;
-				}
-				return <div key={index+1000} className="px-3 py-2 d-flex align-items-center bg-white border-top">
-					<small><small><FA name={icon} className={'text'} fixWidth={true} /></small></small>
-					<div className="flex-fill ml-3">{discription}</div>
-				</div>
-			})}
-		</div>;
+		return items.map((v, index) => {
+			let {discription} = v;
+			return <div key={index} className="px-3 py-2 d-flex align-items-center bg-white border-top">
+				<small><small><FA name={icon} className={cnIcon} fixWidth={true} /></small></small>
+				<div className="flex-fill ml-3">{discription}</div>
+			</div>
+		})
+	}
+
+	/*
+	protected renderTaskItems() {
+		let {todos} = this.controller.assign;
+		let icon = 'circle';
+		let cnIcon = 'text-info';
+		return todos.map((item, index) => {
+			let {assignItem, discription} = item;
+			if (assignItem) {
+				return null;
+			}
+			return <div key={index+1000} className="px-3 py-2 d-flex align-items-center bg-white border-top">
+				<small><small><FA name={icon} className={cnIcon} fixWidth={true} /></small></small>
+				<div className="flex-fill ml-3">{discription}</div>
+			</div>
+		});
+	}
+	*/
+
+	protected renderTodos() {
+		return this.renderAssignItems();
+		/*
+		<>
+			{this.renderAssignItems()}
+			{this.renderTaskItems()}
+		</>;*/
 	}
 
 	content():JSX.Element {
@@ -87,11 +102,6 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 			{this.renderTodos()}
 		</>;
 	}
-	/*
-	{this.renderDraft()}
-	{tasks.length > 0 && this.renderTasks()}
-	{this.renderFlow()}
-	*/
 }
 
 export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
@@ -152,10 +162,17 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 			</div>
 		</Page>);
 	}
-
-	@observable protected isFocused: boolean = false;
-	@observable protected inputContent: string;
 	footer() {
+		let props:FooterInputProps = {
+			onAdd: async (inputContent:string):Promise<void> => {
+				await this.controller.saveAssignItem(inputContent);
+				this.scrollToTop();
+				return;
+			},
+			caption: '添加事项'
+		};
+		return this.renderVm(VFooterInput, props);
+		/*
 		let {assign} = this.controller;
 		if (!this.isMe(assign?.owner)) {
 			return null;
@@ -180,7 +197,11 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 			</div>
 		);
 		return React.createElement(Footer);
+		*/
 	}
+/*
+	@observable protected isFocused: boolean = false;
+	@observable protected inputContent: string;
 
 	protected input: HTMLInputElement;
 	protected lostFocusTimeoutHandler: NodeJS.Timeout;
@@ -219,49 +240,8 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 		this.input.focus();
 		this.scrollToTop();
 	}
+*/
 }
-
-export class VAssignDoing<T extends CAssigns> extends VAssignDraft<T> {
-	//暂时借用VassinghDraft， 等实现VInput
-	footer() {
-		let {assign} = this.controller;
-		let {tasks} = assign;
-		let Footer = observer(() => this.isFocused === true?
-			<div className="d-flex p-3 align-items-center border-top">
-				<input className="flex-fill form-control mr-1 mb-0" 
-					type="text" ref={this.inputRef}
-					onBlur={this.onBlur}
-					onKeyDown={this.onKeyDown} onChange={this.onInputChange} />
-				<button onClick={this.onAddAssignItem} disabled={!this.inputContent}
-					className="btn btn-success">
-						<FA name="plus" />
-				</button>
-			</div>
-			:
-			<div className="p-3 border-top"
-				onClick={() => this.isFocused = true}>
-				<FA className="mr-3 text-success" name="plus" />添加事项
-			</div>
-		);
-		return React.createElement(Footer);
-	}
-
-	protected onAddAssignItem = async () => {
-		//这里增加todo
-		clearTimeout(this.lostFocusTimeoutHandler);
-		if (!this.input) return;
-		if (!this.inputContent) return;
-		this.input.disabled = true;
-		clearTimeout(this.lostFocusTimeoutHandler);
-		await this.controller.saveTodoItem(this.inputContent);
-		this.input.value = '';
-		this.inputContent = undefined;
-		this.input.disabled = false;
-		this.input.focus();
-		this.scrollToTop();
-	}
-}
-
 
 export class VAssignEnd<T extends CAssigns> extends VAssign<T> {
 }
