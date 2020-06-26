@@ -1,11 +1,11 @@
 import React from 'react';
 import { CAssigns, AssignListItem } from "./CAssigns";
-import { List, FA, Muted, EasyTime, tv } from "tonva";
+import { List, FA, tv } from "tonva";
 import { VBase } from "./VBase";
 import { observer } from "mobx-react";
-import { Doing, Assign } from 'models';
-import { stateText } from 'tapp';
+import { Assign } from 'models';
 import { observable } from 'mobx';
+import { VFooterInput, FooterInputProps } from './VFooterInput';
 
 export abstract class VList<T extends CAssigns> extends VBase<T> {
 	@observable private endItemsVisible: boolean = false;
@@ -70,9 +70,18 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 		</>;
 	}
 
-	@observable private isFocused: boolean = false;
-	@observable private inputContent: string;
+//	@observable private isFocused: boolean = false;
+//	@observable private inputContent: string;
 	footer() {
+		let props:FooterInputProps = {
+			onAdd: async (inputContent:string):Promise<void> => {
+				await this.controller.newAssign(inputContent);
+				this.scrollToTop();
+			},
+			caption: '新增任务'
+		};
+		return this.renderVm(VFooterInput, props);
+		/*
 		let Footer = observer(() => this.isFocused === true?
 			<div className="d-flex p-3 align-items-center border-top">
 				<input className="flex-fill form-control mr-1 mb-0" 
@@ -91,8 +100,9 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 			</div>
 		);
 		return React.createElement(Footer);
+		*/
 	}
-
+	/*
 	private input: HTMLInputElement;
 	private lostFocusTimeoutHandler: NodeJS.Timeout;
 	private onKeyDown = (evt:React.KeyboardEvent<HTMLInputElement>) => {
@@ -131,6 +141,7 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 		this.input.focus();
 		this.scrollToTop();
 	}
+	*/
 
 	private keyAssign = (assignItem: AssignListItem) => {
 		return assignItem.assign.id;
@@ -138,13 +149,6 @@ export abstract class VList<T extends CAssigns> extends VBase<T> {
 
 	private onClickAssign = (item: AssignListItem) => {
 		this.controller.showAssign(item.assign);
-	}
-
-	private renderState(doing:Doing):JSX.Element {
-		let {state, date} = doing;
-		let pointer = <FA className="text-danger mr-1" name="chevron-circle-right" />;
-		let {me, act} = stateText(state);
-		return <>{pointer} <small>{me}</small> &nbsp; <Muted>{act}于<EasyTime date={date} /></Muted></>;
 	}
 
 	private renderAssignItem = (item:AssignListItem, index: number) => {

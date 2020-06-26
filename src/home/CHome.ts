@@ -4,7 +4,7 @@ import { QueryPager, useUser, Tuid, BoxId } from "tonva";
 import { VGroup } from "./VGroup";
 import { observable } from "mobx";
 import { stateDefs } from "tools";
-import { Task, Assign, Group, GroupItem, Doing } from "../models";
+import { Task, Assign, Group, GroupItem } from "../models";
 import { VGroupDetail } from "./VGroupDetail";
 import { Performance } from '../tapp'
 import { NoteItem, NoteAssign, dataToNoteItem, createNoteAssign, createNoteText } from "./NoteItem";
@@ -23,7 +23,7 @@ export class CHome extends CUqBase {
 	@observable defaultGroupAssignCount: number;
 	myGroupsPager: GroupsPager;
 	groupNotesPager: QueryPager<NoteItem>;
-	myDoingsPager: QueryPager<Doing>;
+	//myDoingsPager: QueryPager<Doing>;
 
     protected async internalStart() {
 	}
@@ -34,7 +34,7 @@ export class CHome extends CUqBase {
 		this.groupNotesPager = new QueryPager<NoteItem>(this.performance.GetGroupNotes, 10, 30, true);
 		this.groupNotesPager.setItemConverter(this.noteItemConverter);
 		this.groupNotesPager.setReverse();
-		this.myDoingsPager = new QueryPager<Doing>(this.performance.GetMyTasks, 10, 100);
+		//this.myDoingsPager = new QueryPager<Doing>(this.performance.GetMyTasks, 10, 100);
 	}
 	
 	tab = () => this.renderView(VMain);

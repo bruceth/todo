@@ -1,5 +1,7 @@
 import React from "react";
 import { VTask } from "./VTask";
+import { List, FA } from "tonva";
+import { Todo } from "models";
 
 export class VDone extends VTask {
 	header() {return '完成'}
@@ -21,10 +23,5 @@ export class VDone extends VTask {
 			await this.controller.doneAssign(point, comment);
 		}
 		this.afterAct();
-	}
-
-	protected renderTodos():JSX.Element {
-		// 改写，根据Done来显示。每项加Checkbox
-		return super.renderTodos();
 	}
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { CAssignsWithMember } from "./CAssignsWithMember";
+import { CAssignsWithMember, TasksToCategory } from "./CAssignsWithMember";
 import { View, FA } from "tonva";
 import { AssignTask } from "models";
 import { EnumTaskState, stateText } from "tapp";
@@ -20,6 +20,7 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 	}
 
 	protected renderTasks() {
+		/*
 		let {tasks, checker, rater} = this.controller.assign;
 		let my: AssignTask;
 		let starts: AssignTask[] = [];
@@ -70,13 +71,15 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 		}
 
 		let allOthers = [...starts, ...dones, ...passes, ...fails, ...rateds, ...cancels];
+		*/
 		return <>
-			{this.renderSelf(checks, rates, my)}
-			{this.renderOthers(allOthers)}
+			{this.renderSelf()}
+			{this.renderOthers()}
 		</>;
 	}
 
-	private renderSelf(checks:AssignTask[], rates:AssignTask[], my:AssignTask) {
+	private renderSelf() {
+		let {my, checks, rates} = this.controller.tasksToCategory;
 		if (checks.length === 0 && rates.length === 0 && my === undefined) return;
 		return <div className="pt-3">
 			{this.renderChecks(checks)}
@@ -133,10 +136,21 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 		if (end === 1) return <span className="mx-3">{vStopFlag}</span>;
 	}
 
-	private renderOthers(tasks: AssignTask[]) {
-		if (tasks.length === 0) return;
+	private renderOthers() {
+		let {
+			starts,
+			dones,
+			passes,
+			fails,
+			rateds,
+			cancels,
+			// invalids
+		} = this.controller.tasksToCategory;
+
+		let arr = [...starts, ...dones, ...passes, ...fails, ...rateds, ...cancels];
+		if (arr.length) return;
 		return <div className="pt-3">
-			{tasks.map((v:AssignTask, index) => {
+			{arr.map((v:AssignTask, index) => {
 				let {id, end, state} = v;
 				let {me} = stateText(state);
 				return <div key={id} className="d-flex px-3 py-2 bg-white border-bottom cursor-pointer align-items-center"
