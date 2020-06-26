@@ -52,7 +52,7 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 		let {items} = this.controller.assign;
 		let icon = 'circle';
 		let cnIcon = 'text-primary';
-		if (items.length === 0) return null;
+		//if (items.length === 0) return null;
 		//<div className="small text-muted px-3 py-2">事项</div>
 		return items.map((v, index) => {
 			let {discription} = v;
@@ -129,18 +129,36 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 	protected renderDiscription() {
 		return React.createElement(observer(() => {
 			let {discription} = this.assign;
+			let {isMyAssign} = this.controller;
 			if (discription) {
-				return <div>
-					<div className="small muted pt-2 pb-1 px-3 cursor-pointer" onClick={this.editDiscription}>
-						说明 <FA name="pencil-square-o ml-3" />
-					</div>
-					{super.renderDiscription()}
-				</div>;
+				if (isMyAssign) {
+					return <div>
+						<div className="small muted pt-2 pb-1 px-3 cursor-pointer" onClick={this.editDiscription}>
+							说明 <FA name="pencil-square-o ml-3" />
+						</div>
+						{super.renderDiscription()}
+					</div>;
+				}
+				else {
+					return <div>
+						<div className="small muted pt-2 pb-1 px-3">
+							说明 <FA name="square-o ml-3" />
+						</div>
+						{super.renderDiscription()}
+					</div>;
+				}
 			}
 			else {
-				return <div className="bg-white border-top px-3 py-2 cursor-pointer" onClick={this.editDiscription}>
-					<FA className="mr-3" name="pencil-square-o" /> <Muted>添加说明</Muted>
-				</div>;
+				if (isMyAssign) {
+					return <div className="bg-white border-top px-3 py-2 cursor-pointer" onClick={this.editDiscription}>
+						<FA className="mr-3" name="pencil-square-o" /> <Muted>添加说明</Muted>
+					</div>;
+				}
+				else {
+					return <div className="bg-white border-top px-3 py-2" >
+						<FA className="mr-3" name="square-o" /> <Muted>说明</Muted>
+					</div>;
+				}
 			}
 		}));
 	}
@@ -163,6 +181,9 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 		</Page>);
 	}
 	footer() {
+		if (!this.controller.isMyAssign) {
+			return null;
+		}
 		let props:FooterInputProps = {
 			onAdd: async (inputContent:string):Promise<void> => {
 				await this.controller.saveAssignItem(inputContent);

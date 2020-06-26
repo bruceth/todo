@@ -3,7 +3,7 @@ import { CUqBase, EnumTaskState, TaskAct } from "tapp";
 import { Performance } from '../tapp'
 import { Assign, AssignTask, Todo, AssignItem } from "models";
 import { BoxId, Tuid } from "tonva";
-import { observable } from "mobx";
+import { observable, computed } from "mobx";
 import { VDone, VCheck, VRate } from './task';
 import { VFlowDetail } from './task';
 
@@ -16,6 +16,7 @@ export abstract class CAssigns extends CUqBase {
 	@observable assign: Assign;
 	@observable assignListItems: AssignListItem[];
 	@observable endListItems: AssignListItem[];
+	@computed get isMyAssign():boolean { return this.isMe(this.assign?.owner)};
 
 	protected async internalStart() {
 	}
