@@ -66,15 +66,15 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 		});
 		return <div className="">
 			{items.map((v, index) => {
-				let {discription} = v;
-				return <div key={index} className="px-3 py-2 d-flex align-items-center bg-white border-top">
+				let {discription, id} = v;
+				return <div key={id} className="px-3 py-2 d-flex align-items-center bg-white border-top">
 					<small><small><FA name={icon} className={cnIcon} fixWidth={true} /></small></small>
 					<div className="flex-fill ml-3">{discription}</div>
 				</div>
 			})}
 			{todoList.map((item, index) => {
-				let {discription} = item;
-				return <div key={index+1000} className="px-3 py-2 d-flex align-items-center bg-white border-top">
+				let {discription, id} = item;
+				return <div key={-id} className="px-3 py-2 d-flex align-items-center bg-white border-top">
 					<small><small><FA name={icon} className={'text'} fixWidth={true} /></small></small>
 					<div className="flex-fill ml-3">{discription}</div>
 				</div>
