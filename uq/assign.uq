@@ -185,7 +185,9 @@ RETURNS toList (
 	INTO todos SELECT a.id, a.task, a.assignItem, a.discription, a.x, a.[$update]
 		, a.done, a.doneMemo, a.check, a.checkMemo
 		FROM Todo as a
-			JOIN tasks as b ON a.task=b.id;
+			JOIN Task as b ON a.task=b.id
+			WHERE b.assign=assignId
+			ORDER BY a.task, a.id;
 	INTO toList SELECT [to]
 		FROM AssignTo
 		WHERE assign=assignId;

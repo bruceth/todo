@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { CUqBase, EnumTaskState, TaskAct } from "tapp";
 import { Performance } from '../tapp'
-import { Assign, AssignTask } from "models";
+import { Assign, AssignTask, Todo, AssignItem } from "models";
 import { BoxId, Tuid } from "tonva";
 import { observable } from "mobx";
 import { VDone, VCheck, VRate } from './task';
@@ -49,22 +49,28 @@ export abstract class CAssigns extends CUqBase {
 		this.openVAssign();
 	}
 
-	/*
-	async reloadAssign() {
-		if (!this.assign) return;
-		await this.loadAssign(this.assign.id);
-	}
-	*/
-
 	private async loadAssign(assignId:BoxId | number) {
 		let retAssign = await this.performance.GetAssign.query({assignId}, true);
 		let {assign, items, tasks, todos, tolist} = retAssign;
-		let assignObj:Assign = {items, tasks, todos, toList:tolist} as any;
+		let assignObj:Assign = {items, tasks, toList:tolist} as any;
 		_.mergeWith(assignObj, assign[0]);
 		let discription:string = assignObj.discription;
 		if (discription) assignObj.discription = discription.replace(/\\n/g, '\n');
+		for (let task of tasks as AssignTask[]) {
+			task.todos = (todos as Todo[]).filter(v => v.task === task.id);
+			for (let todo of task.todos) {
+				let {assignItem} = todo;
+				if (assignItem) {
+					let item = (items as AssignItem[]).find(v => v.id===assignItem);
+					if (item) todo.discription = item.discription;
+				}
+			}
+		}
 		this.assign = assignObj;
+		this.onAssignLoaded();
 	}
+
+	protected onAssignLoaded() {}
 
 	showFlowDetail = async (task:AssignTask) => {
 		let ret = await this.uqs.performance.GetTaskFlow.query({taskId: task.id}, true);
@@ -98,33 +104,6 @@ export abstract class CAssigns extends CUqBase {
 		this.assign.items.push({id:ret.id,discription:todoContent});
 		return assignItem;
 	}
-
-	saveTodoItem = async (todoContent: string):Promise<any> => {
-		let id:number = undefined;
-		let assignItem: number = undefined;
-		let taskId: number = 0;
-		for (let item of this.assign.tasks) {
-			if (item.worker === this.user.id) {
-				taskId = item.id;
-				break;
-			}
-		}
-		if (taskId <= 0)
-			return;
-		let todo = {
-			id: id, 
-			task: taskId,
-			assignItem,
-			discription: todoContent,
-			x: 0,
-			$update: new Date()
-		};
-		let ret = await this.uqs.performance.Todo.save(undefined, todo);
-		todo.id = ret.id;
-		this.assign.todos.push(todo);
-		return todo;
-	}
-	
 
 	showDone = async () => {
 		this.openVPage(VDone);
