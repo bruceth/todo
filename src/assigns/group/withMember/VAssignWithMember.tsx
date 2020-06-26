@@ -8,8 +8,8 @@ import { EnumTaskState } from "tapp";
 
 export class VAssignDraftWithMember extends VAssignDraft<CAssignsWithMember> {
 	protected renderDraft() {
-		let { assign } = this.controller;
-		if (!this.isMe(assign.owner)) {
+		let { isMyAssign } = this.controller;
+		if (!isMyAssign) {
 			return null; //不是自己创建的任务
 		}
 		return <>

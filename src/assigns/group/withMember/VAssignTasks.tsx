@@ -148,7 +148,7 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 		} = this.controller.tasksToCategory;
 
 		let arr = [...starts, ...dones, ...passes, ...fails, ...rateds, ...cancels];
-		if (arr.length) return;
+		if (arr.length <= 0) return;
 		return <div className="pt-3">
 			{arr.map((v:AssignTask, index) => {
 				let {id, end, state} = v;
