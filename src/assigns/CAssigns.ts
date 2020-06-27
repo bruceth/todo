@@ -110,6 +110,18 @@ export abstract class CAssigns extends CUqBase {
 		this.openVPage(VDone);
 	}
 
+	saveTodoDone = async (todo: Todo, vDone:0|1) => {
+		let { id } = todo;
+		await this.performance.Todo.saveProp(id, 'done', vDone);
+		todo.done = vDone;
+	}
+
+	saveTodoCheck = async (todo: Todo, vCheck:0|1) => {
+		let { id } = todo;
+		await this.performance.Todo.saveProp(id, 'check', vCheck);
+		todo.check = vCheck;
+	}
+
 	getTaskAction(state:EnumTaskState):string {
 		let {checker, rater} = this.assign;
 		switch (state) {

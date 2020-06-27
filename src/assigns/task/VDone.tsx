@@ -7,10 +7,21 @@ export class VDone extends VTask {
 	header() {return '完成'}
 
 	protected renderMore() {
+		let enabled = this.calcEnabled(this.task.todos);
 		return <div className="mt-3 text-center">
-			<button className="btn btn-success" onClick={this.done}>确认完成</button>
+			<button className="btn btn-success" onClick={this.done} disabled={!enabled}>确认完成</button>
 		</div>
 	}
+
+	private calcEnabled(todos: Todo[]):boolean {
+		if (todos === undefined || todos.length === 0) return true;
+		for (let todo of todos) {
+			let {done} = todo;
+			if (done === undefined || done === 0) return false;
+		}
+		return true;
+	}
+
 
 	private done = async () => {
 		// 暂时界面上不输入分数
@@ -26,12 +37,13 @@ export class VDone extends VTask {
 	}
 
 	protected renderTodo (todo:Todo, index:number):JSX.Element {
-		let {id, discription} = todo;
-		let onCheckChanged = (isChecked:boolean):Promise<void> => {
+		let {id, discription, done} = todo;
+		let onCheckChanged = async (isChecked:boolean):Promise<void> => {
 			//alert(isChecked);
+			await this.controller.saveTodoDone(todo, isChecked?1:0);
 			return;
 		}
-		return this.renderTodoWithCheck(id, discription, onCheckChanged);
+		return this.renderTodoWithCheck(id, discription, onCheckChanged, done === 1);
 		/*
 		return <div className={'py-2 d-flex'}>
 			<div className="mx-3">{this.renderTodoDot(todo)}</div>
@@ -52,6 +64,6 @@ export class VDone extends VTask {
 			//alert(isChecked);
 			return;
 		}
-		return this.renderTodoWithCheck(id, discription, onCheckChanged);
+		return this.renderTodoWithCheck(id, discription, onCheckChanged, false);
 	}
 }

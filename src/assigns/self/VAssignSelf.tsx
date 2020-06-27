@@ -13,7 +13,7 @@ export class VAssignDraftSelf extends VAssignDraft<CAssignsSelf> {
 			return;
 		}
 		return <div className="pl-4 bg-white">
-			{this.renderTodoWithCheck(id, discription, onCheckChanged)}
+			{this.renderTodoWithCheck(id, discription, onCheckChanged, false)}
 		</div>;
 	}
 }
