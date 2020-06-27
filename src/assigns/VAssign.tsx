@@ -59,14 +59,14 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 		</div>
 	}
 
-	protected renderTodoWithCheck(id:number, discription:string, onCheckChanged: (isChecked:boolean) => Promise<void>) {
+	protected renderTodoWithCheck(id:number, discription:string, onCheckChanged: (isChecked:boolean) => Promise<void>, isChecked:boolean) {
 		let onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
 			if (!onCheckChanged) return;
 			onCheckChanged(evt.target.checked);
 		}
 		return <label key={id}
 			className="px-3 py-2 m-0 d-flex align-items-center bg-white border-top cursor-point">
-			<input type="checkbox" onChange={onChange} />
+			<input type="checkbox" onChange={onChange} defaultChecked={isChecked}/>
 			<div className="flex-fill ml-3">{discription}</div>
 		</label>
 	}
