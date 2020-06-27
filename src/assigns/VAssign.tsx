@@ -3,8 +3,9 @@ import { VBase } from "./VBase";
 import { CAssigns } from './CAssigns';
 import { Muted, EasyTime, FA, Page, useUser } from 'tonva';
 import { observer } from 'mobx-react';
-import { Assign } from 'models';
+import { Assign, AssignTask, AssignItem } from 'models';
 import { VFooterInput, FooterInputProps } from './VFooterInput';
+import { stateText } from 'tapp';
 
 export const vStopFlag = <FA name="square-o" className="text-danger small" />;
 
@@ -48,46 +49,43 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 		</div>;
 	}
 
-	protected renderAssignItems():any {
-		let {items} = this.controller.assign;
+	protected renderAssignItem(item:AssignItem) {
 		let icon = 'circle';
 		let cnIcon = 'text-primary';
-		//if (items.length === 0) return null;
-		//<div className="small text-muted px-3 py-2">事项</div>
-		return items.map((v, index) => {
-			let {discription} = v;
-			return <div key={index} className="px-3 py-2 d-flex align-items-center bg-white border-top">
-				<small><small><FA name={icon} className={cnIcon} fixWidth={true} /></small></small>
-				<div className="flex-fill ml-3">{discription}</div>
-			</div>
-		})
+		let {id, discription} = item;
+		return <div key={id} className="pl-5 pr-3 py-2 d-flex align-items-center bg-white border-top">
+			<small><small><FA name={icon} className={cnIcon} fixWidth={true} /></small></small>
+			<div className="flex-fill ml-3">{discription}</div>
+		</div>
 	}
 
-	/*
-	protected renderTaskItems() {
-		let {todos} = this.controller.assign;
-		let icon = 'circle';
-		let cnIcon = 'text-info';
-		return todos.map((item, index) => {
-			let {assignItem, discription} = item;
-			if (assignItem) {
-				return null;
-			}
-			return <div key={index+1000} className="px-3 py-2 d-flex align-items-center bg-white border-top">
-				<small><small><FA name={icon} className={cnIcon} fixWidth={true} /></small></small>
-				<div className="flex-fill ml-3">{discription}</div>
-			</div>
-		});
+	protected renderTodoWithCheck(id:number, discription:string, onCheckChanged: (isChecked:boolean) => Promise<void>) {
+		let onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+			if (!onCheckChanged) return;
+			onCheckChanged(evt.target.checked);
+		}
+		return <label key={id}
+			className="px-3 py-2 m-0 d-flex align-items-center bg-white border-top cursor-point">
+			<input type="checkbox" onChange={onChange} />
+			<div className="flex-fill ml-3">{discription}</div>
+		</label>
 	}
-	*/
+
+	protected renderAssignItems():any {
+		let {items} = this.controller.assign;
+		return items.map((v, index) => this.renderAssignItem(v));
+	}
 
 	protected renderTodos() {
 		return this.renderAssignItems();
-		/*
-		<>
-			{this.renderAssignItems()}
-			{this.renderTaskItems()}
-		</>;*/
+	}
+
+	protected renderTaskItem(task: AssignTask) {
+		let {state, actionTime} = task;
+		let {me} = stateText(state);
+		return <>
+			{me} <EasyTime date={actionTime} />
+		</>
 	}
 
 	content():JSX.Element {
@@ -118,7 +116,7 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 	protected renderSelfDone() {
 		return <div className="px-3 py-2 border-top bg-white cursor-pointer"
 			onClick={this.controller.showDone}>
-			<FA className="mr-3 text-primary" name="chevron-circle-right" fixWidth={true} /> {this.selfDoneCaption}
+			<FA className="mr-3 text-danger" name="chevron-circle-right" fixWidth={true} /> {this.selfDoneCaption}
 		</div>;
 	}
 
@@ -131,34 +129,21 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 			let {discription} = this.assign;
 			let {isMyAssign} = this.controller;
 			if (discription) {
-				if (isMyAssign) {
-					return <div>
-						<div className="small muted pt-2 pb-1 px-3 cursor-pointer" onClick={this.editDiscription}>
-							说明 <FA name="pencil-square-o ml-3" />
-						</div>
-						{super.renderDiscription()}
-					</div>;
+				let vTitle:any;
+				if (isMyAssign === true) {
+					vTitle = <div className="small muted pt-2 pb-1 px-3 cursor-pointer" onClick={this.editDiscription}>
+						说明 <FA name="pencil-square-o ml-3" />
+					</div>
 				}
-				else {
-					return <div>
-						<div className="small muted pt-2 pb-1 px-3">
-							说明 <FA name="square-o ml-3" />
-						</div>
-						{super.renderDiscription()}
-					</div>;
-				}
+				return <div>
+					{vTitle}
+					{super.renderDiscription()}
+				</div>;
 			}
-			else {
-				if (isMyAssign) {
-					return <div className="bg-white border-top px-3 py-2 cursor-pointer" onClick={this.editDiscription}>
-						<FA className="mr-3" name="pencil-square-o" /> <Muted>添加说明</Muted>
-					</div>;
-				}
-				else {
-					return <div className="bg-white border-top px-3 py-2" >
-						<FA className="mr-3" name="square-o" /> <Muted>说明</Muted>
-					</div>;
-				}
+			else if (isMyAssign) {
+				return <div className="bg-white border-top px-3 py-2 cursor-pointer" onClick={this.editDiscription}>
+					<FA className="mr-3" name="pencil-square-o" /> <Muted>添加说明</Muted>
+				</div>;
 			}
 		}));
 	}
@@ -180,6 +165,7 @@ export class VAssignDraft<T extends CAssigns> extends VAssign<T> {
 			</div>
 		</Page>);
 	}
+
 	footer() {
 		if (!this.controller.isMyAssign) {
 			return null;

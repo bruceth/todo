@@ -1,2 +1,3 @@
-export {CAssignsSelf as CAssignsMy} from './self/CAssignsSelf';
-export {CAssignsWithMember as CAssignsGroup} from './group/withMember/CAssignsWithMember';
+export {CAssignsSelf} from './self/CAssignsSelf';
+export {CAssignsWithMember} from './group/withMember/CAssignsWithMember';
+export {CAssignsNoMember} from './group/noMember/CAssignsNoMember';

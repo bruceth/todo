@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { VPage, FA, LMR, Page, Form, ItemSchema, Context, List, tv, EasyTime, UiSchema, UiTextItem } from 'tonva';
+import { VPage, FA, LMR, Page, Form, ItemSchema, Context, List, tv, UiSchema, UiTextItem } from 'tonva';
 import { CHome } from './CHome';
 import { observer } from 'mobx-react';
 
@@ -29,13 +29,6 @@ export class VMain extends VPage<CHome> {
 				vCount = <small className={cn} style={style}>99+</small>;
 				bg = 'bg-primary';
 			}
-			/*
-			let left = <div className={'red-dot num mr-3 d-flex w-2-5c h-2-5c rounded align-items-center justify-content-center position-relative text-white ' + bg}>
-				{vCount}
-				{unread>0 && 
-				<u className="">{unread >= 100? <>99<small>+</small></>:unread}</u>}
-			</div>;
-			*/
 			let left = <div className={'red-dot num mr-3 d-flex w-2-5c h-2-5c rounded align-items-center justify-content-center position-relative text-white bg-warning text-right'}>
 				<FA name="user-circle" size="lg" />
 				{vCount}
@@ -48,7 +41,6 @@ export class VMain extends VPage<CHome> {
 	}
 
 	private onClickGroup = (item: any) => {
-		//this.controller.showGroup(item);
 		this.controller.showGroupAssigns(item);
 	}
 
@@ -108,20 +100,11 @@ export class VMain extends VPage<CHome> {
 			let myRight = defaultGroupAssignCount>0 && <small className="mr-3">{defaultGroupAssignCount}</small>;
 
 			return <Page header="首页" headerClassName="bg-info" right={right}>
-				{/*this.renderVm(VTodos)*/}
 				<LMR className="py-2 bg-white align-items-center cursor-pointer mb-2"
 					left={myLeft} right={myRight}
 					onClick={this.controller.showMyAssigns}>
 					我的待办
 				</LMR>
-				<div className="py-2 d-flex bg-white align-items-center cursor-pointer mb-2" 
-					onClick={this.controller.showMyTodos}>
-					<div className={'red-dot mx-3 d-flex w-2-5c h-2-5c text-center rounded text-white align-items-center justify-content-center bg-info'}>
-						<FA name="list-ol" fixWidth={true} size="lg" />
-						{todosChanged===true && <u></u>}
-					</div>
-					<div>待办工作</div>
-				</div>
 				<List items={items} 
 					item={{render:this.renderGroup, onClick: this.onClickGroup, key: this.keyGroup}}
 					none={()=><>[无]</>} />
@@ -131,3 +114,14 @@ export class VMain extends VPage<CHome> {
 	}
 	
 }
+//{/*this.renderVm(VTodos)*/}
+/*
+<div className="py-2 d-flex bg-white align-items-center cursor-pointer mb-2" 
+onClick={this.controller.showMyTodos}>
+<div className={'red-dot mx-3 d-flex w-2-5c h-2-5c text-center rounded text-white align-items-center justify-content-center bg-info'}>
+	<FA name="list-ol" fixWidth={true} size="lg" />
+	{todosChanged===true && <u></u>}
+</div>
+<div>待办工作</div>
+</div>
+*/

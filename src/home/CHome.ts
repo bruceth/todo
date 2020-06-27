@@ -8,7 +8,7 @@ import { Task, Assign, Group, GroupItem } from "../models";
 import { VGroupDetail } from "./VGroupDetail";
 import { Performance } from '../tapp'
 import { NoteItem, NoteAssign, dataToNoteItem, createNoteAssign, createNoteText } from "./NoteItem";
-import { CAssignsMy, CAssignsGroup } from "assigns";
+import { CAssignsSelf, CAssignsWithMember, CAssignsNoMember } from "assigns";
 
 export class CHome extends CUqBase {
 	private performance: Performance;
@@ -117,14 +117,20 @@ export class CHome extends CUqBase {
 
 	showMyAssigns = async () => {
 		this.todosChanged = false;
-		let cAssignsMy = this.newC(CAssignsMy);
+		let cAssignsMy = this.newC(CAssignsSelf);
 		await cAssignsMy.showList();
 	}
 
 	showGroupAssigns = async (item: GroupItem) => {
 		this.todosChanged = false;
-		let cAssignsGroup = this.newC(CAssignsGroup, item.group);
-		await cAssignsGroup.showList();
+		if (item.memberCount > 1) {
+			let cAssigns = this.newC(CAssignsWithMember, item.group);
+			await cAssigns.showList();
+		}
+		else {
+			let cAssigns = this.newC(CAssignsNoMember, item.group);
+			await cAssigns.showList();
+		}
 	}
 
 	showMyTodos = async () => {

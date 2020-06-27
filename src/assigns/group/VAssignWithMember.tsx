@@ -1,9 +1,9 @@
 import React from "react";
-import { VAssignDraft, VAssignEnd, vStopFlag, VAssign } from "../../VAssign";
-import { CAssignsWithMember, TasksToCategory } from "./CAssignsWithMember";
+import { VAssignDraft, VAssignEnd, vStopFlag, VAssign } from "../VAssign";
+import { CAssignsWithMember, TasksToCategory } from "./withMember/CAssignsWithMember";
 import { FA } from "tonva";
-import { VAssignTasks } from "./VAssignTasks";
-import { FooterInputProps, VFooterInput } from "../../VFooterInput";
+import { VAssignTasks } from "./withMember/VAssignTasks";
+import { FooterInputProps, VFooterInput } from "../VFooterInput";
 import { EnumTaskState } from "tapp";
 
 export class VAssignDraftWithMember extends VAssignDraft<CAssignsWithMember> {

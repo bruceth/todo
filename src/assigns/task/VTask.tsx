@@ -34,23 +34,26 @@ export abstract class VTask extends VAssign<CAssigns> {
 
 
 	protected renderTodos():JSX.Element {
-		// 改写，根据Done来显示。每项加Checkbox
-		//return super.renderTodos();
-		let {todos} = this.task;
-		if (!todos) {
-			return <>请先获取task.todos</>;
+		if (!this.task) {
+			return this.renderAssignItems();
 		}
-
+		let {todos} = this.task;
+		if (todos.length === 0) return;
 		return <div className="border-top border-bottom">
 			<div className="border-bottom bg-light small py-1 px-3 text-muted">事项</div>
 			<List items={todos} 
-				item={{render: (todo:Todo, index:number) => this.renderTodo(todo, index)}} />
+				item={{render: this.rendTodoListItem}} />
 		</div>;
 	}
 
-	protected renderTodo (todo:Todo, index:number):JSX.Element {
-		let {discription, x} = todo;
+	private rendTodoListItem = (todo:Todo, index:number) => {
+		let {x} = todo;
 		if (x === 1) return null;
+		return this.renderTodo(todo, index);
+	}
+
+	protected renderTodo (todo:Todo, index:number):JSX.Element {
+		let {discription} = todo;
 		return <div className={'py-2 d-flex'}>
 			<div className="mx-3">{this.renderTodoDot(todo)}</div>
 			<div className="flex-fill">

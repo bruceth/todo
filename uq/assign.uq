@@ -140,6 +140,7 @@ RETURNS tasks (
 	id ID,
 	worker ID,
 	[$create] TIMESTAMP,
+	actionTime TIMESTAMP,
 	state TINYINT,
 	end TINYINT,
 	point SMALLINT,
@@ -177,7 +178,8 @@ RETURNS toList (
 		FROM AssignItem as a
 		WHERE a.assign=assignId
 		ORDER BY a.id;
-	INTO tasks SELECT a.id, a.worker, a.[$create], b.state, b.end, c.point, b.pointDone, b.pointRate, b.likes
+	INTO tasks SELECT a.id, a.worker, a.[$create], b.date as actionTime
+		, b.state, b.end, c.point, b.pointDone, b.pointRate, b.likes
 		FROM Task as a 
 			LEFT JOIN TaskState as b on a.id=b.task
 			LEFT JOIN Assign as c on a.assign=c.id
