@@ -107,7 +107,9 @@ export abstract class CAssigns extends CUqBase {
 	}
 
 	showDone = async () => {
-		this.openVPage(VDone);
+		let {tasks} = this.assign;
+		let task = tasks.find(v=>this.isMe(v.worker));
+		this.openVPage(VDone, task);
 	}
 
 	saveTodoDone = async (todo: Todo, vDone:0|1) => {
