@@ -42,7 +42,7 @@ export class CReport extends CUqBase {
 	refresh = async() => {
 		//await this.myDoingsPager.refresh();
 	}
-
+/*
 	showTask = async (taskId: number) => {
 		await this.cApp.showTask(taskId);
 	}
@@ -50,7 +50,7 @@ export class CReport extends CUqBase {
 	showMyAssigns = async () => {
 		await this.cApp.showMyAssigns();
 	}
-
+*/
 	showMyTasks = async () => {
 		await this.myTasksPager.first({});
 		this.openVPage(VMyTasks);

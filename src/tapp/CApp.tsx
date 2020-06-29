@@ -8,8 +8,8 @@ import { CMe } from "me/CMe";
 import { CTest } from "test/CTest";
 import { CHome } from "home/CHome";
 import { CReport } from "report/CReport";
-import { CTask } from 'task/CTask';
-import { CAssign } from 'assign/CAssign';
+//import { CTask } from '../old/task/CTask';
+//import { CAssign } from '../old/assign/CAssign';
 import { EnumNoteType } from './uqs';
 import { CMember } from 'member/CMember';
 import { Assign } from 'models';
@@ -22,8 +22,8 @@ export class CApp extends CUqApp {
 	cReport: CReport;
     cHome: CTest;
 	cMe: CMe;
-	cAssign: CAssign;
-	cTask: CTask;
+	//cAssign: CAssign;
+	//cTask: CTask;
 	cMember: CMember;
 	cProject: CProject;
 	cSelectProject: CSelectProject;
@@ -44,8 +44,8 @@ export class CApp extends CUqApp {
 		this.cReport.start();
         this.cHome = this.newC(CTest);
 		this.cMe = this.newC(CMe);
-		this.cAssign = this.newC(CAssign);
-		this.cTask = this.newC(CTask);
+		//this.cAssign = this.newC(CAssign);
+		//this.cTask = this.newC(CTask);
 		this.cMember = this.newC(CMember);
 		this.cProject = this.newC(CProject);
 		this.cSelectProject = this.newC(CSelectProject);
@@ -114,7 +114,7 @@ export class CApp extends CUqApp {
 	addGroupAssignCount(group:number, delta:number) {
 		this.cGroup.addGroupAssignCount(group, delta);
 	}
-
+/*
 	async showTask(taskId:number):Promise<void> {
 		await this.cTask.showTask(taskId);
 	}
@@ -122,7 +122,7 @@ export class CApp extends CUqApp {
 	async showNewTask(assign:Assign) {
 		await this.cTask.showNew(assign);
 	}
-
+*/
 	showMyTasks = async ():Promise<void> => {
 		await this.cReport.showMyTasks();
 	}
@@ -130,7 +130,7 @@ export class CApp extends CUqApp {
 	showMyTodos = async ():Promise<void> => {
 		await this.cReport.showMyTodos();
 	}
-
+/*
 	async showAssign(assignId:number):Promise<void> {
 		await this.cAssign.showAssign(assignId);
 	}
@@ -143,7 +143,7 @@ export class CApp extends CUqApp {
 	async showMyAssigns():Promise<void> {
 		await this.cAssign.showMyAssigns();
 	}
-
+*/
 	async showMemberDetail(memberId:number):Promise<void> {
 		this.cMember.showMemberDetail(memberId);
 	}

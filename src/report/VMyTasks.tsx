@@ -30,7 +30,7 @@ export class VMyTasks extends VPage<CReport> {
 	}
 
 	private onTaskClick = (myTaskItem: AssignTask) => {
-		this.controller.showTask(myTaskItem.id);
+		//this.controller.showTask(myTaskItem.id);
 	}
 
 	private cnTabSelected = (selected:boolean) => classNames({

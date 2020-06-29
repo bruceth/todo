@@ -38,7 +38,8 @@ export class VReport extends VPage<CReport> {
 		icon: 'list-ol',
 		bgIcon: 'bg-success',
 		content: '作业', 
-		action: this.controller.showMyAssigns,
+		action: undefined, // this.controller.showMyAssigns,
+		//action: this.controller.showMyAssigns,
 	}
 	private catTasks:Cat = {
 		icon: 'list-ol',
