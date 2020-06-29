@@ -201,7 +201,7 @@ export class CHome extends CUqBase {
 		this.groupNotesPager.items.push(nts);
 		this.afterAddNote();
 	}
-
+/*
 	showNewTask = async ():Promise<boolean> => {
 		let ret = await this.cApp.showNewAssign();
 		return ret;
@@ -209,7 +209,7 @@ export class CHome extends CUqBase {
 	showAssign = async (noteItem:NoteAssign) => {
 		this.cApp.showAssign(noteItem.assignId); 
 	}
-
+*/
 	saveTodo = async (todoContent: string):Promise<any> => {
 		let todo = {
 			id: undefined as any,

@@ -27,7 +27,7 @@ export class NoteTaskTodo extends NoteItem {
 	}
 
 	private onClick = () => {
-		this.cGroup.cApp.showTask(this.taskId);
+		//this.cGroup.cApp.showTask(this.taskId);
 	}
 
 	private renderInternal():JSX.Element {

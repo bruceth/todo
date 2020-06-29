@@ -106,8 +106,8 @@ export class VGroup extends VPage<CHome> {
 	private taskTodo = async () => {
 		this.input.value = '';
 		this.inputed = false;
-		let ret = await this.controller.showNewTask();
-		if (ret === true) this.scrollToBottom();
+		//let ret = await this.controller.showNewTask();
+		//if (ret === true) this.scrollToBottom();
 	}
 
 	private onListFocus = (evt: React.FocusEvent<HTMLUListElement>) => {

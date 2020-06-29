@@ -24,7 +24,7 @@ export class NoteAssign extends NoteItem {
 	}
 
 	private onClick = () => {
-		this.cGroup.showAssign(this);
+		//this.cGroup.showAssign(this);
 	}
 
 	private renderInternal():JSX.Element {

@@ -26,7 +26,7 @@ export class VMyTodos extends VPage<CReport> {
 	}
 
 	private onClickDoing = (doing: Doing) => {
-		this.controller.showTask(doing.task);
+		//this.controller.showTask(doing.task);
 	}
 
 	private renderState(doing:Doing):JSX.Element {

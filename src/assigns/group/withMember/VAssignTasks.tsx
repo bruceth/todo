@@ -73,6 +73,7 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 		let allOthers = [...starts, ...dones, ...passes, ...fails, ...rateds, ...cancels];
 		*/
 		return <>
+			{this.renderMy()}
 			{this.renderSelf()}
 			{this.renderOthers()}
 		</>;
@@ -80,29 +81,29 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 
 	private renderSelf() {
 		let {my, checks, rates} = this.controller.tasksToCategory;
-		if (checks.length === 0 && rates.length === 0 && my === undefined) return;
+		if (checks.length === 0 && rates.length === 0) return;
 		return <div className="pt-3">
 			{this.renderChecks(checks)}
 			{this.renderRates(rates)}
-			{this.renderMy(my)}
-		</div>
+		</div>;
 	}
 
-	private renderMy(task: AssignTask) {
-		if (!task) return;
-		let {state, end} = task;
+	private renderMy() {
+		let {my} = this.controller.tasksToCategory;
+		if (!my) return;
+		let {state, end} = my;
 		let action = this.controller.getTaskAction(state);
 		if (!action) {
 			let {me} = stateText(state);
-			return <div className="px-3 py-2 bg-white border-bottom cursor-pointer d-flex align-items-center"
-				onClick={() => this.controller.showFlowDetail(task)}>
+			return <div className="px-3 py-2 bg-white border-top cursor-pointer d-flex align-items-center"
+				onClick={() => this.controller.showFlowDetail(my)}>
 				<span className="mr-2">我的任务</span>
 				<span className="text-warning">{me}</span>
 				{this.renderEndFlag(end)}
 				<FA name="angle-right" className="ml-auto" />
 			</div>;
 		}
-		return <div className="px-3 py-3 bg-white border-bottom cursor-pointer"
+		return <div className="px-3 py-3 bg-white border-top cursor-pointer"
 			onClick={this.controller.meAct}>
 			<FA name="chevron-circle-right" className="text-danger mr-3" />
 			<span className="text-primary ">{action}</span> 我的任务
