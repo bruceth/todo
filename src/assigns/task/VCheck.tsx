@@ -2,6 +2,7 @@ import React from "react";
 import { VTask } from "./VTask";
 import { FA } from "tonva";
 import { Todo } from "models";
+import { MemoInputProps, VMemoInput } from "assigns/VMemoInput";
 
 export class VCheck extends VTask {
 	header() {return '查验'}
@@ -82,6 +83,17 @@ export class VCheck extends VTask {
 				</label>					
 			})}
 		</div>;
+	}
+
+	protected renderMemo(todo: Todo):JSX.Element {
+		let props:MemoInputProps = {
+			onUpdate: async (inputContent:string):Promise<void> => {
+				await this.controller.saveTodoCheckMemo(todo, inputContent);
+			},
+			content: todo.checkMemo,
+			placeholder: '添加说明'
+		};
+		return this.renderVm(VMemoInput, props);
 	}
 
 }
