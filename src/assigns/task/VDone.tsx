@@ -2,6 +2,7 @@ import React from "react";
 import { VTask } from "./VTask";
 import { List, FA } from "tonva";
 import { Todo, AssignItem } from "models";
+import { MemoInputProps, VMemoInput } from "assigns/VMemoInput";
 
 export class VDone extends VTask {
 	header() {return '完成'}
@@ -43,20 +44,37 @@ export class VDone extends VTask {
 			await this.controller.saveTodoDone(todo, isChecked?1:0);
 			return;
 		}
-		return this.renderTodoWithCheck(id, discription, onCheckChanged, done === 1);
-		/*
+		let onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+			if (!onCheckChanged) return;
+			onCheckChanged(evt.target.checked);
+		}
+		//return this.renderTodoWithCheck(id, discription, onCheckChanged, done === 1);
 		return <div className={'py-2 d-flex'}>
-			<div className="mx-3">{this.renderTodoDot(todo)}</div>
+			<label key={id} className="px-3 py-2 m-0 d-flex align-items-center bg-white cursor-point">
+				<input type="checkbox" onChange={onChange} defaultChecked={done === 1}/>
+			</label>
 			<div className="flex-fill">
 				<div className="d-flex">
 					<div className="flex-fill">{discription}</div>
-					{this.renderTodoRadio(todo)}
 				</div>
+				<div className="p-2">
 				{this.renderMemo(todo)}
+				</div>
 			</div>
 		</div>
-		*/
 	}
+
+	protected renderMemo(todo: Todo):JSX.Element {
+		let props:MemoInputProps = {
+			onUpdate: async (inputContent:string):Promise<void> => {
+				await this.controller.saveTodoDoneMemo(todo, inputContent);
+			},
+			content: todo.doneMemo,
+			placeholder: '添加说明'
+		};
+		return this.renderVm(VMemoInput, props);
+	}
+
 
 	protected renderAssignItem(item:AssignItem) {
 		let {id, discription} = item;
