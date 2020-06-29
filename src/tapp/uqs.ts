@@ -65,6 +65,7 @@ export interface Performance {
 	
 	CreateAssign: Action;
 	NewAssign: Action;
+	CreateAndSendAssign: Action;
 	DoneAssign: Action;
 	SendAssign: Action;
 	DoneTask: Action;
