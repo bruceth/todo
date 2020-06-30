@@ -57,6 +57,7 @@ export class VCheck extends VTask {
 					{this.renderTodoRadio(todo)}
 				</div>
 				{this.renderMemo(todo)}
+				{this.renderCheckMemo(todo)}
 			</div>
 		</div>
 	}
@@ -85,13 +86,13 @@ export class VCheck extends VTask {
 		</div>;
 	}
 
-	protected renderMemo(todo: Todo):JSX.Element {
+	protected renderCheckMemo(todo: Todo):JSX.Element {
 		let props:MemoInputProps = {
 			onUpdate: async (inputContent:string):Promise<void> => {
 				await this.controller.saveTodoCheckMemo(todo, inputContent);
 			},
 			content: todo.checkMemo,
-			placeholder: '添加说明'
+			placeholder: '添加验收说明'
 		};
 		return this.renderVm(VMemoInput, props);
 	}

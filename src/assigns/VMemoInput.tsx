@@ -2,6 +2,7 @@ import React from "react";
 import { Controller, View, FA } from "tonva";
 import { observable, computed } from "mobx";
 import { observer } from "mobx-react";
+import { isNullOrUndefinedOrEmpty } from "tools";
 
 export interface MemoInputProps {
 	onUpdate: (inputContent: string) => Promise<void>;
@@ -14,7 +15,7 @@ export class VMemoInput<T extends Controller> extends View<T> {
   @observable protected inputContent: string;
   @computed get content() {
     let content : any = this.inputContent;
-    if (content === undefined || content === null) {
+    if (isNullOrUndefinedOrEmpty(content)) {
       content = <small className="text-muted">{this.props.placeholder}</small>;
     }
 

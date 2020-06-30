@@ -35,6 +35,32 @@ ACTION CreateAssign ver 1.0 (
 	INTO ret SELECT assignId as id;
 };
 
+ACTION CreateAndSendAssign (
+	caption CHAR(200),
+) RETURNS ret (
+	id ID,
+) {
+	var assignId ID, groupId ID;
+	VAR taskId ID, seq TINYINT;
+	TUID Assign INTO assignId SET caption=caption, owner=$user;
+	SET groupId=a.group FROM Me as a WHERE a.me=$user;
+	IF groupId IS NULL {
+		TUID Group into groupId SET name='$', owner=$user, parent=0;
+		BOOK MyGroup AT($user, groupId) SET time=$date;
+		BOOK Me AT($user) SET group=groupId;
+	}
+	BOOK AssignEx at(assignId) SET group=groupId;
+
+	BOOK AssignTo AT(assignId, $user);
+	TUID Task INTO taskId SET assign=assignId, worker=$user;
+	BOOK TaskState AT(taskId) SET state=0;
+	SET seq = IFNULL((SELECT max(seq) FROM TaskFlow WHERE task=taskId), 0) + 1;
+	BOOK TaskFlow AT(taskId, seq) SET user=$user, state=0;
+
+	INTO ret SELECT assignId as id;
+};
+
+
 -- only for my assign
 ACTION DoneAssign ver 1.8 (
 	assign ID,	
@@ -207,3 +233,4 @@ ACTION SendAssign ver 1.2 (
 		}
 	}
 };
+

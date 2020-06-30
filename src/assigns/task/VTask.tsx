@@ -3,6 +3,7 @@ import { CAssigns } from "../CAssigns";
 import { VAssign } from "../VAssign";
 import { AssignTask, Todo } from "models";
 import { List, FA } from "tonva";
+import { isNullOrUndefinedOrEmpty } from "tools";
 
 export abstract class VTask extends VAssign<CAssigns> {
 	protected task: AssignTask;
@@ -62,16 +63,27 @@ export abstract class VTask extends VAssign<CAssigns> {
 					{this.renderTodoRadio(todo)}
 				</div>
 				{this.renderMemo(todo)}
+				{this.renderCheckMemo(todo)}
 			</div>
 		</div>
 	}
 
 	protected renderTodoRadio(todo: Todo):JSX.Element {
-		return <>radio</>;
+		return <></>;
 	}
 
 	protected renderMemo(todo: Todo):JSX.Element {
-		return <>memo</>;
+		let { doneMemo } = todo;
+		if (isNullOrUndefinedOrEmpty(doneMemo))
+			return null;
+		return <div className="flex-fill"><small className="text-muted mr-1">完成说明</small>{doneMemo}</div>;
+	}
+
+	protected renderCheckMemo(todo: Todo):JSX.Element {
+		let { checkMemo } = todo;
+		if (isNullOrUndefinedOrEmpty(checkMemo))
+			return null;
+		return <div className="flex-fill"><small className="text-muted mr-1">检查说明</small>{checkMemo}</div>;
 	}
 
 	protected renderMemoBase(memo:string, color:string, icon:string, caption:string): JSX.Element {
