@@ -160,7 +160,14 @@ class Host {
         return `http://${value}/`;
     }
     getUrlOrTest(db:string, url:string, urlTest:string):string {
-        let path:string;
+		let path:string;
+		if (!urlTest) {
+			urlTest = url;
+			if (!urlTest) {
+				console.error('no server set for ' + db);
+				debugger;				
+			}
+		}
         if (this.testing === true) {
             if (urlTest !== '-') url = urlTest;
             path = 'uq/test/' + db + '/';
@@ -168,7 +175,10 @@ class Host {
         else {
             path = 'uq/prod/' + db + '/';
         }
-        url = this.getUrlOrDebug(url);
+		url = this.getUrlOrDebug(url);
+		if (url.endsWith('/') === false) {
+			url += '/';
+		}
         return url + path;
     }
 
