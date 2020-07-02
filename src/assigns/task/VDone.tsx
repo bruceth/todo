@@ -101,7 +101,7 @@ export class VDone extends VTask {
 				</div>
 			</label>
 			<div className="p-2 cursor-pointer" onClick={onEditMemo}>
-				<FA name="pencil-square-o" />
+				<FA name="pencil-square-o text-info" />
 			</div>
 		</div>
 	}

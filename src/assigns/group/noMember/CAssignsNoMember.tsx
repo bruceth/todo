@@ -9,25 +9,6 @@ export class CAssignsNoMember extends CAssignsForGroup {
 		this.openVPage(this.assign.end === 1? VAssignEndNoMember : VAssignDraftNoMember);
 	}
 
-	newAssignTmp = async (caption:string) => {
-		let data = {group: this.groupId, caption};
-		let {CreateAssign} = this.performance;
-		let result = await CreateAssign.submit(data);
-		let res = result;
-		let {id} = res;
-		let assign = this.performance.Assign.boxId(id);
-
-		let toList:{to:number}[] = [];
-		toList.push({to:this.user.id})
-		let datas = {
-			assignId: id,
-			toList
-		};
-		await this.uqs.performance.SendAssign.submit(datas);
-
-		this.assignListItems.unshift({assign});
-	}
-
 	newAssign = async (caption:string) => {
 		let data = {group:this.groupId, caption};
 		let {CreateAndSendAssign} = this.performance;

@@ -1,22 +1,23 @@
 import React from "react";
 import { FA } from "tonva";
-import { VAssignDraft, VAssignEnd, vStopFlag } from "../VAssign";
+import { VAssignDraft, VAssignEnd, vStopFlag } from "../../VAssign";
 import { CAssignsSelf } from "./CAssignsSelf";
 import { AssignItem } from "models";
-import { FooterInputProps, VFooterInput } from "../VFooterInput";
+import { FooterInputProps, VFooterInput } from "../../VFooterInput";
 
 export class VAssignDraftSelf extends VAssignDraft<CAssignsSelf> {
 	protected get selfDoneCaption():string {return '完成'}
 
-	protected renderAssignItem(item:AssignItem) {
-		let {id, discription} = item;
-		let onCheckChanged = (isChecked:boolean):Promise<void> => {
-			//alert(isChecked);
-			return;
-		}
-		return <div className="pl-4 bg-white">
-			{this.renderTodoWithCheck(id, discription, onCheckChanged, false)}
-		</div>;
+	protected renderAssignItem(item:AssignItem) : any {
+		return undefined;
+		// let {id, discription} = item;
+		// let onCheckChanged = (isChecked:boolean):Promise<void> => {
+		// 	//alert(isChecked);
+		// 	return;
+		// }
+		// return <div className="pl-4 bg-white">
+		// 	{this.renderTodoWithCheck(id, discription, onCheckChanged, false)}
+		// </div>;
 	}
 
 	footer() {
