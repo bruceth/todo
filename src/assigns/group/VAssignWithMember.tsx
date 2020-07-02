@@ -1,6 +1,6 @@
 import React from "react";
-import { VAssignDraft, VAssignEnd, vStopFlag, VAssign } from "../VAssign";
-import { CAssignsWithMember, TasksToCategory } from "./withMember/CAssignsWithMember";
+import { VAssignDraft, vStopFlag, VAssign } from "../VAssign";
+import { CAssignsWithMember } from "./withMember/CAssignsWithMember";
 import { FA } from "tonva";
 import { VAssignTasks } from "./withMember/VAssignTasks";
 import { FooterInputProps, VFooterInput } from "../VFooterInput";
@@ -66,7 +66,7 @@ export class VAssignDoingWithMember extends VAssignWithMemberTasks {
 	protected renderFlow() {
 		let cn = 'border border-warning rounded px-2 py-1 d-flex align-items-center';
 		let {checker, rater} = this.assign;
-		let angle = <FA name="angle-right" className="mx-3 text-muted" />;
+		let angle = <FA name="angle-right" className="mx-2 mx-sm-3 text-muted" />;
 		let renderAdmin = (admin:any, action:string): JSX.Element => {
 			if (admin) {
 				return <>

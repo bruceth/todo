@@ -12,7 +12,6 @@ import { CReport } from "report/CReport";
 //import { CAssign } from '../old/assign/CAssign';
 import { EnumNoteType } from './uqs';
 import { CMember } from 'member/CMember';
-import { Assign } from 'models';
 import { CProject, CSelectProject } from 'project';
 
 const gaps = [10, 3,3,3,3,3,5,5,5,5,5,5,5,5,10,10,10,10,15,15,15,30,30,60];

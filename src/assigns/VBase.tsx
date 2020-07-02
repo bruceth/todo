@@ -1,6 +1,6 @@
 import React from "react";
 import { CAssigns } from "./CAssigns";
-import { VPage, User } from "tonva";
+import { VPage } from "tonva";
 
 export abstract class VBase<T extends CAssigns> extends VPage<T> {
 	private divTop:HTMLElement;

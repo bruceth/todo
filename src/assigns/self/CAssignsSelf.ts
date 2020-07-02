@@ -1,7 +1,6 @@
 import { CAssigns } from "../CAssigns";
 import { VListForSelf } from "./VListForSelf";
 import { VAssignDraftSelf, VAssignEndSelf } from "./VAssignSelf";
-import { AssignTask } from "models";
 
 export class CAssignsSelf extends CAssigns {
 	get caption():string {return '我的待办';}
