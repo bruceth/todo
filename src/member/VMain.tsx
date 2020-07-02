@@ -1,5 +1,5 @@
 import React from 'react';
-import { VPage, List, UserView, User, Image, Muted, FA } from "tonva";
+import { VPage, List, Muted, FA } from "tonva";
 import { CMember, MemberItem } from "./CMember";
 
 export class VMain extends VPage<CMember> {

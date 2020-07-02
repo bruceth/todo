@@ -8,7 +8,7 @@ export class VMain extends VPage<CHome> {
 	}
 
 	private renderGroup = (item: any, index: number):JSX.Element => {
-		let {group, time, unread, count, memberCount} = item;
+		let {group, count, memberCount} = item;
 		return <div className="px-3 py-2">{tv(group, v => {
 			let {name} = v;
 			let vCount:any, bg:string;

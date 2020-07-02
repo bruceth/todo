@@ -7,7 +7,7 @@ import { stateDefs } from "tools";
 import { Task, Assign, Group, GroupItem } from "../models";
 import { VGroupDetail } from "./VGroupDetail";
 import { Performance } from '../tapp'
-import { NoteItem, NoteAssign, dataToNoteItem, createNoteAssign, createNoteText } from "./NoteItem";
+import { NoteItem, dataToNoteItem, createNoteAssign, createNoteText } from "./NoteItem";
 import { CAssignsSelf, CAssignsWithMember, CAssignsNoMember } from "assigns";
 
 export class CHome extends CUqBase {

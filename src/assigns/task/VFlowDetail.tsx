@@ -1,6 +1,5 @@
 import React from 'react';
 import { VTask } from './VTask';
-import { TaskFlow } from 'models';
 import { EasyTime } from 'tonva';
 import { stateText, actText } from 'tapp';
 

@@ -56,10 +56,10 @@ export class VMemoInput<T extends Controller> extends View<T> {
 		this.lostFocusTimeoutHandler = setTimeout(() => {
 			this.lostFocusTimeoutHandler = undefined;
 			this.isFocused = false;
-    }, 200);
-    if (this.inputContent != this.props.content && this.props?.onUpdate) {
-      this.props.onUpdate(this.inputContent);
-    }
+		}, 200);
+		if (this.inputContent !== this.props.content && this.props?.onUpdate) {
+			this.props.onUpdate(this.inputContent);
+		}
 	}
 	protected onInputChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
 		this.inputContent = this.input.value.trim();
@@ -77,11 +77,10 @@ export class VMemoInput<T extends Controller> extends View<T> {
 		if (!this.input) return;
 		if (!this.inputContent) return;
 		this.input.disabled = true;
-		clearTimeout(this.lostFocusTimeoutHandler);
-    if (this.inputContent != this.props.content && this.props?.onUpdate) {
-      this.props.onUpdate(this.inputContent);
-    }
-    this.input.disabled = false;
-    this.isFocused = false;
+		if (this.inputContent !== this.props.content && this.props?.onUpdate) {
+			this.props.onUpdate(this.inputContent);
+		}
+		this.input.disabled = false;
+		this.isFocused = false;
 	}
 }

@@ -1,7 +1,5 @@
-import { QueryPager, useUser } from "tonva";
 import { AssignTask } from "models";
 import { VListForGroup } from "./VListForGroup";
-import { VGroupDetail } from "../VGroupDetail";
 import { CSend } from "./send";
 import { VCheck, VRate } from "assigns/task";
 import { CAssignsForGroup } from "../CAssignsForGroup";
