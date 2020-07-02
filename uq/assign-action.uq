@@ -36,20 +36,23 @@ ACTION CreateAssign ver 1.0 (
 };
 
 ACTION CreateAndSendAssign (
+	group ID,
 	caption CHAR(200),
 ) RETURNS ret (
 	id ID,
 ) {
-	var assignId ID, groupId ID;
+	var assignId ID;
 	VAR taskId ID, seq TINYINT;
 	TUID Assign INTO assignId SET caption=caption, owner=$user;
-	SET groupId=a.group FROM Me as a WHERE a.me=$user;
-	IF groupId IS NULL {
-		TUID Group into groupId SET name='$', owner=$user, parent=0;
-		BOOK MyGroup AT($user, groupId) SET time=$date;
-		BOOK Me AT($user) SET group=groupId;
+	IF group IS NULL or group=0 {
+		SET group=a.group FROM Me as a WHERE a.me=$user;
+		IF group IS NULL {
+			TUID Group into group SET name='$', owner=$user, parent=0;
+			BOOK MyGroup AT($user, group) SET time=$date;
+			BOOK Me AT($user) SET group=group;
+		}
 	}
-	BOOK AssignEx at(assignId) SET group=groupId;
+	BOOK AssignEx at(assignId) SET group=group;
 
 	BOOK AssignTo AT(assignId, $user);
 	TUID Task INTO taskId SET assign=assignId, worker=$user;

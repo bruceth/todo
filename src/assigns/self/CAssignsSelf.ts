@@ -12,7 +12,7 @@ export class CAssignsSelf extends CAssigns {
 	}
 
 	newAssign = async (caption:string) => {
-		let data = {caption};
+		let data = {group:0, caption};
 		let {CreateAndSendAssign} = this.performance;
 		let result = await CreateAndSendAssign.submit(data);
 		let res = result;
