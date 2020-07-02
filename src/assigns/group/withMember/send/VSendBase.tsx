@@ -1,6 +1,6 @@
 import React from "react";
 import { CSend, steps } from "./CSend";
-import { VPage, FA, User, Image, UserView } from "tonva";
+import { VPage, FA } from "tonva";
 import { observer } from "mobx-react";
 import { computed } from "mobx";
 
@@ -17,7 +17,7 @@ export class VSendBase extends VPage<CSend> {
 				let {caption} = v;
 				let p:any, d:any;
 				if (index > 0) {
-					p = <FA className="mx-3 text-muted" name="arrow-right" />;
+					p = <FA className="mx-2 mx-sm-3 text-muted" name="arrow-right" />;
 				}
 				if (index === step) {
 					d = <b className="h4 mb-0 text-primary">{caption}</b>;

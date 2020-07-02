@@ -1,8 +1,8 @@
 import React from "react";
-import { CAssignsWithMember, TasksToCategory } from "./CAssignsWithMember";
+import { CAssignsWithMember } from "./CAssignsWithMember";
 import { View, FA } from "tonva";
 import { AssignTask } from "models";
-import { EnumTaskState, stateText } from "tapp";
+import { stateText } from "tapp";
 import { vStopFlag } from "assigns/VAssign";
 
 
@@ -20,58 +20,6 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 	}
 
 	protected renderTasks() {
-		/*
-		let {tasks, checker, rater} = this.controller.assign;
-		let my: AssignTask;
-		let starts: AssignTask[] = [];
-		let checks: AssignTask[] = [];
-		let rates: AssignTask[] = [];
-
-		let dones: AssignTask[] = [];
-		let passes: AssignTask[] = [];
-		let fails: AssignTask[] = [];
-		let rateds: AssignTask[] = [];
-		let cancels: AssignTask[] = [];
-		let others: AssignTask[] = [];
-
-		let isChecker = this.isMe(checker);
-		let isRater = this.isMe(rater);
-
-		for (let task of tasks) {
-			let {
-				//id, //: number; // Task ID ASC,
-				//assign, //: number|any; // ID Assign,
-				worker, //: number; // ID,
-				//$create, //: Date; // TIMESTAMP,
-				state, //: EnumTaskState;
-				//date, //: Date;
-				//stepDate, //: Date;
-				//stepComment, //: string;
-			} = task;
-			if (this.isMe(worker) === true) {
-				my = task;
-			}
-			else {
-				switch (state) {
-					case EnumTaskState.start: starts.push(task);  break;
-					case EnumTaskState.done:
-						(isChecker === true? checks : dones).push(task);
-						break;
-					case EnumTaskState.pass:
-						(isRater === true? rates : passes).push(task);
-						break;
-					case EnumTaskState.fail: fails.push(task); break;
-					case EnumTaskState.rated: rateds.push(task); break;
-					case EnumTaskState.cancel: cancels.push(task); break;
-					default:
-						others.push(task);
-						break;
-				}
-			}
-		}
-
-		let allOthers = [...starts, ...dones, ...passes, ...fails, ...rateds, ...cancels];
-		*/
 		return <>
 			{this.renderMy()}
 			{this.renderSelf()}
@@ -80,7 +28,7 @@ export class VAssignTasks extends View<CAssignsWithMember> {
 	}
 
 	private renderSelf() {
-		let {my, checks, rates} = this.controller.tasksToCategory;
+		let {checks, rates} = this.controller.tasksToCategory;
 		if (checks.length === 0 && rates.length === 0) return;
 		return <div className="pt-3">
 			{this.renderChecks(checks)}
