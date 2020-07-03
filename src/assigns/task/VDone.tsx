@@ -2,9 +2,7 @@ import React from "react";
 import { VTask } from "./VTask";
 import { Todo, AssignItem } from "models";
 import { InfoInputProps, VInfoInput } from "assigns/VInfoInput";
-import { FA, Page } from "tonva";
-import { observer } from "mobx-react";
-import { observable } from "mobx";
+import { FA } from "tonva";
 
 export class VDone extends VTask {
 	header() {return '完成'}
@@ -39,7 +37,6 @@ export class VDone extends VTask {
 		this.afterAct();
 	}
 
-	@observable private disabled: boolean;
 	protected renderTodo (todo:Todo, index:number):JSX.Element {
 		let {id, discription, done, doneMemo} = todo;
 		let onCheckChanged = async (isChecked:boolean):Promise<void> => {

@@ -1,4 +1,3 @@
-import React from "react";
 import { VListNoMember } from "./VListNoMember";
 import { VAssignDraftNoMember, VAssignEndNoMember } from "./VAssignNoMember";
 import { CAssignsForGroup } from "../CAssignsForGroup";

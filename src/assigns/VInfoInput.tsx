@@ -12,24 +12,15 @@ export interface InfoInputProps {
 
 export class VInfoInput<T extends Controller> extends View<T> {
   @observable private disabled: boolean;
+  private inputText:string;
   private props: InfoInputProps;
 
   onEditInfo = () => {
-    let content = this.props.content;
-    function compareStr(s1:string, s2:string):boolean {
-      if (!s1) {
-        if (!s2) return true;
-        return false;
-      }
-      if (!s2) return false;
-      return s1.length === s2.length;
-    }
     this.disabled = true;
     this.openPageElement(React.createElement(observer(() => {
-      let inputText:string = content;
       let onClickSave = async () => {
         if (this.disabled === true) return;
-        inputText = inputText.trim();
+        let inputText = this.inputText.trim();
         await this.props.onUpdate(inputText);
         this.closePage();
       }
@@ -37,8 +28,8 @@ export class VInfoInput<T extends Controller> extends View<T> {
         if (evt.keyCode === 13) onClickSave();
       }
       let onInputChange = (evt:React.ChangeEvent<HTMLInputElement>) => {
-        inputText = evt.target.value;
-        this.disabled = compareStr(content, inputText);
+        this.inputText = evt.target.value;
+        this.disabled = this.props.content === this.inputText;
       }
       let right = <button className="btn btn-sm btn-success mr-2"
         disabled={this.disabled}
@@ -47,7 +38,7 @@ export class VInfoInput<T extends Controller> extends View<T> {
         <div className="p-3">
           <input className="form-control" type="text"
             onChange={onInputChange} onKeyDown={onKeyDown}
-            defaultValue={content} />
+            defaultValue={this.props.content} />
         </div>
       </Page>;
     })));
@@ -55,6 +46,7 @@ export class VInfoInput<T extends Controller> extends View<T> {
 
   render(props: InfoInputProps):JSX.Element {
     this.props = props;
+    this.inputText = this.props.content;
 
     return <div className="p-2 cursor-pointer" onClick={this.onEditInfo}>
       <FA name={classNames("pencil-square-o", this.props.color)} />
