@@ -2,8 +2,7 @@ import React from "react";
 import { VTask } from "./VTask";
 import { Todo, AssignItem } from "models";
 import { InfoInputProps, VInfoInput } from "assigns/VInfoInput";
-import { FA, Page } from "tonva";
-import { observer } from "mobx-react";
+import { FA } from "tonva";
 import { observable } from "mobx";
 
 export class VDone extends VTask {
