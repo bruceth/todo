@@ -1,22 +1,23 @@
 import React from "react";
 import { FA } from "tonva";
-import { VAssignDraft, VAssignEnd, vStopFlag } from "../VAssign";
+import { VAssignDraft, VAssignEnd, vStopFlag } from "../../VAssign";
 import { CAssignsSelf } from "./CAssignsSelf";
 import { AssignItem } from "models";
-import { FooterInputProps, VFooterInput } from "../VFooterInput";
+import { FooterInputProps, VFooterInput } from "../../VFooterInput";
 
 export class VAssignDraftSelf extends VAssignDraft<CAssignsSelf> {
 	protected get selfDoneCaption():string {return '完成'}
 
-	protected renderAssignItem(item:AssignItem) {
-		let {id, discription} = item;
-		let onCheckChanged = (isChecked:boolean):Promise<void> => {
-			//alert(isChecked);
-			return;
-		}
-		return <div className="pl-4 bg-white">
-			{this.renderTodoWithCheck(id, discription, onCheckChanged, false)}
-		</div>;
+	protected renderAssignItem(item:AssignItem) : any {
+		return undefined;
+		// let {id, discription} = item;
+		// let onCheckChanged = (isChecked:boolean):Promise<void> => {
+		// 	//alert(isChecked);
+		// 	return;
+		// }
+		// return <div className="pl-4 bg-white">
+		// 	{this.renderTodoWithCheck(id, discription, onCheckChanged, false)}
+		// </div>;
 	}
 
 	footer() {
@@ -38,7 +39,7 @@ export class VAssignDraftSelf extends VAssignDraft<CAssignsSelf> {
 		}
 		let {todos} = my;
 		return todos.map((item, index) => {
-			let {assignItem, discription} = item;
+			let {assignItem, discription, id} = item;
 			let cn:string, icon:string;
 			if (assignItem) {
 				cn = 'text-primary';
@@ -48,7 +49,7 @@ export class VAssignDraftSelf extends VAssignDraft<CAssignsSelf> {
 				cn = 'text-info';
 				icon = 'circle-o'
 			}
-			return <div key={index+1000} className="px-3 py-2 d-flex align-items-center bg-white border-top">
+			return <div key={id} className="px-3 py-2 d-flex align-items-center bg-white border-top">
 				<small><small><FA name={icon} className={cn} fixWidth={true} /></small></small>
 				<div className="flex-fill ml-3">{discription}</div>
 			</div>

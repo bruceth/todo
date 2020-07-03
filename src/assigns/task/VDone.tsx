@@ -1,7 +1,7 @@
 import React from "react";
 import { VTask } from "./VTask";
 import { Todo, AssignItem } from "models";
-import { MemoInputProps, VMemoInput } from "assigns/VMemoInput";
+import { InfoInputProps, VInfoInput } from "assigns/VInfoInput";
 import { FA, Page } from "tonva";
 import { observer } from "mobx-react";
 import { observable } from "mobx";
@@ -50,45 +50,7 @@ export class VDone extends VTask {
 			if (!onCheckChanged) return;
 			onCheckChanged(evt.target.checked);
 		}
-		let onEditMemo = () => {
-			let {doneMemo} = todo;
-			function compareStr(s1:string, s2:string):boolean {
-				if (!s1) {
-					if (!s2) return true;
-					return false;
-				}
-				if (!s2) return false;
-				return s1.length === s2.length;
-			}
-			this.disabled = true;
-			this.openPageElement(React.createElement(observer(() => {
-				let inputText:string = doneMemo;
-				let onClickSave = async () => {
-					if (this.disabled === true) return;
-					inputText = inputText.trim();
-					await this.controller.saveTodoDoneMemo(todo, inputText);
-					todo.doneMemo = inputText;
-					this.closePage();
-				}
-				let onKeyDown = (evt:React.KeyboardEvent<HTMLInputElement>) => {
-					if (evt.keyCode === 13) onClickSave();
-				}
-				let onInputChange = (evt:React.ChangeEvent<HTMLInputElement>) => {
-					inputText = evt.target.value;
-					this.disabled = compareStr(doneMemo, inputText);
-				}
-				let right = <button className="btn btn-sm btn-success mr-2"
-					disabled={this.disabled}
-					onClick={onClickSave}>保存</button>;
-				return <Page header="说明" back="close" right={right}>
-					<div className="p-3">
-						<input className="form-control" type="text"
-							onChange={onInputChange} onKeyDown={onKeyDown}
-							defaultValue={doneMemo} />
-					</div>
-				</Page>;
-			})));
-		}
+
 		return <div className={'d-flex'}>
 			<label key={id} className="flex-grow-1 px-3 py-2 m-0 d-flex bg-white cursor-point">
 				<input className="mt-1 mr-3" type="checkbox" onChange={onChange} defaultChecked={done === 1}/>
@@ -100,22 +62,19 @@ export class VDone extends VTask {
 					</div>}
 				</div>
 			</label>
-			<div className="p-2 cursor-pointer" onClick={onEditMemo}>
-				<FA name="pencil-square-o" />
-			</div>
+			{this.renderMemo(todo)}
 		</div>
 	}
-	// {this.renderMemo(todo)}
 
 	protected renderMemo(todo: Todo):JSX.Element {
-		let props:MemoInputProps = {
+		let props:InfoInputProps = {
 			onUpdate: async (inputContent:string):Promise<void> => {
 				await this.controller.saveTodoDoneMemo(todo, inputContent);
 			},
 			content: todo.doneMemo,
-			placeholder: '添加说明'
+			color: 'text-info'
 		};
-		return this.renderVm(VMemoInput, props);
+		return this.renderVm(VInfoInput, props);
 	}
 
 	protected renderAssignItem(item:AssignItem) {

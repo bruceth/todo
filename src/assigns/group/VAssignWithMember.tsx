@@ -37,7 +37,7 @@ abstract class VAssignWithMemberTasks extends VAssign<CAssignsWithMember> {
 		}
 		let {todos} = my;
 		return todos.map((item, index) => {
-			let {assignItem, discription} = item;
+			let {assignItem, discription, id} = item;
 			let cn:string, icon:string;
 			if (assignItem) {
 				cn = 'text-primary';
@@ -47,7 +47,7 @@ abstract class VAssignWithMemberTasks extends VAssign<CAssignsWithMember> {
 				cn = 'text-info';
 				icon = 'circle-o'
 			}
-			return <div key={index+1000} className="px-3 py-2 d-flex align-items-center bg-white border-top">
+			return <div key={id} className="px-3 py-2 d-flex align-items-center bg-white border-top">
 				<small><small><FA name={icon} className={cn} fixWidth={true} /></small></small>
 				<div className="flex-fill ml-3">{discription}</div>
 			</div>
