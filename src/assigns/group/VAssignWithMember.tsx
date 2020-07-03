@@ -31,8 +31,11 @@ abstract class VAssignWithMemberTasks extends VAssign<CAssignsWithMember> {
 	}
 
 	protected renderTodos() {
-		let {my} = this.controller.tasksToCategory;
+		let {my, myCanEdit} = this.controller.tasksToCategory;
 		if (!my) {
+			return this.renderAssignItems();
+		}
+		if (myCanEdit) {
 			return super.renderTodos();
 		}
 		let {todos} = my;

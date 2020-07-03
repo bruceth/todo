@@ -3,9 +3,10 @@ import { VBase } from "./VBase";
 import { CAssigns } from './CAssigns';
 import { Muted, EasyTime, FA, Page, useUser } from 'tonva';
 import { observer } from 'mobx-react';
-import { Assign, AssignTask, AssignItem } from 'models';
+import { Assign, AssignTask, AssignItem, Todo } from 'models';
 import { VFooterInput, FooterInputProps } from './VFooterInput';
 import { stateText } from 'tapp';
+import { InfoInputProps, VInfoInput } from './VInfoInput';
 
 export const vStopFlag = <FA name="square-o" className="text-danger small" />;
 
@@ -77,7 +78,55 @@ export abstract class VAssign<T extends CAssigns> extends VBase<T> {
 	}
 
 	protected renderTodos() {
-		return this.renderAssignItems();
+		let {tasks} = this.controller.assign;
+		let my = tasks.find(v => this.isMe(v.worker));
+		if (!my) {
+			return this.renderAssignItems();
+		}
+		let {todos} = my;
+		return <div className="border-top border-bottom">
+		<div className="border-bottom bg-light small py-1 px-3 text-muted">事项</div>
+			{todos.map((item, index) => {
+				return this.renderTodo(item, index);
+			})}
+		</div>;
+	}
+
+	protected renderTodo (todo:Todo, index:number):JSX.Element {
+		let {id, discription, done, doneMemo} = todo;
+		let onCheckChanged = async (isChecked:boolean):Promise<void> => {
+			await this.controller.saveTodoDone(todo, isChecked?1:0);
+			return;
+		}
+		let onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+			if (!onCheckChanged) return;
+			onCheckChanged(evt.target.checked);
+		}
+
+		return <div className={'d-flex bg-white '}>
+			<label key={id} className="flex-grow-1 px-3 py-2 m-0 d-flex cursor-point">
+				<input className="mt-1 mr-3" type="checkbox" onChange={onChange} defaultChecked={done === 1}/>
+				<div className="flex-grow-1">
+					<div className="">{discription}</div>
+					{doneMemo && <div className="mt-1 small">
+						<FA name="comment-o" className="mr-2 text-primary" />
+						<span className="text-info">{doneMemo}</span>
+					</div>}
+				</div>
+			</label>
+			{this.renderMemo(todo)}
+		</div>
+	}
+
+	protected renderMemo(todo: Todo):JSX.Element {
+		let props:InfoInputProps = {
+			onUpdate: async (inputContent:string):Promise<void> => {
+				await this.controller.saveTodoDoneMemo(todo, inputContent);
+			},
+			content: todo.doneMemo,
+			color: 'text-info'
+		};
+		return this.renderVm(VInfoInput, props);
 	}
 
 	protected renderTaskItem(task: AssignTask) {

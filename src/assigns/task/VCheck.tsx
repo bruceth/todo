@@ -2,7 +2,7 @@ import React from "react";
 import { VTask } from "./VTask";
 import { FA } from "tonva";
 import { Todo } from "models";
-import { MemoInputProps, VMemoInput } from "assigns/VMemoInput";
+import { InfoInputProps, VInfoInput } from "assigns/VInfoInput";
 
 export class VCheck extends VTask {
 	header() {return '查验'}
@@ -48,18 +48,27 @@ export class VCheck extends VTask {
 	}
 
 	protected renderTodo (todo:Todo, index:number):JSX.Element {
-		let {discription} = todo;
-		return <div className={'py-2 d-flex'}>
+		let {id, discription, doneMemo, checkMemo} = todo;
+
+		return <div className={'d-flex'}>
+		<label key={id} className="flex-grow-1 px-3 py-2 m-0 d-flex bg-white cursor-point">
 			<div className="mx-3">{this.renderTodoDot(todo)}</div>
-			<div className="flex-fill">
-				<div className="d-flex">
-					<div className="flex-fill">{discription}</div>
-					{this.renderTodoRadio(todo)}
-				</div>
-				{this.renderMemo(todo)}
-				{this.renderCheckMemo(todo)}
+			<div className="flex-grow-1">
+				<div className="">{discription}</div>
+				{doneMemo && <div className="mt-1 small">
+					<FA name="comment-o" className="mr-2 text-primary" />
+					<span className="text-info">{doneMemo}</span>
+				</div>}
+				{checkMemo && <div className="mt-1 small">
+					<FA name="comments-o" className="mr-2 text-primary" />
+					<span className="text-info">{checkMemo}</span>
+				</div>}
 			</div>
-		</div>
+			{this.renderTodoRadio(todo)}
+		</label>
+		{this.renderCheckMemo(todo)}
+	</div>
+
 	}
 
 	protected renderTodoRadio(todo: Todo): JSX.Element {
@@ -87,14 +96,14 @@ export class VCheck extends VTask {
 	}
 
 	protected renderCheckMemo(todo: Todo):JSX.Element {
-		let props:MemoInputProps = {
+		let props:InfoInputProps = {
 			onUpdate: async (inputContent:string):Promise<void> => {
 				await this.controller.saveTodoCheckMemo(todo, inputContent);
 			},
 			content: todo.checkMemo,
-			placeholder: '添加验收说明'
+			color: 'text-info'
 		};
-		return this.renderVm(VMemoInput, props);
+		return this.renderVm(VInfoInput, props);
 	}
 
 }

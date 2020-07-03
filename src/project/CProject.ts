@@ -1,6 +1,5 @@
 import { CUqBase } from "tapp";
-import { observable } from "mobx";
-import { QueryPager, useUser, Tuid, BoxId } from "tonva";
+import { QueryPager, BoxId } from "tonva";
 import { VProjectList } from "./VProjectList";
 import { Performance } from '../tapp'
 import { VSelectProject } from "./VSelectProject";
@@ -16,10 +15,6 @@ export interface ProjectItem {
 export class CProject extends CUqBase {
 	private performance: Performance;
 	projectsPager: ProjectPager;
-
-	constructor(cApp: any) {
-		super(cApp);
-	}
 
   protected async internalStart() {
 	}
