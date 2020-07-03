@@ -1,5 +1,4 @@
 import React from "react";
-import { FA } from "tonva";
 import { VAssignDraft, VAssignEnd, vStopFlag } from "../../VAssign";
 import { CAssignsSelf } from "./CAssignsSelf";
 import { AssignItem } from "models";
@@ -31,30 +30,30 @@ export class VAssignDraftSelf extends VAssignDraft<CAssignsSelf> {
 		return this.renderVm(VFooterInput, props);
 	}
 
-	protected renderTodos() {
-		let {tasks} = this.controller.assign;
-		let my = tasks.find(v => this.isMe(v.worker));
-		if (!my) {
-			return super.renderTodos();
-		}
-		let {todos} = my;
-		return todos.map((item, index) => {
-			let {assignItem, discription, id} = item;
-			let cn:string, icon:string;
-			if (assignItem) {
-				cn = 'text-primary';
-				icon = 'circle';
-			}
-			else {
-				cn = 'text-info';
-				icon = 'circle-o'
-			}
-			return <div key={id} className="px-3 py-2 d-flex align-items-center bg-white border-top">
-				<small><small><FA name={icon} className={cn} fixWidth={true} /></small></small>
-				<div className="flex-fill ml-3">{discription}</div>
-			</div>
-		});
-	}
+	// protected renderTodos() {
+	// 	let {tasks} = this.controller.assign;
+	// 	let my = tasks.find(v => this.isMe(v.worker));
+	// 	if (!my) {
+	// 		return super.renderTodos();
+	// 	}
+	// 	let {todos} = my;
+	// 	return todos.map((item, index) => {
+	// 		let {assignItem, discription, id} = item;
+	// 		let cn:string, icon:string;
+	// 		if (assignItem) {
+	// 			cn = 'text-primary';
+	// 			icon = 'circle';
+	// 		}
+	// 		else {
+	// 			cn = 'text-info';
+	// 			icon = 'circle-o'
+	// 		}
+	// 		return <div key={id} className="px-3 py-2 d-flex align-items-center bg-white border-top">
+	// 			<small><small><FA name={icon} className={cn} fixWidth={true} /></small></small>
+	// 			<div className="flex-fill ml-3">{discription}</div>
+	// 		</div>
+	// 	});
+	// }
 }
 
 export class VAssignEndSelf extends VAssignEnd<CAssignsSelf> {

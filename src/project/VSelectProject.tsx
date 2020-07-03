@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { VPage, FA, LMR, Page, Form, ItemSchema, Context, List, tv, EasyTime, UiSchema, UiTextItem } from 'tonva';
+import { VPage, LMR, List } from 'tonva';
 import { CSelectProject, ProjectItem } from "./CProject";
 
 export class VSelectProject extends VPage<CSelectProject> {
