@@ -60,8 +60,8 @@ export abstract class CAssigns extends CUqBase {
 		for (let task of tasks as AssignTask[]) {
 			task.todos = (todos as Todo[]).filter(v => v.task === task.id);
 			for (let todo of task.todos) {
-				let {assignItem} = todo;
-				if (assignItem) {
+				let {assignItem, discription} = todo;
+				if (assignItem && !discription) {
 					let item = (items as AssignItem[]).find(v => v.id===assignItem);
 					if (item) todo.discription = item.discription;
 				}
