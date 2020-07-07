@@ -112,6 +112,11 @@ export abstract class CAssigns extends CUqBase {
 		item.x = x;
 	}
 
+	setAssignItemContent = async (item:AssignItem, v:string):Promise<any> => {
+		await this.performance.AssignItem.saveProp(item.id, 'discription', v);
+		item.discription = v;
+	}
+
 	showDone = async () => {
 		let {tasks} = this.assign;
 		let task = tasks.find(v=>this.isMe(v.worker));
@@ -119,8 +124,13 @@ export abstract class CAssigns extends CUqBase {
 	}
 
 	setTodoFlag = async (todo: Todo, x:number):Promise<any> => {
-		await this.performance.AssignItem.saveProp(todo.id, 'x', x);
+		await this.performance.Todo.saveProp(todo.id, 'x', x);
 		todo.x = x;
+	}
+
+	saveTodoContent = async (todo: Todo, v:string):Promise<any> => {
+		await this.performance.Todo.saveProp(todo.id, 'discription', v);
+		todo.discription = v;
 	}
 
 	saveTodoDone = async (todo: Todo, vDone:0|1) => {
