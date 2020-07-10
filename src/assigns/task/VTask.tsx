@@ -53,13 +53,22 @@ export abstract class VTask extends VAssign<CAssigns> {
 	}
 
 	protected renderTodo (todo:Todo, index:number):JSX.Element {
-		let {discription} = todo;
+		let {discription, doneMemo, checkMemo} = todo;
 		return <div className={'py-2 d-flex'}>
 			<div className="mx-3">{this.renderTodoDot(todo)}</div>
 			<div className="flex-fill">
 				<div className="d-flex">
-					<div className="flex-fill">{discription}</div>
-					{this.renderTodoRadio(todo)}
+					<div className="flex-grow-1">
+						<div className="flex-fill">{discription}</div>
+						{doneMemo && <div className="mt-1 small">
+							<FA name="comment-o" className="mr-2 text-primary" />
+							<span className="text-info">{doneMemo}</span>
+						</div>}
+						{checkMemo && <div className="mt-1 small">
+							<FA name="comments-o" className="mr-2 text-primary" />
+							<span className="text-info">{checkMemo}</span>
+						</div>}
+					</div>
 				</div>
 			</div>
 		</div>
